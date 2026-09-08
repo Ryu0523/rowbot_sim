@@ -1,0 +1,276 @@
+#!/usr/bin/env python3
+"""
+M4 -- nonlinear 6-DOF vessel in irregular seas.
+
+Built on the linear Cummins core verified in M3, with the terms that matter for
+a 10 m USV at SS4-5 added on top:
+
+  nonlinear Froude-Krylov   buoyancy and incident-wave pressure integrated over
+                            the INSTANTANEOUS wetted sections. Hs/draught ~ 4
+                            here, so emergence and re-entry are routine, not
+                            extreme. Replaces the linear C and linear FK in
+                            heave and pitch -- applying both would double count.
+  diffraction               kept linear, from the BEM, applied component by
+                            component so a broad spectrum is not collapsed onto
+                            one frequency.
+  added resistance          Gerritsma-Beukelman radiated-energy form. Without it
+                            the vessel never loses speed to the sea, which
+                            flatters any controller that slows down on purpose.
+  viscous damping           quadratic, per dof. Potential flow gives roll almost
+                            no damping at all, so roll would otherwise resonate
+                            without limit.
+  actuators                 lag, delay, rate limits, dead band, ventilation.
+  forward speed             enters through the vessel querying the wave field at
+                            its own moving position; encounter frequency is a
+                            consequence, never a parameter.
+
+KNOWN LIMITATIONS, carried deliberately and listed in `LIMITATIONS`:
+  * hydrodynamic coefficients are zero-speed. Real forward-speed effects on
+    A(w) and B(w) need strip theory or a forward-speed Green function.
+  * roll restoring stays linear; the strip integral is fore-aft only.
+  * slamming is detected, not loaded -- no impact force is fed back.
+  * the wave field is linear, so the surface is Gaussian and extreme crests
+    are under-represented.
+"""
+import numpy as np
+
+from hydro import bem
+from .cummins import radiation_memory
+from .sections import WigleySections
+from .actuators import Propulsion, Rudder
+from .wavefield import SeaState, interp_transfer_cached
+
+G = 9.81
+RHO = 1025.0
+SIGN_PITCH = -1.0          # dz = -x*theta, from the Capytaine dof definition
+
+LIMITATIONS = [
+    "zero-speed hydrodynamic coefficients",
+    "linear roll restoring (strip integral is fore-aft only)",
+    "slamming detected but not loaded back into the motion",
+    "Gaussian (linear) wave field: extreme crests under-represented",
+    "diffraction linear and at zero speed",
+]
+
+IDX = dict(surge=0, sway=1, heave=2, roll=3, pitch=4, yaw=5)
+
+
+class NonlinearVessel:
+    """6-DOF vessel; state = [eta(6), nu(6), radiation, thrust, rudder]."""
+
+    def __init__(self, db, sea, L=10.0, B=2.5, T=0.8, n_stations=41,
+                 dt=0.05, visc=None, verbose=False):
+        self.db, self.sea = db, sea
+        self.L, self.B, self.T = L, B, T
+        self.sec = WigleySections(L, B, T, n_stations)
+        self.rad = radiation_memory(db, verbose=verbose)
+        self.M = db.M
+        # restoring is applied once, linearly, for every dof; the strip model
+        # contributes only the nonlinear departure on top of it
+        self.C_full = db.C.copy()
+        self.Mtot = self.M + self.rad.A_inf
+        self.Minv = np.linalg.inv(self.Mtot)
+
+        self.prop = Propulsion(dt=dt)
+        self.rudder = Rudder(dt=dt)
+        self.dt = dt
+
+        # quadratic viscous damping: potential flow leaves roll essentially
+        # undamped, so this is not optional. Values are placeholders pending
+        # decay tests -- see CALIBRATION_NEEDED.
+        # Surge is the calm-water resistance and sets the speed envelope:
+        # 280 N/(m/s)^2 gives ~10 kN at 6 m/s, the right order for a 9 t
+        # semi-displacement 10 m hull. If this is wrong the speed/motion
+        # trade-off the whole study rests on either saturates or disappears.
+        self.visc = np.array(visc if visc is not None else
+                             [280.0, 4000.0, 3000.0, 2500.0, 9000.0, 6000.0])
+
+        self.Fd = interp_transfer_cached(db, sea, "F_diff")      # (n_comp, 6)
+        self.Fl = interp_transfer_cached(db, sea, "F_exc")       # linear, for dofs
+        self.n_rad = self.rad.n
+        self.n_state = 12 + self.n_rad + 2
+        self._ar_ema = 0.0
+        self.last_bow_acc = 0.0
+        self.slam_count = 0
+        self._emerged = False
+        self.v_slam = 0.093 * np.sqrt(G * L)
+
+    # ------------------------------------------------------------ helpers
+    def unpack(self, s):
+        return (s[:6], s[6:12], s[12:12 + self.n_rad],
+                s[12 + self.n_rad], s[13 + self.n_rad])
+
+    def initial_state(self, u0=0.0):
+        s = np.zeros(self.n_state)
+        s[6] = u0
+        return s
+
+    # ------------------------------------------------------------- forces
+    def wave_forces(self, eta, t):
+        """Linear BEM excitation and restoring, plus the nonlinear strip DELTA.
+
+            tau = tau_BEM_linear  -  C eta  +  (strip_nonlinear - strip_linear)
+
+        Written this way the model is exact in the linear limit -- the bracket
+        vanishes -- so it inherits M3's verified accuracy, and strip theory,
+        whose error grows as the wavelength approaches the hull length, only
+        ever acts on the nonlinear correction rather than on the whole force.
+        """
+        x, y, z = eta[0], eta[1], eta[2]
+        pitch = eta[4]
+        xs = x + self.sec.x
+
+        # linear excitation from the BEM, component by component
+        psi = self.sea.phases(x, y, t)
+        drive = (self.sea.a * np.exp(1j * psi))[:, None]
+        tau = np.real(np.sum(self.Fl * drive, axis=0)) - self.C_full @ eta
+
+        # nonlinear departure, heave and pitch only
+        eta0 = self.sea.eta(xs, np.full_like(xs, y), t)
+        d0 = self.sec.immersion(eta0, z, pitch, SIGN_PITCH)
+        zc = self.sec.centroid_depth(d0)
+        eta_eff = self.sea.eta_at_depth(xs, np.full_like(xs, y), t,
+                                        np.minimum(zc, 0.0))
+        Fz, Mp, d, _ = self.sec.fk_restoring(eta_eff, z, pitch, SIGN_PITCH)
+        Fz -= RHO * G * self.sec.volume()                 # subtract weight
+        Fz_l, Mp_l = self.sec.fk_restoring_linear(eta_eff, z, pitch, SIGN_PITCH)
+        tau[2] += Fz - Fz_l
+        tau[4] += Mp - Mp_l
+        return tau, d, None
+
+    def added_resistance(self, nu, eta, t):
+        """Gerritsma-Beukelman radiated-energy added resistance.
+
+        R_aw = (k / w_e) * integral b'_33(x) <Vz*(x)^2> dx
+
+        Sectional damping is distributed along the hull in proportion to
+        beam^2, the usual approximation when only the integrated B(w) is
+        available; the mean square of relative vertical velocity is tracked
+        with an exponential average because the formula is a mean, not an
+        instantaneous force.
+        """
+        xs = eta[0] + self.sec.x
+        w_vessel = nu[2] + SIGN_PITCH * self.sec.x * nu[4]
+        w_wave = self.sea.eta_dot(xs, np.full_like(xs, eta[1]), t)
+        vz = w_vessel - w_wave
+        wt = self.sec.y0 ** 2
+        wt = wt / max(np.sum(wt) * self.sec.dx, 1e-12)
+
+        wp = 2 * np.pi / max(self.sea.tp, 1e-6)
+        we = wp + wp ** 2 * max(nu[0], 0.0) / G      # head-seas encounter
+        k = we ** 2 / G
+        i = int(np.argmin(np.abs(self.db.omega - we)))
+        b33 = self.db.B[i, 2, 2]
+
+        ms = float(np.sum(wt * vz ** 2) * self.sec.dx)
+        self._ar_ema += (ms - self._ar_ema) * min(self.dt / 4.0, 1.0)
+        return -(k / max(we, 1e-6)) * b33 * self._ar_ema
+
+    def coriolis(self, nu):
+        """Rigid-body Coriolis for the terms that matter at these speeds:
+        the yaw-rate x surge-speed coupling that makes a turning vessel
+        develop sway force."""
+        m = self.M[0, 0]
+        c = np.zeros(6)
+        c[1] = m * nu[0] * nu[5]
+        c[0] = -m * nu[1] * nu[5]
+        return c
+
+    # ------------------------------------------------------------ dynamics
+    def deriv(self, s, t):
+        eta, nu, xr, thr, rud = self.unpack(s)
+        tau_w, d, _ = self.wave_forces(eta, t)
+
+        mu = self.rad.force(xr)
+        dv = -self.visc * nu * np.abs(nu)
+
+        thrust_eff = self.prop.effective(thr, self.prop_submergence(eta, t))
+
+        lift, yaw_m, drag = self.rudder.force(rud, nu[0])
+        tau_a = np.zeros(6)
+        tau_a[0] = thrust_eff - drag
+        tau_a[1] = lift
+        tau_a[5] = yaw_m
+        tau_a[3] = lift * self.rudder.z_rud
+        tau_a[0] += self.added_resistance(nu, eta, t)
+
+        rhs = tau_w + tau_a + dv - mu - self.coriolis(nu)
+        nu_dot = self.Minv @ rhs
+
+        ds = np.zeros_like(s)
+        ds[:6] = self.kinematics(eta, nu)
+        ds[6:12] = nu_dot
+        ds[12:12 + self.n_rad] = self.rad.deriv(xr, nu)
+        return ds, d
+
+    def prop_submergence(self, eta, t):
+        """Water depth over the propeller centre; negative once it broaches."""
+        xs = np.atleast_1d(eta[0] + self.prop.x_prop)
+        surface = self.sea.eta(xs, np.atleast_1d(eta[1]), t)[0]
+        hull_z = eta[2] + SIGN_PITCH * self.prop.x_prop * eta[4]
+        return surface - hull_z - self.prop.z_prop
+
+    @staticmethod
+    def kinematics(eta, nu):
+        """Small-angle kinematics: yaw rotates the horizontal velocities."""
+        psi = eta[5]
+        c, s_ = np.cos(psi), np.sin(psi)
+        out = np.empty(6)
+        out[0] = c * nu[0] - s_ * nu[1]
+        out[1] = s_ * nu[0] + c * nu[1]
+        out[2:6] = nu[2:6]
+        return out
+
+    def step(self, s, t, thrust_cmd, rudder_cmd, dt=None):
+        """Heun step for the continuous states; actuators advance explicitly
+        because they carry rate limits and delays that RK stages would smear."""
+        dt = self.dt if dt is None else dt
+        eta, nu, xr, thr, rud = self.unpack(s)
+
+        k1, d1 = self.deriv(s, t)
+        s2 = s + dt * k1
+        k2, _ = self.deriv(s2, t + dt)
+        s_new = s + 0.5 * dt * (k1 + k2)
+
+        thr_new = self.prop.advance(thr, thrust_cmd, dt)
+        rud_new = self.rudder.step(rud, rudder_cmd, dt)
+        s_new[12 + self.n_rad] = thr_new
+        s_new[13 + self.n_rad] = rud_new
+
+        self._update_slam(d1, nu)
+        # k1 already holds nu_dot at the current state, so the bow acceleration
+        # is free here. Recomputing it separately doubled the plant cost.
+        self.last_bow_acc = float(k1[8] + SIGN_PITCH * (self.L / 2) * k1[10])
+        return s_new
+
+    def _update_slam(self, d, nu):
+        """Ochi criterion: bow emerges, then re-enters with high relative
+        velocity. An event, not a per-timestep condition."""
+        bow_out = d[-1] <= -self.T
+        rel_v = nu[2] + SIGN_PITCH * self.sec.x[-1] * nu[4]
+        if self._emerged and not bow_out and rel_v < -self.v_slam:
+            self.slam_count += 1
+        self._emerged = bow_out
+
+    # ----------------------------------------------------------- outputs
+    def bow_acceleration(self, s, t):
+        """Vertical acceleration at the bow. Prefer `last_bow_acc` after a
+        step -- this recomputes the whole derivative and is only for use
+        outside the integration loop.
+
+        Note the commanded thrust and rudder are NOT arguments: the force
+        depends on the actuator STATES, which lag the commands. Passing the
+        commands here would have implied an authority the vessel does not have.
+        """
+        ds, _ = self.deriv(s, t)
+        return float(ds[8] + SIGN_PITCH * (self.L / 2) * ds[10])
+
+
+def load_default(hs=3.25, tp=9.7, seed=0, theta0=np.pi, dt=0.05,
+                 db_path="hydro_wigley_10m.npz", n_freq=40, n_dir=8,
+                 verbose=False):
+    db = bem.load(db_path)
+    sea = SeaState(hs, tp, theta0=theta0, n_freq=n_freq, n_dir=n_dir, seed=seed)
+    return NonlinearVessel(db, sea, L=db.L, B=float(db.attrs.get("B", 2.5)),
+                           T=float(db.attrs.get("T", 0.8)), dt=dt,
+                           verbose=verbose), db, sea

@@ -1,0 +1,32 @@
+﻿SS5 Hs=3.25 m Tp=9.7 s | L=10.0 m draft=0.8 m v_slam=0.92 m/s
+  grid seed 0: realised Hs = 3.18 m
+  grid seed 1: realised Hs = 3.07 m
+  grid seed 2: realised Hs = 3.28 m
+
+constant-speed baseline (no wave information):
+  u= 2.5 -> u_mean=2.50  acc_rms=0.157g  p99=0.404g  slam=1.1/min
+  u= 3.5 -> u_mean=3.50  acc_rms=0.189g  p99=0.481g  slam=1.9/min
+  u= 4.5 -> u_mean=4.50  acc_rms=0.218g  p99=0.551g  slam=2.8/min
+  u= 5.5 -> u_mean=5.50  acc_rms=0.241g  p99=0.606g  slam=3.5/min
+  u= 6.5 -> u_mean=6.50  acc_rms=0.274g  p99=0.680g  slam=5.2/min
+  u= 7.5 -> u_mean=7.49  acc_rms=0.273g  p99=0.685g  slam=5.1/min
+  u= 8.5 -> u_mean=8.48  acc_rms=0.302g  p99=0.772g  slam=6.7/min
+
+MPPI with oracle preview:
+  T_prev= 0.0s w_spd=1.0  u_mean=6.00  acc_rms=0.261g  p99=0.662g  slam=4.9/min
+  T_prev= 0.0s w_spd=2.0  u_mean=6.00  acc_rms=0.261g  p99=0.658g  slam=5.0/min
+  T_prev= 0.0s w_spd=4.0  u_mean=6.00  acc_rms=0.261g  p99=0.662g  slam=4.9/min
+  T_prev= 2.0s w_spd=1.0  u_mean=5.95  acc_rms=0.260g  p99=0.659g  slam=4.1/min
+  T_prev= 2.0s w_spd=2.0  u_mean=5.95  acc_rms=0.260g  p99=0.654g  slam=3.9/min
+  T_prev= 2.0s w_spd=4.0  u_mean=5.96  acc_rms=0.260g  p99=0.656g  slam=4.0/min
+  T_prev= 4.0s w_spd=1.0  u_mean=5.88  acc_rms=0.258g  p99=0.656g  slam=3.2/min
+  T_prev= 4.0s w_spd=2.0  u_mean=5.89  acc_rms=0.259g  p99=0.653g  slam=3.4/min
+  T_prev= 4.0s w_spd=4.0  u_mean=5.91  acc_rms=0.259g  p99=0.658g  slam=3.5/min
+  T_prev= 8.0s w_spd=1.0  u_mean=5.67  acc_rms=0.250g  p99=0.630g  slam=2.9/min
+  T_prev= 8.0s w_spd=2.0  u_mean=5.77  acc_rms=0.253g  p99=0.628g  slam=3.1/min
+  T_prev= 8.0s w_spd=4.0  u_mean=5.85  acc_rms=0.258g  p99=0.653g  slam=3.2/min
+  T_prev=12.0s w_spd=1.0  u_mean=5.47  acc_rms=0.235g  p99=0.586g  slam=2.2/min
+  T_prev=12.0s w_spd=2.0  u_mean=5.68  acc_rms=0.250g  p99=0.622g  slam=2.7/min
+  T_prev=12.0s w_spd=4.0  u_mean=5.84  acc_rms=0.257g  p99=0.649g  slam=3.1/min
+
+figures: fig1_pareto.png fig2_knee.png fig3_timeseries.png fig4_seaway.png

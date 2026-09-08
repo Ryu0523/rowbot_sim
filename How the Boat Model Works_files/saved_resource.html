@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<!-- saved from url=(0253)https://b3d3f723-9b98-4b41-be53-767a85d9e226.frame.claudeusercontent.com/_f/1788860472-97ab/?__frame_t=zCiDKqTUKkZzko3j6PEJFxfu.541d6973-1aad-4333-9cd5-e2d195b86c58.2d7c43d1-defc-4487-9f96-962a39528536.1788885420&__frame_v=manifest.44244f2523adb29d.json -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><!-- frame-runtime --><script>window.__FRAME_PREAMBLE={"v":1,"capabilities":{"artifact":"artifact.DfA2To-s.js","assets":"assets.8Gk803W0.js","comments":"comments.hEoja5zd.js","db":"db.h-3sndFg.js","downloads":"downloads.th1YuAIk.js","embed":"embed.eqL6deQM.js","endpoints":"endpoints.CfzSv5nM.js","mcp":"mcp.Bvma3qD7.js","network":"network.B5UA9Su4.js","permissions":"permissions.BNySkLV5.js","room":"room.VSdFwTE9.js","sample":"sample.BW2Uysoh.js","self":"artifact.DfA2To-s.js","user":"user.BpKav-Rf.js"},"transforms":"_transforms.-IAc0qoT.js","comments":"_comments.C-AkolIB.js","translate":"_translate.5HCW4BJh.js","ldx":"_ldx.6JS5dhCp.js"}</script><script>(function(){"use strict";var le=["light","dark","system"],ue=/^[A-Za-z0-9_-]{1,64}$/,J=/^[a-zA-Z_:][a-zA-Z0-9_:.-]{0,127}$/,fe=new Set(["class","hidden","value","checked","style","title","alt","placeholder","lang","dir","role","tabindex","disabled","readonly","contenteditable","open","colspan","rowspan"]);function de(e){const t=e.toLowerCase();return t.startsWith("data-")||t.startsWith("aria-")||fe.has(t)}var We="http://www.w3.org/1999/xhtml",pe="http://www.w3.org/2000/svg",me=new Set(["script","style","iframe","noscript","noframes","noembed","xmp","plaintext","template","title","textarea","object","embed"]),he=new Set(["script","style"]);function _e(e){const t=e.localName.toLowerCase();return e.namespaceURI==="http://www.w3.org/1999/xhtml"?!me.has(t):e.namespaceURI===pe?!he.has(t):!1}function I(e,t){return e===t||(e===160||e===32)&&(t===160||t===32)}function ve(e,t){const r=e.length,n=t.length;let a=0;for(;a<r&&a<n&&I(e.charCodeAt(a),t.charCodeAt(a));)a++;let s=0;for(;s<r-a&&s<n-a&&I(e.charCodeAt(r-1-s),t.charCodeAt(n-1-s));)s++;return{p:a,s}}function ye(e,t){const r=e.firstChild;if(e.childNodes.length!==1||r===null||r.nodeType!==Node.TEXT_NODE){e.textContent=t;return}const n=r.data,a=n.length,s=t.length,{p:c,s:i}=ve(n,t);c===a&&i===0&&a===s||r.replaceData(c,a-c-i,t.slice(c,s-i));const p=r.data,f=e.ownerDocument.getSelection?.()??null,v=f!==null&&f.rangeCount>0&&(f.anchorNode===r||f.focusNode===r)?{anchor:f.anchorNode,anchorOffset:f.anchorOffset,focus:f.focusNode,focusOffset:f.focusOffset}:null;let d=-1,y=-1;for(let _=0;_<p.length&&_<t.length;_++){const E=p.charCodeAt(_),T=t.charCodeAt(_);E!==T&&I(E,T)&&(d<0&&(d=_),y=_)}const w=d>=0;if(w&&r.replaceData(d,y-d+1,t.slice(d,y+1)),w&&v!==null&&v.anchor!==null&&v.focus!==null)try{f.setBaseAndExtent(v.anchor,v.anchorOffset,v.focus,v.focusOffset)}catch{}}var we=new Set(["html","head","body","frameset"]);function be(e){return e.namespaceURI==="http://www.w3.org/1999/xhtml"&&we.has(e.localName)}function Ee(e){if(e===null||typeof e!="object")return!1;const t=e;if(typeof t.target!="string"||!ue.test(t.target)||t.text!==void 0&&typeof t.text!="string")return!1;if(t.attrsSet!==void 0){if(t.attrsSet===null||typeof t.attrsSet!="object")return!1;for(const[r,n]of Object.entries(t.attrsSet))if(!J.test(r)||typeof n!="string")return!1}if(t.attrsRemoved!==void 0){if(!Array.isArray(t.attrsRemoved))return!1;for(const r of t.attrsRemoved)if(typeof r!="string"||!J.test(r))return!1}return!0}function ge(e,t){if(e===null||typeof e!="object")return!1;const{seq:r,elements:n}=e;if(typeof r!="number"||!Number.isSafeInteger(r)||!Array.isArray(n)||n.length===0||n.length>64)return!1;for(let a=0;a<n.length;a++)if(!t(n[a]))return!1;return!0}function Ae(e){return e===null||typeof e!="object"?!1:ge(e.__frame_patch,Ee)}function Te(e){if(e===null||typeof e!="object")return!1;const t=e.__frame_init;return t!==null&&typeof t=="object"}function Re(e){return e!==null&&typeof e=="object"&&e.__frame_size_poke===!0}function Le(e){if(e===null||typeof e!="object")return!1;const t=e.__frame_theme;if(t===null||typeof t!="object")return!1;const r=t.theme;return typeof r=="string"&&le.includes(r)}var L=/^[\w.-]+\.js$/;function Se(e,t,r){return r?"inert":typeof t=="string"&&L.test(t)?e?[t]:"inert":e?"inert":"framed"}var Ke="frame_ldx_runtime",$e="script#an-form";function ke(){return{post(e,t){parent.postMessage(e,t)},on(e){const t=r=>{r.source===parent&&e(r.data,r.origin,r.isTrusted)};return addEventListener("message",t),()=>removeEventListener("message",t)}}}function Pe(){return{post:()=>{},on:()=>()=>{}}}var U="__frame_scroll",Oe=150,Ce=310,Me=160,je=3e4;function Ne(){let e=0,t=!1,r=!1,n=!1,a=0,s=null;const c=u=>{try{sessionStorage.setItem(U,JSON.stringify({y:u}))}catch{}},i=()=>{if(clearTimeout(e),s===null)return;const u=s;s=null,c(u)},p=()=>{if(t){t=!1;return}r=!0,s=scrollY,clearTimeout(e),e=setTimeout(i,Oe)};try{addEventListener("scroll",p,{passive:!0}),addEventListener("pagehide",i)}catch{}const f=()=>{let u;try{u=sessionStorage.getItem(U)}catch{return null}if(u===null)return null;let b;try{b=JSON.parse(u)}catch{b=null}const o=b?.y;if(!(typeof o=="number"&&Number.isFinite(o)&&o>=0)){try{sessionStorage.removeItem(U)}catch{}return null}return o};let v=!1;const d=u=>{try{const b=scrollY;scrollTo({top:u,left:0,behavior:"instant"}),a=u,n=!0,clearTimeout(e),s=null,c(u);const o=scrollY;o!==b&&(t=!0),o!==u&&!v&&(v=!0,addEventListener("load",()=>{try{if(scrollY===o){const m=f();d(m!==null?m:a)}}catch{}},{once:!0}))}catch{}},y=()=>{try{return!!location.hash}catch{return!0}};let w=!1;const _=()=>{try{if(w||innerWidth>Ce||innerHeight>Me)return;w=!0;const u=Date.now(),b=()=>{try{removeEventListener("resize",b)}catch{}if(Date.now()-u>je||r||y())return;const o=f();d(o!==null?o:a)};addEventListener("resize",b)}catch{}};let E=!1,T=!1;return{restore(){if(E||(E=!0,y()))return;const u=f();u!==null&&(d(u),_())},promoted(){if(T||(T=!0,y()))return;const u=f();u!==null?(d(u),_()):n&&d(a)}}}function Be(e,t,r,n){let a=null;try{a=window.trustedTypes?.createPolicy("frame-runtime",{createScriptURL:p=>p})??null}catch{}const s=window.Worker,c=s?.prototype,i=Object.freeze({Worker:s,workerOn:c?.addEventListener,workerPost:c?.postMessage,workerTerminate:c?.terminate,fetch:window.fetch.bind(window),preventDefault:Event.prototype.preventDefault,policy:a,origins:t});r(e).then(p=>p?.bootTopLevel?p.bootTopLevel(i,n):n.settle()).catch(()=>n.settle())}var qe="modulepreload",Xe=function(e){return"/"+e},Ye={},De=function(t,r,n){let a=Promise.resolve();function s(c){const i=new Event("vite:preloadError",{cancelable:!0});if(i.payload=c,window.dispatchEvent(i),!i.defaultPrevented)throw c}return a.then(c=>{for(const i of c||[])i.status==="rejected"&&s(i.reason);return t().catch(s)})},Ie=window===top,Q=Object.getOwnPropertyDescriptor(window,"claude"),C=Se(Ie,window.__FRAME_PREAMBLE?.topLevel,Q?.writable===!1),x=typeof C=="object"&&C[0],h=x?Pe():ke();(function(){const e=Object.defineProperty,t=globalThis,r=["RTCPeerConnection","webkitRTCPeerConnection","RTCDataChannel","RTCIceCandidate","RTCSessionDescription","RTCRtpSender","RTCRtpReceiver"];let n=0;for(let a=0;a<r.length;a++){const s=r[a];try{e(t,s,{value:void 0,writable:!1,configurable:!1})}catch{try{delete t[s]}catch{}try{e(t,s,{value:void 0,writable:!1,configurable:!0})}catch{}}typeof t[s]=="function"&&n++}if(n&&C==="framed")try{h.post({__frame_rtc_lockdown_failed:n},"*")}catch{}})();var Ue=1e4,xe=2e3,ee=Object.freeze([...window.__FRAME_PREAMBLE?.origins??["https://claude.ai","https://preview.claude.ai"]]);function te(e){for(const t of ee)if(t.endsWith(":*"))try{const r=new URL(e);if(`${r.protocol}//${r.hostname}:*`===t)return!0}catch{}else if(e===t)return!0;return!1}var M=Object.freeze({...window.__FRAME_PREAMBLE?.capabilities}),F=window.__FRAME_PREAMBLE?.transforms,z=window.__FRAME_PREAMBLE?.comments,H=window.__FRAME_PREAMBLE?.translate,W=window.__FRAME_PREAMBLE?.ldx;function S(e){return De(()=>import("/_runtime/"+e),void 0)}function re(e,t){return{contract:e.contract,changes:new Set(e.changes??[]),flags:new Set(e.flags??[]),capabilities:e.capabilities??{},capBudgets:e.capBudgets??{},transforms:new Map,shellOrigin:t,mount:q,hooks:N,pipe:()=>({wrap:(r,n)=>(...a)=>{try{return n(...a)}catch(s){return Promise.reject(s)}}})}}var j=null,A=null;function ne(e,t,r){try{Object.defineProperty(e,t,{value:r,writable:!1,configurable:!1,enumerable:!0})}catch{try{Object.defineProperty(e,t,{value:r,writable:!1,configurable:!0,enumerable:!0})}catch{}}}var K=!1,N={editBefore:null,edit:null};function Fe(e,t,r=!1){const n=[];let a;if(r)try{N.editBefore?.(e)}catch{}for(const s of e.elements){const c=document.querySelector(`[data-id="${s.target}"]`);if(!c){a=s.target;break}if([...Object.keys(s.attrsSet??{}),...s.attrsRemoved??[]].some(i=>!de(i))){a=s.target;break}if(s.text!==void 0&&(!_e(c)||be(c))){a=s.target;break}for(const[i,p]of Object.entries(s.attrsSet??{}))if(!se(c,i)){try{c.setAttribute(i,p)}catch{}oe(c,i,p)}for(const i of s.attrsRemoved??[])se(c,i)||(c.removeAttribute(i),oe(c,i,null));typeof s.text=="string"&&ye(c,s.text),n.push(s.target)}if(r)try{N.edit?.(e.seq,n,a)}catch{}if(a!==void 0){h.post({__frame_patch_miss:{seq:e.seq}},t);return}try{document.dispatchEvent(new CustomEvent("claude:edit",{detail:{seq:e.seq,targets:n}}))}catch{}}function oe(e,t,r){if(!(e instanceof HTMLInputElement))return;const n=t.toLowerCase();n==="checked"?e.checked=r!==null:n==="value"&&e.type!=="file"&&(e.value=r??"")}function se(e,t){const r=t.toLowerCase(),n=e;return r==="data-id"||(r==="value"||r==="checked")&&(n.__artifactSecret===!0||/^(password|hidden|file)$/.test(n.type??"")||/(^|\s)(cc-|one-time-code|current-password|new-password)/i.test(`${e.getAttribute("autocomplete")??""} ${n.autocomplete??""}`))}function ae(e){const t=document.documentElement;e==="light"||e==="dark"?(t.dataset.theme=e,t.style.colorScheme=e,K=!0):K&&(delete t.dataset.theme,t.style.colorScheme="",K=!1)}var B=new Map;function ze(){let e;const t={u:new Promise(r=>{e=r}),r:r=>{t.done=!0,e(r)},done:!1,nulled:!1};return t}function $(){for(const e of B.values())e.done||(e.nulled=!0,e.r(null))}var He=Object.freeze(Object.assign(Object.create(null),{call:Function.prototype.call,apply:Function.prototype.apply,bind:Function.prototype.bind})),q=(e,t)=>{const r=B.get(e);if(!r||r.done){r?.nulled&&A&&h.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:e}},A);return}const n=typeof t=="function"?Object.setPrototypeOf(t,He):Object.assign(Object.create(null),t);typeof n.then=="function"&&delete n.then,r.r(Object.freeze(n))};function ie(){const e=Q?.value??{};ne(window,"claude",e);for(const t of Object.keys(M)){if(e[t]!==void 0){ne(e,t,e[t]);continue}B.set(t,ze())}if(e.use===void 0){const t=r=>{if(typeof r!="string"||!Object.hasOwn(M,r))return Promise.resolve(null);const n=B.get(r);return n?n.u:Promise.resolve(e[r]??null)};try{Object.defineProperty(e,"use",{value:t,writable:!0,configurable:!0,enumerable:!1})}catch{}}}if(C==="framed"){const e=F&&L.test(F)?S(F).catch(()=>{}):Promise.resolve(void 0),t=o=>{if(o.type==="auxclick"&&o.button!==1)return;const m=o.target,k=m&&m.closest?m.closest("a[href],area[href]"):null;if(!k)return;const O=k.getAttribute("href");if(!O)return;let R;try{R=new URL(O,document.baseURI)}catch{return}if((R.protocol==="http:"||R.protocol==="https:")&&R.origin!==location.origin){o.preventDefault();const P=(k.getAttribute("target")??"").toLowerCase(),g=o.type==="auxclick"||o.metaKey||o.ctrlKey||o.shiftKey||o.altKey||!["","_self","_top","_parent"].includes(P);h.post({__frame_nav:!0,url:R.href,newTab:g},"*")}};addEventListener("click",t,!0),addEventListener("auxclick",t,!0);const r={},n=o=>{o.isTrusted&&(r.pointer=!0)},a=o=>{o.isTrusted&&(r.click=!0)};addEventListener("pointermove",n,{capture:!0,passive:!0}),addEventListener("click",a,{capture:!0,passive:!0});const s={cb:null};addEventListener("keydown",o=>s.cb?.(o),!0),e.then(o=>o?.installEscapeForward?.(s,m=>{A&&h.post(m,A)})),e.then(o=>{o?.wireNav&&(o.wireNav(),removeEventListener("click",t,!0),removeEventListener("auxclick",t,!0),removeEventListener("pointermove",n,!0),removeEventListener("click",a,!0),o.wireEngagement?.(r))});let c=null;try{c=Ne()}catch{}ie();let i=null,p=null,f=0;const v=h.on((o,m)=>{te(m)&&Te(o)&&(i=o.__frame_init,A=m,v(),clearTimeout(f),p?.())});h.post({__frame_connect:!0},"*");const d=setTimeout,y=clearTimeout;let w=0;const _=()=>{try{h.post({__frame_alive:!0},"*")}catch{}w=d(_,xe)},E=()=>y(w);_(),addEventListener("load",E,{once:!0});const T=new Promise(o=>{p=o,f=setTimeout(()=>{v(),o()},Ue)}),u=document.readyState==="loading"?new Promise(o=>document.addEventListener("DOMContentLoaded",()=>o(),{once:!0})):Promise.resolve();u.then(()=>{try{c?.restore()}catch{}});const b={cb:null};h.on((o,m)=>{if(te(m)&&Re(o)){try{c?.promoted()}catch{}b.cb?.()}}),T.then(async()=>{if(!i||!A){$();return}ae(i.theme);const o=A;let m=!1,k=!1;h.on((l,Y,D)=>{if(Y!==o)return;Le(l)&&ae(l.__frame_theme.theme),Ae(l)&&Fe(l.__frame_patch,o,D);const G=l?.__fc_mode;G&&typeof G=="object"&&!m&&z&&L.test(z)&&(m=!0,S(z).then(Z=>Z.install?.(o,G.on===!0)).catch(()=>{}));const V=l?.__ft_cmd;V&&typeof V=="object"&&!k&&H&&L.test(H)&&(k=!0,S(H).then(Z=>Z.install?.(o,V)).catch(()=>{}))});const O=Object.keys(i.capabilities??{}).filter(l=>Object.hasOwn(M,l)).map(l=>[l,M[l]]).filter(l=>typeof l[1]=="string"&&L.test(l[1])),R=await Promise.allSettled(O.map(([,l])=>S(l))),P=await e,g=A;if(P?.buildBoot||h.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:"_transforms"}},g),P?.buildBoot)try{j=P.buildBoot(i,P.TRANSFORMS??{},{shellOrigin:g,mount:q,hooks:N},l=>h.post({__frame_cap_telemetry:l},g))}catch{h.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:"_transforms"}},g),j=re(i,g)}else j=re(i,g);const X=l=>h.post({__frame_cap_telemetry:{kind:"cap-load-error",cap:l}},g),ce=j;R.forEach((l,Y)=>{const D=O[Y][0];if(l.status!=="fulfilled"){X(D);return}try{l.value?.install?.(ce)}catch{X(D)}}),$(),await u,E(),h.post({__frame_ready:!0},A),e.then(l=>l?.installSizeReporter?.(g,b)),ce.flags.has("frame_ldx_runtime")&&W&&L.test(W)&&document.querySelector("script#an-form")&&S(W).then(l=>l?.boot?.()).catch(()=>!1).then(l=>{l!==!0&&X("_ldx")})})}else x&&(ie(),Be(x,ee,S,{settle:$,mount:q}))})();</script><!-- /frame-runtime --><meta name="viewport" content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
+<title>How the Boat Model Works</title>
+<link rel="stylesheet" href="./css2">
+<style>
+:root{
+  --paper:#eef1f3; --card:#ffffff; --ink:#0b1f2a; --ink2:#3b5464; --ink3:#6d8593;
+  --rule:#cfd8dd; --rule2:#e2e8eb;
+  --deep:#0f4c68; --deep-soft:#e4eef3;
+  --sig:#c2560f; --sig-soft:#fbeee5;
+  --good:#186a4a; --good-soft:#e5f1ec;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --head:"Archivo",system-ui,-apple-system,Segoe UI,sans-serif;
+  --body:"Source Serif 4",Georgia,serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0b1116; --card:#131c23; --ink:#e6ecef; --ink2:#a9bcc7; --ink3:#7b8f9c;
+    --rule:#25333c; --rule2:#1c272f;
+    --deep:#7fc4e4; --deep-soft:#0f2530;
+    --sig:#f59d5b; --sig-soft:#2b1a0e;
+    --good:#67d3a5; --good-soft:#0e2620;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0b1116; --card:#131c23; --ink:#e6ecef; --ink2:#a9bcc7; --ink3:#7b8f9c;
+  --rule:#25333c; --rule2:#1c272f;
+  --deep:#7fc4e4; --deep-soft:#0f2530;
+  --sig:#f59d5b; --sig-soft:#2b1a0e;
+  --good:#67d3a5; --good-soft:#0e2620;
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--paper); color:var(--ink);
+     font-family:var(--body); font-size:17px; line-height:1.68;
+     font-variant-numeric:tabular-nums}
+.wrap{max-width:960px; margin:0 auto; padding:0 26px 110px}
+p,ul,ol{max-width:66ch}
+p{margin:0 0 1.1em}
+li{margin:.35em 0}
+b,strong{font-weight:600}
+.num{font-family:var(--mono); font-size:.88em}
+code{font-family:var(--mono); font-size:.85em; background:var(--rule2);
+     padding:.1em .36em; border-radius:3px}
+
+header{padding:60px 0 26px; border-bottom:3px double var(--ink); margin-bottom:8px}
+.kick{font-family:var(--head); font-size:11.5px; font-weight:600;
+      letter-spacing:.18em; text-transform:uppercase; color:var(--sig); margin:0 0 16px}
+h1{font-family:var(--head); font-weight:700; font-size:clamp(32px,5.2vw,52px);
+   line-height:1.05; letter-spacing:-.025em; margin:0 0 16px; text-wrap:balance}
+.sub{font-size:19px; color:var(--ink2); max-width:58ch; margin:0}
+
+.stage{margin:64px 0 0; padding-top:22px; border-top:1px solid var(--rule)}
+.stage-n{font-family:var(--head); font-size:11px; font-weight:600;
+         letter-spacing:.16em; text-transform:uppercase; color:var(--sig);
+         margin:0 0 8px}
+h2{font-family:var(--head); font-weight:700; font-size:clamp(24px,3.3vw,33px);
+   line-height:1.14; letter-spacing:-.018em; margin:0 0 12px; text-wrap:balance}
+h3{font-family:var(--head); font-weight:600; font-size:19px; margin:34px 0 8px}
+h4{font-family:var(--head); font-weight:600; font-size:15.5px; margin:24px 0 6px;
+   color:var(--ink2)}
+
+/* term definition */
+.term{font-weight:600; color:var(--deep);
+      border-bottom:1.5px dotted var(--deep); cursor:help}
+.def{background:var(--card); border:1px solid var(--rule);
+     border-left:3px solid var(--deep); border-radius:0 6px 6px 0;
+     padding:13px 18px; margin:18px 0; font-size:15.5px; max-width:66ch}
+.def .w{font-family:var(--head); font-weight:600; font-size:12px;
+        letter-spacing:.09em; text-transform:uppercase; color:var(--deep);
+        display:block; margin-bottom:4px}
+.def p{margin:0; max-width:none}
+.def p+p{margin-top:.6em}
+
+/* input/output strip */
+.io{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+    gap:1px; background:var(--rule); border:1px solid var(--rule);
+    border-radius:7px; overflow:hidden; margin:22px 0}
+.io>div{background:var(--card); padding:13px 16px; font-size:14.5px;
+        font-family:var(--head)}
+.io .l{font-size:10.5px; font-weight:600; letter-spacing:.12em;
+       text-transform:uppercase; color:var(--ink3); display:block;
+       margin-bottom:5px}
+.io .v{color:var(--ink); line-height:1.45}
+
+.eq{font-family:var(--mono); font-size:14px; line-height:1.75;
+    background:var(--card); border:1px solid var(--rule);
+    border-left:3px solid var(--sig); border-radius:0 6px 6px 0;
+    padding:14px 18px; margin:18px 0; overflow-x:auto}
+.eq .c{color:var(--ink3)}
+
+.note{background:var(--sig-soft); border-left:3px solid var(--sig);
+      border-radius:0 6px 6px 0; padding:14px 18px; margin:20px 0}
+.note .w{font-family:var(--head); font-weight:600; font-size:11.5px;
+         letter-spacing:.1em; text-transform:uppercase; color:var(--sig);
+         display:block; margin-bottom:6px}
+.note p:last-child{margin-bottom:0}
+
+.scroll{overflow-x:auto; margin:20px 0 26px; border:1px solid var(--rule);
+        border-radius:7px; background:var(--card)}
+table{border-collapse:collapse; width:100%; font-family:var(--head); font-size:13.5px}
+th{text-align:left; font-weight:600; font-size:10.5px; letter-spacing:.1em;
+   text-transform:uppercase; color:var(--ink3); padding:11px 15px;
+   border-bottom:1px solid var(--rule); white-space:nowrap}
+td{padding:10px 15px; border-bottom:1px solid var(--rule2); vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.n,th.n{text-align:right; font-family:var(--mono);
+          font-variant-numeric:tabular-nums; white-space:nowrap}
+
+.pipe{margin:30px 0 10px; overflow-x:auto; padding-bottom:6px}
+.pipe svg{display:block; min-width:760px}
+
+.glossary{margin-top:20px}
+.glossary dl{display:grid; grid-template-columns:minmax(150px,210px) 1fr;
+             gap:0; border-top:1px solid var(--rule); font-size:15px}
+.glossary dt{font-family:var(--head); font-weight:600; padding:11px 14px 11px 0;
+             border-bottom:1px solid var(--rule2); color:var(--deep)}
+.glossary dd{margin:0; padding:11px 0 11px 14px;
+             border-bottom:1px solid var(--rule2); color:var(--ink2)}
+@media (max-width:620px){
+  .glossary dl{grid-template-columns:1fr}
+  .glossary dt{padding-bottom:0; border-bottom:0}
+  .glossary dd{padding-left:0; padding-top:2px}
+}
+.foot{margin-top:70px; padding-top:22px; border-top:1px solid var(--rule);
+      font-family:var(--head); font-size:13px; color:var(--ink3)}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="kick">A build explained from zero</p>
+  <h1>How the boat model works</h1>
+  <p class="sub">A 10-metre robot boat, a rough sea, and roughly two thousand lines of
+  Python that predict what happens when they meet. No fluid mechanics assumed — every
+  term is defined where it first appears.</p>
+</header>
+
+<p>This describes a working simulator, part by part. The goal is not to list the theories it
+uses but to say what each piece actually <em>computes</em>: what numbers go in, what comes
+out, and why that step has to exist at all.</p>
+
+<p>The boat is <span class="num">10&nbsp;m</span> long, <span class="num">2.5&nbsp;m</span>
+wide, floats <span class="num">0.8&nbsp;m</span> deep, and weighs about
+<span class="num">9.1&nbsp;tonnes</span>. It has no crew. It operates in open water where
+there is nothing to collide with, so the only thing that can hurt it is the sea itself.</p>
+
+<div class="pipe">
+<svg viewBox="0 0 780 118" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Pipeline: hull shape to fluid solver to coefficients to memory kernel to fast simulator to controller">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"></path>
+    </marker>
+  </defs>
+  <g font-family="Archivo,sans-serif" font-size="11.5" fill="currentColor" color="currentColor">
+    <g stroke="currentColor" stroke-width="1.1" fill="none" opacity=".45">
+      <rect x="2" y="30" width="112" height="42" rx="5"></rect>
+      <rect x="146" y="30" width="112" height="42" rx="5"></rect>
+      <rect x="290" y="30" width="112" height="42" rx="5"></rect>
+      <rect x="434" y="30" width="112" height="42" rx="5"></rect>
+      <rect x="578" y="30" width="112" height="42" rx="5"></rect>
+    </g>
+    <text x="58" y="47" text-anchor="middle" font-weight="600">hull shape</text>
+    <text x="58" y="62" text-anchor="middle" opacity=".62">1056 panels</text>
+    <text x="202" y="47" text-anchor="middle" font-weight="600">fluid solver</text>
+    <text x="202" y="62" text-anchor="middle" opacity=".62">150 frequencies</text>
+    <text x="346" y="47" text-anchor="middle" font-weight="600">memory kernel</text>
+    <text x="346" y="62" text-anchor="middle" opacity=".62">2.2–2.9 s long</text>
+    <text x="490" y="47" text-anchor="middle" font-weight="600">fast simulator</text>
+    <text x="490" y="62" text-anchor="middle" opacity=".62">110 numbers</text>
+    <text x="634" y="47" text-anchor="middle" font-weight="600">controller</text>
+    <text x="634" y="62" text-anchor="middle" opacity=".62">192 guesses</text>
+    <g stroke="currentColor" stroke-width="1.3" marker-end="url(#a)" opacity=".7">
+      <line x1="116" y1="51" x2="142" y2="51"></line>
+      <line x1="260" y1="51" x2="286" y2="51"></line>
+      <line x1="404" y1="51" x2="430" y2="51"></line>
+      <line x1="548" y1="51" x2="574" y2="51"></line>
+    </g>
+    <g font-size="10" opacity=".55" text-anchor="middle">
+      <text x="20" y="20">HOURS, ONCE</text>
+      <text x="633" y="20">MILLISECONDS, EVERY STEP</text>
+      <text x="129" y="88">shape</text>
+      <text x="273" y="88">forces</text>
+      <text x="417" y="88">history</text>
+      <text x="561" y="88">motion</text>
+    </g>
+    <line x1="2" y1="98" x2="690" y2="98" stroke="currentColor" stroke-width="1" opacity=".2"></line>
+    <text x="346" y="112" text-anchor="middle" font-size="10" opacity=".55">
+      the expensive work happens once, offline; what runs in the loop is cheap
+    </text>
+  </g>
+</svg>
+</div>
+
+<p>That split is the whole design. Solving how water flows around a hull is expensive. Doing
+it once, storing the answer, and turning that answer into something a computer can evaluate
+in microseconds is what makes the rest possible.</p>
+
+<!-- ===================================================================== -->
+<div class="stage">
+<p class="stage-n">Stage 1 · the input</p>
+<h2>What a sea actually is, as a number</h2>
+
+<p>Start with one wave. A wave on deep water is not water moving along — the water
+mostly circles in place, and what travels is the <em>shape</em>. Two things govern it:
+gravity pulls the crests down, and the water's inertia makes them overshoot. That balance
+sets a rigid relationship between a wave's length and its period:</p>
+
+<div class="eq">wavelength ≈ 1.56 × (period)²&nbsp;&nbsp;<span class="c">metres, seconds</span>
+<br><br><span class="c">a 10-second wave is 156 m long; a 4-second wave is 25 m long</span></div>
+
+<div class="def"><span class="w">Dispersion</span>
+<p>The rule above. Its consequence is that <b>long waves travel faster than short ones</b>.
+That is why a distant storm sends smooth long swell first and choppy short waves later —
+the sea sorts them by speed on the way over.</p></div>
+
+<p>A real sea is not one wave. It is thousands, of different lengths, running in slightly
+different directions, adding up. Where crests coincide you get a big one; where a crest meets
+a trough they cancel. The sum looks random, and it is — but its <em>statistics</em> are
+stable and measurable.</p>
+
+<div class="def"><span class="w">Wave spectrum</span>
+<p>A recipe that says how much energy the sea contains at each wave period. Feed it random
+phases and you get a specific sea surface; feed it different random phases and you get a
+different-looking sea with the same character. This model uses the <b>JONSWAP</b> spectrum,
+fitted from real North Sea measurements in the 1970s.</p></div>
+
+<p>Two numbers summarise a spectrum, and they are what a weather forecast gives you:</p>
+
+<div class="io">
+  <div><span class="l">Significant wave height H<sub>s</sub></span>
+       <span class="v">Roughly the average height of the biggest third of waves — and
+       close to what an experienced observer would call "the wave height". Here
+       <b>3.25&nbsp;m</b>.</span></div>
+  <div><span class="l">Peak period T<sub>p</sub></span>
+       <span class="v">The period carrying the most energy. Here <b>9.7&nbsp;s</b>, so the
+       dominant waves are about <b>147&nbsp;m</b> long.</span></div>
+</div>
+
+<p>That combination is <b>Sea State 5</b>: rough, whitecaps everywhere, the upper end of what
+a small unmanned boat would be sent out in. Sea State 4 is a step below.</p>
+
+<h3>What the code stores</h3>
+<p>The continuous spectrum is chopped into a finite list — typically <span class="num">16</span>
+periods × <span class="num">4</span> directions = <span class="num">64</span> individual
+waves. Each one carries five numbers: height, wavelength, direction, period, and a random
+starting phase. The sea surface at any point and any instant is then just a sum:</p>
+
+<div class="eq">height(x, y, t) = Σ a<sub>j</sub> · cos( <span class="c">how far along this wave you are</span> − <span class="c">how much time has passed</span> + <span class="c">random offset</span> )</div>
+
+<p>This is the single most important practical property of the whole model: <b>the sea is a
+formula, not a recording</b>. You can ask for the water height at any position, at any time,
+past or future, instantly. Nothing is stored. The visualiser in the browser recomputes the
+same 64 waves on the GPU sixty times a second, which is why the water there is not a video
+— it is the same sea the physics used, evaluated independently.</p>
+
+<div class="note"><span class="w">Why this matters later</span>
+<p>Because the future sea is computable, the simulator can hand the controller a perfect
+forecast. That lets us measure the <em>maximum possible</em> value of a wave sensor before
+anyone buys one — an ideal sensor with zero error. If perfect information is worth
+nothing, no real sensor can be worth more.</p></div>
+</div>
+
+<!-- ===================================================================== -->
+<div class="stage">
+<p class="stage-n">Stage 2 · the object</p>
+<h2>Why a boat in waves is a hard problem</h2>
+
+<p>A floating body can move six independent ways, and all six matter:</p>
+
+<div class="scroll"><table>
+<tbody><tr><th>Motion</th><th>Plain meaning</th><th>Why it matters here</th></tr>
+<tr><td><b>Surge</b></td><td>forward and back</td><td>this is speed — the only thing the propeller controls</td></tr>
+<tr><td><b>Sway</b></td><td>sideways drift</td><td>pushes the boat off its track</td></tr>
+<tr><td><b>Heave</b></td><td>up and down</td><td>the main response to waves this size</td></tr>
+<tr><td><b>Roll</b></td><td>tipping side to side</td><td>capsize risk in beam seas</td></tr>
+<tr><td><b>Pitch</b></td><td>bow up, bow down</td><td>combined with heave, decides whether the bow slams</td></tr>
+<tr><td><b>Yaw</b></td><td>turning left and right</td><td>heading — the rudder's job</td></tr>
+</tbody></table></div>
+
+<p>If water were empty space this would be easy: six equations, done. Water complicates it in
+three specific ways, and each one costs a piece of machinery further down.</p>
+
+<h3>1. The boat has to drag water with it</h3>
+<div class="def"><span class="w">Added mass</span>
+<p>To accelerate, the hull must also accelerate the water around it. The extra force needed is
+proportional to acceleration — exactly what mass does — so it behaves like the boat
+being heavier than it is. For heave on this hull, the added mass is about
+<b>8.5&nbsp;tonnes on top of 9.1</b>: the boat is nearly twice as heavy vertically as it is on
+a crane.</p>
+<p>Awkwardly, it is <b>not a constant</b>. How much water comes along depends on how fast you
+are oscillating, because the water surface has time to respond differently at different
+frequencies.</p></div>
+
+<h3>2. Moving makes waves, and waves cost energy</h3>
+<div class="def"><span class="w">Radiation damping</span>
+<p>A hull bobbing up and down sends out ripples. Those ripples carry energy away, and the
+energy comes from the boat's motion — so the water pushes back with a force proportional
+to <em>velocity</em>, which is what a damper does. This is friction-free damping: it exists
+even in a perfectly slippery fluid, purely because energy leaves as waves.</p></div>
+
+<h3>3. The waves you made come back</h3>
+<p>This is the one that shapes the entire architecture. The ripples the hull radiated a moment
+ago are still out there, and they are still pressing on the hull. The force on the boat right
+now depends on what the boat was doing <em>seconds ago</em>.</p>
+
+<div class="def"><span class="w">Fluid memory</span>
+<p>The hull's past motion keeps influencing its present forces. For this boat the memory lasts
+<b>2.2 to 2.9 seconds</b> — against a wave period of about 8 seconds, that is a quarter
+of the forcing cycle. It is not a detail that can be ignored.</p></div>
+
+<div class="note"><span class="w">This is the dividing line</span>
+<p>Marine simulators built on game engines — and most published robot-boat research
+— leave memory out. They compute buoyancy from the instantaneous water surface and treat
+waves as a disturbance with no history. That is a defensible model for steering around
+obstacles in mild water. It is the wrong model for a boat whose job is to survive a rough sea,
+and it is the reason this project builds its own simulator instead of using an existing one.</p></div>
+
+<h3>Natural periods — and the ratio that explains everything</h3>
+<p>Push a floating boat down and let go, and it bobs at its own natural rhythm, set by its mass
+against the stiffness of buoyancy. Measured from the model:</p>
+
+<div class="io">
+  <div><span class="l">Heave</span><span class="v"><b>2.04 s</b> per bob</span></div>
+  <div><span class="l">Pitch</span><span class="v"><b>1.76 s</b></span></div>
+  <div><span class="l">Roll</span><span class="v"><b>1.49 s</b></span></div>
+  <div><span class="l">Waves push at</span><span class="v"><b>7.48 s</b> as felt underway</span></div>
+</div>
+
+<p>The sea pushes about <b>four times slower</b> than the boat naturally wants to move. That is
+a long way from resonance, and it puts the boat in a distinct regime:</p>
+
+<div class="def"><span class="w">Contouring</span>
+<p>When the waves are much longer than the boat and much slower than its natural rhythm, the
+boat simply rides the surface like a cork — up the slope, over the crest, down the far
+side. It follows the water rather than fighting it. Here the dominant wave is
+<b>147&nbsp;m</b> against a <b>10&nbsp;m</b> hull, a ratio of about <b>15</b>.</p></div>
+
+<p>Contouring has consequences that turn up repeatedly later. The boat's vertical motion is
+almost entirely dictated by the wave shape, not by the boat's own dynamics. Damping barely
+matters, because damping only matters near resonance. And the bow rarely leaves the water,
+which makes slamming a rare event and therefore a bad thing to measure.</p>
+</div>
+
+<!-- ===================================================================== -->
+<div class="stage">
+<p class="stage-n">Stage 3 · the expensive part, done once</p>
+<h2>Solving the water</h2>
+
+<p>We need three families of force: what the passing wave does to a stationary hull, and what
+the hull's own motion does to itself. Getting them means solving for the flow around the hull
+— the expensive step in the pipeline.</p>
+
+<div class="def"><span class="w">Potential flow</span>
+<p>A simplification that makes the problem solvable: assume the water has <b>no viscosity</b>
+— no stickiness, no friction, no turbulence. Under that assumption the entire flow can be
+described by a single scalar field, and — crucially — the equations only need to be
+solved <b>on the surfaces</b>, not throughout the volume of water. A three-dimensional problem
+collapses to a two-dimensional one.</p>
+<p>What it throws away: friction drag, flow separation, breaking waves, and almost all damping
+of roll. Those come back later as separate, measured terms.</p></div>
+
+<div class="def"><span class="w">Boundary element method (BEM)</span>
+<p>The numerical technique. The hull is tiled with small flat panels —
+<b>1056</b> of them here. Each panel is treated as a tiny source that pushes water outward, and
+the computer solves for how strong each source must be so that, added together, no water flows
+through the hull anywhere. Once the strengths are known, the pressure anywhere follows.</p></div>
+
+<p>This is run at <b>150 different wave frequencies</b>, from very long swell to short chop.
+Each run yields a set of matrices describing forces, and the forces split cleanly into three
+physically distinct parts:</p>
+
+<div class="scroll"><table>
+<tbody><tr><th>Component</th><th>What it is</th><th>Picture it as</th></tr>
+<tr><td><b>Froude–Krylov</b></td><td>the pressure the wave would have had at that spot if the boat were not there</td><td>the sea pushing on a boat-shaped hole in the water</td></tr>
+<tr><td><b>Diffraction</b></td><td>the correction because the boat <em>is</em> there and scatters the wave</td><td>the wave bending around an obstacle</td></tr>
+<tr><td><b>Radiation</b></td><td>the force from the boat's own motion — added mass and damping</td><td>the ripples the boat makes, pushing back</td></tr>
+</tbody></table></div>
+
+<h3>How we know it is right</h3>
+<p>A solver like this can be confidently wrong, so it is checked against a shape with a known
+exact answer — a floating sphere, worked out analytically in 1982. Two independent limits
+plus one internal symmetry law:</p>
+
+<div class="scroll"><table>
+<tbody><tr><th>Test</th><th class="n">Computed</th><th class="n">Should be</th></tr>
+<tr><td>Sphere added mass, very long waves</td><td class="n">0.8479</td><td class="n">0.831</td></tr>
+<tr><td>Sphere added mass, very short waves</td><td class="n">0.4995</td><td class="n">0.5</td></tr>
+<tr><td>Reciprocity (a symmetry the physics demands)</td><td class="n">0.00069</td><td class="n">0</td></tr>
+</tbody></table></div>
+
+<div class="note"><span class="w">The first version of this test failed, and the test was wrong</span>
+<p>It reported 0.912 against 0.831. The solver was fine; the check extrapolated to "very long
+waves" by drawing a straight line through data points that sat on the <em>far side of a peak</em>
+in the curve. Spacing the sample frequencies logarithmically fixed it. A second independent
+limit was then added, because one test cannot tell a correct answer from a lucky one.</p></div>
+</div>
+
+<!-- ===================================================================== -->
+<div class="stage">
+<p class="stage-n">Stage 4 · the translation</p>
+<h2>Turning a frequency answer into a time answer</h2>
+
+<p>The solver gives answers <em>per frequency</em>: "if the boat heaves up and down forever at
+exactly this rate, here is the force." That is a useful answer and a useless one. A real boat
+under control never does anything forever at one rate — it speeds up, it gets hit by an
+odd wave, the propeller changes. We need a model that works instant by instant.</p>
+
+<p>The bridge is a result from 1962 that says: take the added mass at infinitely fast
+oscillation (a single constant), and account for everything else — all the
+frequency-dependence — as <b>memory</b>:</p>
+
+<div class="eq">(mass + constant added mass) × acceleration
+<br>&nbsp;&nbsp;+ <b>everything the hull did in the last 3 seconds, weighted</b>
+<br>&nbsp;&nbsp;+ buoyancy pulling it back level
+<br>= force from the waves</div>
+
+<div class="def"><span class="w">Memory kernel</span>
+<p>The weighting function in that middle line. It answers: "if the hull twitched once, how much
+force does that twitch still exert <em>t</em> seconds later?" It starts large and decays to
+nothing after 2.2–2.9 s. Every frequency-dependent effect from Stage 3 is packed into this
+one curve.</p></div>
+
+<div class="note"><span class="w">A sign error that passed its own test</span>
+<p>The formula converting frequency data into the memory kernel was implemented with one term's
+sign flipped. The symptom was distinctive: a 200% error that was <b>identical across four
+unrelated motions</b> — the signature of a convention mistake, not a numerical one.</p>
+<p>The unit test could not catch it, because the test generated its own reference data using the
+same flipped convention. The round trip closed perfectly. <b>A test that checks a computation
+against itself cannot detect a wrong convention</b> — only an outside source of truth can.
+This is the single most transferable lesson in the project.</p></div>
+
+<h3>Making the memory cheap</h3>
+<p>Evaluating "everything from the last 3 seconds" at every timestep means storing history and
+integrating over it — slow, and awkward for a controller. So the memory curve is replaced
+by something equivalent and much faster.</p>
+
+<div class="def"><span class="w">State-space realisation</span>
+<p>Instead of remembering the past, add a handful of extra internal variables that carry the
+memory forward automatically — the way a swinging pendulum "remembers" the push that
+started it without storing a log. The algorithm that finds them
+(<b>ERA</b>, from 1985) arranges samples of the memory curve into a large matrix, factorises it,
+and reads the internal variables off the dominant part.</p></div>
+
+<p>Two things learned the hard way here. The matrix has to be sized in <b>seconds</b>, not in
+data points — sized in points it covered only 0.94 s of a 2.9 s curve. And asking for
+exactly the right number of internal variables gave a fit <b>eight times worse</b> than asking
+for too many and then discarding the ones that decayed too slowly to be real.</p>
+
+<div class="io">
+  <div><span class="l">Result</span><span class="v">A boat described by about <b>110 numbers</b>, updated by ordinary arithmetic</span></div>
+  <div><span class="l">Speed</span><span class="v"><b>29× faster than real time</b> — 30 minutes of sea in one minute</span></div>
+  <div><span class="l">Accuracy</span><span class="v">Motion matches the exact frequency answer to <b>0.1–0.3%</b></span></div>
+</div>
+</div>
+
+<!-- ===================================================================== -->
+<div class="stage">
+<p class="stage-n">Stage 5 · putting the physics back</p>
+<h2>What the clean model misses</h2>
+
+<p>Everything so far assumes small motions: the waterline stays where it was drawn, forces
+scale in proportion, doubling the wave doubles the response. In Sea State 5 the waves are
+<b>four times the boat's draft</b>. None of that holds.</p>
+
+<h3>Slicing the hull</h3>
+<div class="def"><span class="w">Stations</span>
+<p>The hull is cut into <b>41</b> cross-sections along its length, like slices of bread. At each
+instant the code works out where the actual water surface sits on each slice, and how much of
+that slice is underwater right now. Buoyancy is then summed over the slices — genuinely,
+from the real waterline, not from an assumed one.</p></div>
+
+<p>For a hull given by a formula this is exact algebra. For an arbitrary 3-D scanned hull the
+code intersects the mesh with each slicing plane and integrates the resulting polygon exactly.
+That path had two bugs worth naming: an early approximation biased the volume <b>+8%</b>, and
+the exact version then read <b>−3.6%</b> and refused to converge — because a slicing
+plane landing exactly on a line of mesh vertices found nothing to intersect. Nudging each plane
+by a millionth of the hull length brought the error to <b>+0.018%</b>.</p>
+
+<h4>Adding corrections without breaking what already works</h4>
+<p>Slice-based theory is cruder than the full 3-D solver, so replacing the good forces with it
+would be a step backwards. Instead only the <em>difference</em> is added:</p>
+
+<div class="eq">force = <b>accurate 3-D linear force</b> + ( slice force with real waterline − slice force with flat waterline )</div>
+
+<p>In small waves the bracket cancels to zero and the model is exactly as accurate as Stage 4.
+In big waves it supplies the nonlinear part. Measured error in the small-wave limit:
+<b>0.21%</b>.</p>
+
+<h3>The other terms</h3>
+
+<div class="def"><span class="w">Pressure fades with depth</span>
+<p>A wave's push weakens exponentially below the surface, so a hull 0.8 m down feels less than
+the surface height suggests. This was once applied at 1.5× the correct depth. The
+giveaway: the error grew with wave frequency, from 2.2% to 21.4% — short waves fade
+fastest, so a depth mistake shows up there first.</p></div>
+
+<div class="def"><span class="w">Added resistance</span>
+<p>A boat pitching in waves radiates energy, and that energy is paid for by slowing down. It is
+why a boat that does 8 knots in calm water might manage 5 in a rough sea, with the throttle
+unchanged.</p></div>
+
+<div class="def"><span class="w">Slamming</span>
+<p>The bow lifts clear of the water, then crashes back in. Two things happen: a brief, violent
+force, and the water suddenly having to be accelerated out of the way.</p>
+<p>The model computes this as <b>the added mass changing while the bow enters</b>. That term
+needs no threshold and no "slam detector": below the keel the wetted width is zero so the force
+is zero, at the design waterline the section is at its widest so the width is not changing and
+the force is zero again. It is non-zero only in between — which <em>is</em> water entry.
+Peak force measured: <b>42&nbsp;kN typical, 71&nbsp;kN worst</b>, against a boat that weighs
+89&nbsp;kN. Roughly half the boat's weight, delivered in a fraction of a second.</p></div>
+
+<div class="note"><span class="w">A big force that changes almost nothing</span>
+<p>Feeding that impact back into the motion moves heave by 0%, pitch by 3%, and actually
+<em>reduces</em> bow acceleration by 9%. The force is huge but brief, so the momentum it
+transfers is small against 9 tonnes — and because it always opposes entry, it works as a
+cushion rather than a hammer. A useful reminder that force and effect are different questions.</p></div>
+
+<div class="def"><span class="w">Viscous damping</span>
+<p>All the friction and swirling that potential flow deliberately ignored, added back as six
+coefficients. These are honest placeholders — the right shape, no measurement behind them.
+Section 8 shows which of them actually matter.</p></div>
+
+<h4>The machinery</h4>
+<p>The propeller is not an ideal force source: <b>12&nbsp;kN</b> maximum, a
+<b>1.5&nbsp;s</b> lag before thrust follows the command, a limit on how fast thrust can change,
+a <b>0.15&nbsp;s</b> transport delay, and a loss of thrust when it comes near the surface and
+starts sucking air. The rudder has a maximum angle, a maximum turn rate, and stalls past
+28°.</p>
+</div>
+
+<!-- ===================================================================== -->
+<div class="stage">
+<p class="stage-n">Stage 6 · the decision</p>
+<h2>The controller</h2>
+
+<p>The boat must choose two things, continuously: how much thrust, and how much rudder.</p>
+
+<div class="def"><span class="w">Model predictive control (MPC)</span>
+<p>Instead of reacting to error, the controller <b>simulates the future</b>. It imagines several
+possible sequences of throttle settings, plays each one forward, scores the outcomes, and picks
+the best. Then it does the whole thing again a fraction of a second later. Like a chess player
+looking ahead rather than a thermostat reacting.</p></div>
+
+<p>That requires simulating the boat many times per decision, and the 110-number model is far
+too slow for that. So the controller carries a deliberately crude internal model.</p>
+
+<div class="def"><span class="w">Reduced model</span>
+<p>A <b>9-number</b> caricature of the boat, with the important behaviours and none of the
+detail. It is not hand-written — it is <b>identified from the full simulator</b>: give the
+detailed model a step of thrust and watch how it accelerates, push it down and watch it bob,
+kick the rudder and watch it turn, then fit simple curves to what happened.</p></div>
+
+<p>The key number that comes out: the boat takes <b>6.3 seconds</b> to reach a new speed after
+the throttle changes. Remember that one.</p>
+
+<h4>How the search runs</h4>
+<div class="io">
+  <div><span class="l">Guesses per decision</span><span class="v"><b>192</b> random throttle plans</span></div>
+  <div><span class="l">Look-ahead</span><span class="v"><b>12 seconds</b>, in 24 steps</span></div>
+  <div><span class="l">Described by</span><span class="v"><b>7 control points</b>, smoothly joined — not 24 free values</span></div>
+  <div><span class="l">Combining</span><span class="v">weighted blend favouring good plans, not just the best one</span></div>
+</div>
+
+<p>Using 7 control points rather than 24 independent values matters: it makes the search a
+7-dimensional problem instead of a 24-dimensional one, and it produces smooth throttle changes
+instead of jitter.</p>
+
+<h4>Steering is a separate job</h4>
+<p>Letting the same controller steer produced <b>476°</b> of heading error — the boat
+spinning. The cause was subtle and worth stating: the rudder makes the boat <em>slide
+sideways</em> as well as turn, and the 9-number model has no sideways-slide variable, so the
+controller could not see the drift it was causing.</p>
+
+<p>The fix was to split the jobs: MPC handles thrust, a classical autopilot handles heading.
+Hand-picked autopilot gains were about <b>15× too strong</b>; computing them properly from
+the boat's measured turning response gives heading held to <b>0.7–0.9°</b> and
+cross-track error of 1–3 m.</p>
+
+<h4>Tuning the priorities</h4>
+<p>The controller's score function weighs seven competing concerns — ride quality, speed,
+slamming, tracking, effort. Those seven weights are tuned automatically.</p>
+
+<div class="def"><span class="w">CMA-ES</span>
+<p>An optimiser for problems with no gradient: try a cloud of candidate settings, keep the
+better half, move the cloud towards them and reshape it, repeat. Good for a handful of
+parameters and a noisy score.</p></div>
+
+<p>The choice of <b>seven tunable numbers rather than a neural network</b> is deliberate and is
+the project's answer to the sim-to-real problem. Tuning seven numbers takes a few hundred trial
+runs — a budget that fits inside a real sea-trial campaign, so the identical procedure can
+be repeated on the actual boat. A policy network needing ten million trials cannot be retuned on
+the water, and would have to live with whatever mismatch remained between simulation and
+reality.</p>
+
+<p>What the optimiser found is more interesting than the score: it drove the "hold your speed"
+weight to its <b>minimum</b> and the "don't change the throttle abruptly" weight to <b>zero</b>.
+It discovered on its own that in a rough sea, insisting on speed is not worth it, and that
+penalising throttle changes just forbids the boat from reacting.</p>
+</div>
+
+<!-- ===================================================================== -->
+<div class="stage">
+<p class="stage-n">Stage 7 · the ruler</p>
+<h2>Measuring "how bad was that"</h2>
+
+<p>Every quantity anyone cares about traces back to <b>one signal</b>: how far the water surface
+is from the bow, moment to moment.</p>
+
+<div class="def"><span class="w">Relative vertical motion</span>
+<p>Not how much the boat moved, and not how big the wave was — the <b>difference</b>. If
+the boat rises exactly with the wave, the relative motion is zero and nothing dramatic happens.
+Trouble comes from the gap between them. Measured here: about <b>0.29 m</b> of variation.</p></div>
+
+<div class="scroll"><table>
+<tbody><tr><th>Criterion</th><th>Condition on that one signal</th></tr>
+<tr><td>Slamming</td><td>bow clears the water (gap exceeds the 0.8 m draft) <b>and</b> re-enters fast</td></tr>
+<tr><td>Deck wetness</td><td>gap exceeds the 0.55 m freeboard — water comes over the bow</td></tr>
+<tr><td>Added resistance</td><td>the relative <em>speed</em>, squared</td></tr>
+<tr><td>Bow acceleration</td><td>how sharply the gap changes — what shakes the equipment</td></tr>
+</tbody></table></div>
+
+<div class="note"><span class="w">The most expensive mistake in the project</span>
+<p>Slamming was chosen as the headline measure. It happens about <b>0.3 times a minute</b>, so a
+200-second test contains one or two. Comparing two such counts carries about <b>59% noise</b>
+— and the effect being reported was 30–47%. The result was roughly one standard
+deviation of pure randomness, and it did not survive a careful re-run.</p>
+<p>The fix is not more test runs. It is to stop counting. For a threshold like this, the
+<b>rate</b> can be calculated from the <em>statistics</em> of the continuous signal rather than
+by tallying events — a 1964 result. Same definition, same physics, but the inputs are
+averages over thousands of samples instead of a count of two. Verified against the tally:
+matches within 17%, with <b>five times less scatter</b>.</p></div>
+
+<p>The broader lesson generalises past boats. Ranked by how reproducible they are, the available
+measures span a factor of a hundred — and the one originally chosen was the worst of them:</p>
+
+<div class="scroll"><table>
+<tbody><tr><th>Measure</th><th class="n">Run-to-run noise</th><th>Verdict</th></tr>
+<tr><td>Mean speed</td><td class="n">0.2%</td><td>excellent</td></tr>
+<tr><td>Bow acceleration, typical</td><td class="n">0.4%</td><td>excellent</td></tr>
+<tr><td>Relative motion</td><td class="n">0.4%</td><td>excellent</td></tr>
+<tr><td>Slam impulse</td><td class="n">1.1%</td><td>good</td></tr>
+<tr><td>Deck wetness rate (calculated)</td><td class="n">2.3%</td><td>good</td></tr>
+<tr><td>Slam rate (calculated)</td><td class="n">5.8%</td><td>usable</td></tr>
+<tr><td><b>Slam count (tallied)</b></td><td class="n">24.0%</td><td>unusable — and it was used</td></tr>
+</tbody></table></div>
+</div>
+
+<!-- ===================================================================== -->
+<div class="stage">
+<p class="stage-n">Stage 8 · seeing it</p>
+<h2>The boat's own waves</h2>
+
+<p>Two separate wave systems come off a moving hull, and they differ by a factor of ten.</p>
+
+<h3>The unsteady one</h3>
+<p>Ripples from the hull rocking in the waves, plus the incoming wave scattering off it. These
+come from the same Stage-3 solution, evaluated at points on the water instead of on the hull.
+Measured: the hull disturbs the surface by <b>0.2% of the wave height</b> — 4 centimetres
+against waves running ±2.2 m.</p>
+
+<p>That small number settles a design question. If a forward-looking sensor sees water the boat
+has already disturbed, its reading is contaminated. At 0.2%, it is not.</p>
+
+<h3>The steady one — the wake</h3>
+<p>The V-shaped wake behind a boat was missing entirely, because the fluid solver assumes the
+boat is not moving forward. It had to be built separately, and it is roughly <b>ten times
+larger</b> than the ripples above — it is what you actually see from a bridge.</p>
+
+<p>Its geometry follows from one requirement: a wave that stays with the boat must travel
+exactly as fast as the boat, in its own direction. Combined with the dispersion rule from
+Stage 1, that pins everything — including a fact that surprises people:</p>
+
+<div class="note"><span class="w">The 19.47° wedge</span>
+<p>The V behind every displacement vessel opens at the same angle —
+<b>19°28′</b>, which is arcsin(⅓) — whether it is a duck or a supertanker.
+Speed changes how far apart the crests are, never the angle. The model reproduces it at
+<b>20.8–22.3°</b> from the simulated surface, and the crest spacing matches theory
+exactly at every speed tested.</p></div>
+
+<p>In deep water the entire wake lies <em>behind</em> that wedge, which is a second reason a
+forward-looking sensor is unaffected by the boat's own waves.</p>
+
+<p>For display it is precomputed into an image and looked up on the GPU, stretched by speed
+— the pattern is exactly self-similar in distance divided by speed squared, so one image
+serves every speed.</p>
+</div>
+
+<!-- ===================================================================== -->
+<div class="stage">
+<p class="stage-n">Stage 9 · what it was for</p>
+<h2>The question, and the answer</h2>
+
+<p>The whole build existed to answer one procurement question: <b>how far ahead does the boat
+need to see the waves?</b> A short mast sees a little way. A tall mast sees further. A tethered
+drone sees a long way and costs a great deal more.</p>
+
+<p>The simulator can answer this with an <em>ideal</em> sensor — perfect knowledge of the
+future sea, since the sea is a formula. If perfect information is worth nothing, no purchasable
+sensor can be worth more.</p>
+
+<p>Tested across nine different measures of "how bad was that", three strategies, ten random
+seas each, always compared against a plain fixed-throttle boat travelling at <b>the same average
+speed</b>:</p>
+
+<div class="io">
+  <div><span class="l">Measures improved beyond noise</span><span class="v"><b>0 out of 27</b></span></div>
+  <div><span class="l">Look-ahead tested</span><span class="v"><b>0 to 90 seconds</b></span></div>
+</div>
+
+<h3>Why — and it is not about the sensor</h3>
+<p>Two numbers from earlier in this document explain it completely:</p>
+
+<div class="eq">the boat takes <b>6.3 s</b> to change speed
+<br>a wave arrives every <b>7.5 s</b>
+</div>
+
+<p>To do anything about a particular wave, the boat would have to act <em>within</em> one —
+so it needs to respond in well under 2 seconds. Its only actuator is <b>three and a half times
+too slow</b>. Two seconds of warning and twelve seconds of warning gave identical results, not
+because two was enough, but because <b>neither was usable</b>.</p>
+
+<div class="note"><span class="w">The constraint was never the sensor</span>
+<p>Buying a drone to see further would have bought nothing. The boat cannot act on what it sees.
+The hardware question is not "how far ahead" but "what can move fast enough" — trim tabs or
+interceptors, small movable plates that generate lift in a fraction of a second, rather than a
+propeller that takes six seconds to change the speed of nine tonnes.</p></div>
+
+<h3>Two follow-up questions, also answered no</h3>
+<p><b>Could it work on a slower rhythm?</b> Waves arrive in groups, and a group lasts 50–100
+seconds — the propeller is easily fast enough for that. Tested with 90 seconds of
+look-ahead: still nothing, and marginally worse.</p>
+
+<p><b>The simulation tells the controller the sea conditions — would a sensor that measures
+them help?</b> A sharper question, since choosing a sensible average speed <em>is</em> the one
+thing that works. Two findings:</p>
+<ul>
+<li><b>The boat already measures the sea, using itself.</b> Because it contours, its own bobbing
+tracks the wave height to within 6–11%, and the dominant wave period can be read out of its
+motion to within <b>2%</b>. No forward-looking sensor required.</li>
+<li><b>And knowing is worth 0.7%.</b> The best cruising speed barely changes from Sea State 4 to
+Sea State 5, so there is very little to adapt to.</li>
+</ul>
+
+<h3>What the project actually produced</h3>
+<p>A verified simulator — accurate to a fraction of a percent against exact solutions where
+exact solutions exist — and three clear negative answers that between them save an
+expensive sensor programme and redirect it at the actuators instead. A negative result with an
+error bar and a mechanism is worth considerably more than a positive one without either.</p>
+
+<p>Along the way, twenty-three real defects were found and fixed. About a third of them were not
+modelling errors at all but <b>measurement errors</b>: a check that measured a smoothing window
+instead of the model, a convergence test that tracked a single pixel, a frequency analysis that
+could only return certain fixed answers, and finally a headline result resting on a count of two
+events. The model was usually right before the ruler was.</p>
+</div>
+
+<!-- ===================================================================== -->
+<div class="stage">
+<p class="stage-n">Reference</p>
+<h2>Every term, in one place</h2>
+
+<div class="glossary"><dl>
+<dt>Added mass</dt><dd>Extra apparent mass because the hull must accelerate surrounding water. Here ~8.5 t on top of 9.1 t in heave, and it varies with oscillation rate.</dd>
+<dt>Added resistance</dt><dd>Extra drag caused by moving through waves rather than calm water; shows up as lost speed at fixed throttle.</dd>
+<dt>BEM</dt><dd>Boundary element method. Tiles the hull with panels, solves for source strengths so no water flows through it. 1056 panels here.</dd>
+<dt>Beam</dt><dd>Width of the boat. 2.5 m.</dd>
+<dt>Contouring</dt><dd>Riding over long waves like a cork rather than punching through them. Happens when waves are much longer than the hull.</dd>
+<dt>CMA-ES</dt><dd>Gradient-free optimiser: sample candidates, keep the good ones, move and reshape the sampling cloud, repeat.</dd>
+<dt>Deck wetness</dt><dd>Water coming over the bow, when relative motion exceeds the freeboard.</dd>
+<dt>Diffraction</dt><dd>The change in wave force caused by the hull scattering the incoming wave.</dd>
+<dt>Dispersion</dt><dd>The rule linking wave length and period: long waves travel faster. Wavelength ≈ 1.56 × period².</dd>
+<dt>Draft</dt><dd>How deep the hull sits below the waterline. 0.8 m.</dd>
+<dt>Encounter period</dt><dd>How often waves actually hit a moving boat — shorter than the wave period when heading into them. 7.5 s here.</dd>
+<dt>ERA</dt><dd>Eigensystem Realization Algorithm. Converts a measured response curve into a small set of internal variables that reproduce it.</dd>
+<dt>Freeboard</dt><dd>Height from waterline to deck. 0.55 m.</dd>
+<dt>Froude–Krylov force</dt><dd>Wave pressure acting on the hull's shape, ignoring the hull's disturbance of the wave.</dd>
+<dt>Froude number</dt><dd>Speed compared with the speed of a wave as long as the boat. Near 0.4 the boat is keeping pace with its own bow wave, which is where wave-making drag peaks.</dd>
+<dt>Heave</dt><dd>Straight up-and-down motion.</dd>
+<dt>H<sub>s</sub></dt><dd>Significant wave height — roughly the average of the highest third of waves. 3.25 m here.</dd>
+<dt>JONSWAP</dt><dd>A standard wave spectrum shape fitted to North Sea measurements.</dd>
+<dt>Kelvin wake</dt><dd>The V behind a moving boat. Always 19.47° half-angle regardless of speed or size.</dd>
+<dt>Memory kernel</dt><dd>Curve describing how long the hull's past motion keeps exerting force. 2.2–2.9 s here.</dd>
+<dt>MPC</dt><dd>Model predictive control. Simulates candidate futures and picks the best, repeatedly.</dd>
+<dt>Panel</dt><dd>One small flat tile of the hull surface used by the solver.</dd>
+<dt>Pitch</dt><dd>Bow rising and falling.</dd>
+<dt>Potential flow</dt><dd>Frictionless-water assumption that reduces the problem to surfaces only. Discards viscosity and roll damping.</dd>
+<dt>Radiation damping</dt><dd>Resistance to motion caused by the hull radiating waves that carry energy away. Exists even with zero friction.</dd>
+<dt>RAO</dt><dd>Response amplitude operator — how much the boat moves per metre of wave, at each period. Approaches 1 for long waves (the boat just follows).</dd>
+<dt>Relative vertical motion</dt><dd>Gap between the water surface at the bow and the bow itself. The signal every seakeeping criterion derives from.</dd>
+<dt>Roll</dt><dd>Tipping side to side.</dd>
+<dt>Sea state</dt><dd>Standard 0–9 scale of roughness. SS4 is moderate, SS5 rough with H<sub>s</sub> up to 4 m.</dd>
+<dt>Slamming</dt><dd>Bow leaving the water and crashing back. Needs both emergence and fast re-entry.</dd>
+<dt>State-space</dt><dd>Describing a system by a list of numbers plus rules for how each changes. Lets memory be carried forward without storing history.</dd>
+<dt>Station</dt><dd>One cross-sectional slice of the hull. 41 of them.</dd>
+<dt>Strip theory</dt><dd>Treating the hull as independent 2-D slices. Good when waves are long compared with the boat.</dd>
+<dt>Surge</dt><dd>Forward and backward motion — i.e. speed.</dd>
+<dt>Sway</dt><dd>Sideways motion.</dd>
+<dt>T<sub>p</sub></dt><dd>Peak period — the wave period carrying the most energy. 9.7 s here.</dd>
+<dt>Wave spectrum</dt><dd>How the sea's energy is distributed across wave periods.</dd>
+<dt>Yaw</dt><dd>Turning left and right; heading.</dd>
+</dl></div>
+</div>
+
+<div class="foot">
+  <p>10.0 × 2.5 × 0.8 m hull, 9111 kg. Frictionless-flow solver at 150 wave
+  frequencies → memory kernel → 110-number time-domain simulator running 29×
+  faster than real time → predictive controller with 7 tuned priorities. Every comparative
+  figure quoted carries a spread measured over 10–12 independent random seas.</p>
+</div>
+</div>
+
+</body></html>

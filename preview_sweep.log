@@ -1,0 +1,28 @@
+identifying reduced model for the MPC ...
+
+no-information baseline (constant thrust):
+  thrust   3000 N -> u 3.07 m/s, acc_p99 0.538 g, slam 0.1/min
+  thrust   5000 N -> u 3.86 m/s, acc_p99 0.645 g, slam 0.3/min
+  thrust   7000 N -> u 4.46 m/s, acc_p99 0.743 g, slam 0.8/min
+  thrust   9000 N -> u 4.97 m/s, acc_p99 0.808 g, slam 1.5/min
+  thrust  11000 N -> u 5.40 m/s, acc_p99 0.868 g, slam 1.7/min
+
+preview sweep (MPC, oracle preview):
+   T_prev   u_mean  acc_rms  acc_p99  slam/min   cross
+      0.0     4.24    0.282    0.716      0.60    1.65
+      2.0     4.70    0.314    0.805      1.20    1.80
+      4.0     4.61    0.307    0.791      1.10    1.74
+      6.0     4.62    0.306    0.783      0.70    1.79
+      8.0     4.59    0.302    0.777      0.60    1.74
+     12.0     4.56    0.301    0.775      0.50    1.76
+
+  figure: fig11_m7_preview.png
+
+  value of preview AT EQUAL SPEED (vs constant-thrust baseline):
+   T_prev      u   acc_p99     base   delta%    slam    base   delta%
+      0.0   4.24     0.716    0.707      1.3    0.60    0.62     -2.9
+      2.0   4.70     0.805    0.775      4.0    1.20    1.14      5.5
+      4.0   4.61     0.791    0.763      3.7    1.10    1.01      9.0
+      6.0   4.62     0.783    0.764      2.5    0.70    1.02    -31.6
+      8.0   4.59     0.777    0.759      2.4    0.60    0.97    -38.5
+     12.0   4.56     0.775    0.756      2.5    0.50    0.94    -46.7

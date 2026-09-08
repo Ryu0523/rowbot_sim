@@ -1,0 +1,24 @@
+[15:31:45] WARNING  2400 non-coplanar faces detected in Mesh(vertices=[[...    
+                    2461 vertices ...]], faces=[[... 2400 faces ...]],         
+                    name='wigley').                                            
+[15:31:46] WARNING  Rigid body rotation dofs have been initialized around the  
+                    origin of the domain (0, 0, 0).                            
+           WARNING  Rigid body rotation dofs have been initialized around the  
+                    origin of the domain (0, 0, 0).                            
+           WARNING  Rigid body rotation dofs have been initialized around the  
+                    origin of the domain (0, 0, 0).                            
+           WARNING  The rotation dof Roll has been initialized around the      
+                    point: FloatingBody(..., name="wigley").center_of_mass = [ 
+                    0.          0.         -0.26666667]                        
+           WARNING  The rotation dof Pitch has been initialized around the     
+                    point: FloatingBody(..., name="wigley").rotation_center = [
+                    0.          0.         -0.26666667]                        
+           WARNING  The rotation dof Yaw has been initialized around the point:
+                    FloatingBody(..., name="wigley").rotation_center = [ 0.    
+                    0.         -0.26666667]                                    
+  2400 hull panels, 150 frequencies, 13 directions ...
+Solving BEM problems ---------------------------------------- 100% 0:03:03
+  reciprocity A: max|X-X^T|/max|X| = 6.89e-04
+  reciprocity B: max|X-X^T|/max|X| = 4.12e-04
+  saved -> hydro_wigley_10m.npz
+  t_max for K(t) = pi/d_omega = 31 s

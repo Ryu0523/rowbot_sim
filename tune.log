@@ -1,0 +1,35 @@
+identifying reduced model ...
+
+baseline (hand-set weights) score = 0.6956
+  w_acc=1  w_slam=12  w_speed=2  w_track=1  w_heading=4  w_dthrust=0.3  w_drudder=0.3
+
+CMA-ES, 14 generations x 8 = 112 episodes-of-4:
+  gen  0  best 0.5884  median 0.6230  overall 0.5884  sigma 0.450
+  gen  1  best 0.5718  median 0.6521  overall 0.5718  sigma 0.403
+  gen  2  best 0.5686  median 0.6025  overall 0.5686  sigma 0.381
+  gen  3  best 0.5736  median 0.6337  overall 0.5686  sigma 0.371
+  gen  4  best 0.5558  median 0.6281  overall 0.5558  sigma 0.352
+  gen  5  best 0.5778  median 0.6396  overall 0.5558  sigma 0.385
+  gen  6  best 0.5620  median 0.5927  overall 0.5558  sigma 0.411
+  gen  7  best 0.5619  median 0.5826  overall 0.5558  sigma 0.419
+  gen  8  best 0.5570  median 0.6050  overall 0.5558  sigma 0.449
+  gen  9  best 0.5615  median 0.6086  overall 0.5558  sigma 0.483
+  gen 10  best 0.5734  median 0.6438  overall 0.5558  sigma 0.487
+  gen 11  best 0.5677  median 0.5875  overall 0.5558  sigma 0.518
+  gen 12  best 0.5660  median 0.5735  overall 0.5558  sigma 0.563
+  gen 13  best 0.5647  median 0.5727  overall 0.5558  sigma 0.597
+
+tuned score = 0.5558  (+20.1% vs hand-set)
+       w_acc     8.788   (was 1)
+      w_slam     2.025   (was 12)
+     w_speed     0.100   (was 2)
+     w_track     5.125   (was 1)
+   w_heading     8.936   (was 4)
+   w_dthrust     0.000   (was 0.3)
+   w_drudder     1.309   (was 0.3)
+
+held-out seeds: hand-set 0.9238 -> tuned 0.6959 (+24.7%)
+
+  [PASS]  tuning improves training score
+  [PASS]  improvement holds on unseen wave realisations
+  M6 WEIGHT-TUNING GATE: PASSED

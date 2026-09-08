@@ -1,0 +1,36 @@
+[01:39:29] WARNING  2400 non-coplanar faces detected in Mesh(vertices=[[...    
+                    2461 vertices ...]], faces=[[... 2400 faces ...]],         
+                    name='wigley').                                            
+[01:39:30] WARNING  Rigid body rotation dofs have been initialized around the  
+                    origin of the domain (0, 0, 0).                            
+           WARNING  Rigid body rotation dofs have been initialized around the  
+                    origin of the domain (0, 0, 0).                            
+           WARNING  Rigid body rotation dofs have been initialized around the  
+                    origin of the domain (0, 0, 0).                            
+           WARNING  The rotation dof Roll has been initialized around the      
+                    point: FloatingBody(..., name="wigley").center_of_mass = [ 
+                    0.          0.         -0.26666667]                        
+           WARNING  The rotation dof Pitch has been initialized around the     
+                    point: FloatingBody(..., name="wigley").rotation_center = [
+                    0.          0.         -0.26666667]                        
+           WARNING  The rotation dof Yaw has been initialized around the point:
+                    FloatingBody(..., name="wigley").rotation_center = [ 0.    
+                    0.         -0.26666667]                                    
+  2400 panels, 16 frequencies, 2501 field points
+    omega= 0.35  max|eta_dist| =  0.000 x wave amplitude
+    omega= 0.45  max|eta_dist| =  0.001 x wave amplitude
+    omega= 0.56  max|eta_dist| =  0.001 x wave amplitude
+    omega= 0.66  max|eta_dist| =  0.003 x wave amplitude
+    omega= 0.76  max|eta_dist| =  0.007 x wave amplitude
+    omega= 0.87  max|eta_dist| =  0.014 x wave amplitude
+    omega= 0.97  max|eta_dist| =  0.024 x wave amplitude
+    omega= 1.07  max|eta_dist| =  0.040 x wave amplitude
+    omega= 1.18  max|eta_dist| =  0.062 x wave amplitude
+    omega= 1.28  max|eta_dist| =  0.091 x wave amplitude
+    omega= 1.38  max|eta_dist| =  0.127 x wave amplitude
+    omega= 1.49  max|eta_dist| =  0.171 x wave amplitude
+    omega= 1.59  max|eta_dist| =  0.221 x wave amplitude
+    omega= 1.69  max|eta_dist| =  0.275 x wave amplitude
+    omega= 1.80  max|eta_dist| =  0.332 x wave amplitude
+    omega= 1.90  max|eta_dist| =  0.388 x wave amplitude
+  saved -> freesurface_wigley.npz
