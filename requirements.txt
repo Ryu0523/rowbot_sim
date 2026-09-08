@@ -1,0 +1,12 @@
+# Runtime for the time-domain simulator, controller and studies.
+numpy>=2.0
+scipy>=1.12
+matplotlib>=3.8
+
+# Only needed to REBUILD the hydrodynamic database (hydro/run_wigley.py).
+# The repo ships hydro_wigley_10m.npz, so this is optional for everything else.
+capytaine>=3.0
+
+# Only needed for the Gymnasium wrapper in sim/env.py (USVEnv).
+# Every study and gate runs without it.
+# gymnasium>=0.29

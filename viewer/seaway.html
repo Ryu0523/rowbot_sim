@@ -1,0 +1,674 @@
+<title>Seaway Replay</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+  :root{
+    --ground:#0a1017; --panel:#111a24; --panel-hi:#182533;
+    --line:#20303f; --text:#cbd8e4; --dim:#6f8799; --dimmer:#4b5f70;
+    --accent:#ff7a2f; --accent-soft:#ff9d63; --warn:#ffcc4d;
+    --ui:"Barlow Semi Condensed","Segoe UI",system-ui,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0; background:var(--ground); color:var(--text);
+       font-family:var(--ui); overflow:hidden; -webkit-font-smoothing:antialiased}
+  #stage{position:fixed; inset:0}
+  canvas{display:block; width:100%; height:100%}
+
+  .plate{background:linear-gradient(180deg,rgba(17,26,36,.94),rgba(10,16,23,.90));
+         border:1px solid var(--line); border-radius:3px; backdrop-filter:blur(7px)}
+  .lbl{font-size:10px; letter-spacing:.14em; text-transform:uppercase;
+       color:var(--dim); font-weight:500}
+
+  #hud{position:fixed; top:14px; left:14px; padding:12px 14px 11px; min-width:262px}
+  #hud h1{margin:0 0 2px; font-size:15px; font-weight:600; letter-spacing:.03em}
+  #hud .sub{font-size:11.5px; color:var(--dim); line-height:1.55; margin-bottom:11px}
+  #hud .sub b{color:var(--accent-soft); font-weight:500}
+  .grid{display:grid; grid-template-columns:repeat(2,1fr); gap:9px 16px}
+  .cell{display:flex; flex-direction:column; gap:2px}
+  .val{font-family:var(--mono); font-size:17px; font-weight:500;
+       font-variant-numeric:tabular-nums; line-height:1.05}
+  .val .u{font-size:10.5px; color:var(--dimmer); margin-left:3px}
+  .val.hot{color:var(--warn)}
+
+  #nav{position:fixed; top:14px; right:14px; padding:10px 11px;
+       display:flex; flex-direction:column; gap:9px; width:186px}
+  .row{display:flex; gap:5px}
+  button{font-family:var(--ui); font-size:11.5px; letter-spacing:.06em;
+    text-transform:uppercase; color:var(--dim); background:var(--panel-hi);
+    border:1px solid var(--line); border-radius:2px; padding:5px 0; flex:1;
+    cursor:pointer; transition:color .12s,border-color .12s}
+  button:hover{color:var(--text); border-color:var(--dimmer)}
+  button[aria-pressed="true"]{color:var(--ground); background:var(--accent);
+    border-color:var(--accent); font-weight:600}
+  button:focus-visible{outline:2px solid var(--accent-soft); outline-offset:1px}
+  .hint{font-size:10.5px; color:var(--dimmer); line-height:1.45; letter-spacing:.02em}
+
+  #bar{position:fixed; left:14px; right:14px; bottom:14px; padding:9px 13px 11px;
+       display:flex; align-items:center; gap:14px}
+  #play{flex:0 0 62px}
+  #track{flex:1; position:relative; height:30px; cursor:pointer}
+  #track .rail{position:absolute; top:13px; left:0; right:0; height:3px;
+               background:var(--panel-hi); border-radius:2px}
+  #track .fill{position:absolute; top:13px; left:0; height:3px;
+               background:var(--accent); border-radius:2px}
+  #track .knob{position:absolute; top:8px; width:3px; height:13px;
+               background:var(--text); border-radius:1px; margin-left:-1px}
+  .slam{position:absolute; top:5px; width:2px; height:19px; background:var(--warn);
+        border-radius:1px; margin-left:-1px; opacity:.9}
+  #clock{font-family:var(--mono); font-size:13px; color:var(--dim);
+         font-variant-numeric:tabular-nums; flex:0 0 auto}
+  #clock b{color:var(--text); font-weight:500}
+  #oops{position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+        padding:16px 20px; max-width:440px; font-size:13px; line-height:1.6}
+  #oops strong{display:block; color:var(--warn); margin-bottom:5px;
+               font-size:14px; font-weight:600}
+  #oops span{color:var(--dim)}
+  #legend{position:fixed; left:14px; bottom:74px; font-size:11px; color:var(--dimmer)}
+  #legend i{display:inline-block; width:9px; height:9px; border-radius:1px;
+            background:var(--warn); margin-right:5px; vertical-align:-1px}
+
+  @media (max-width:760px){
+    #nav{display:none} #hud{min-width:0; right:14px}
+    .grid{grid-template-columns:repeat(3,1fr)}
+  }
+  @media (prefers-reduced-motion:reduce){ button{transition:none} }
+</style>
+
+<div id="stage"><canvas id="gl"></canvas></div>
+<div id="oops" class="plate" hidden>
+  <strong>The 3-D view could not start.</strong>
+  <span id="oops-why"></span>
+</div>
+
+<div id="hud" class="plate">
+  <h1>Wigley 10 m &middot; Sea State 5</h1>
+  <div class="sub">
+    H<sub>s</sub> <b>3.25 m</b> &nbsp; T<sub>p</sub> <b>9.7 s</b> &nbsp;
+    &lambda;<sub>p</sub>/L <b>14.7</b><br>
+    short-crested, cos<sup>2s</sup> spreading &middot; 16&times;4 components
+  </div>
+  <div class="grid">
+    <div class="cell"><span class="lbl">Heave</span>
+      <span class="val" id="r-heave">+0.00<span class="u">m</span></span></div>
+    <div class="cell"><span class="lbl">Pitch</span>
+      <span class="val" id="r-pitch">+0.0<span class="u">deg</span></span></div>
+    <div class="cell"><span class="lbl">Speed</span>
+      <span class="val" id="r-speed">0.00<span class="u">m/s</span></span></div>
+    <div class="cell"><span class="lbl">Bow accel</span>
+      <span class="val" id="r-acc">0.00<span class="u">g</span></span></div>
+    <div class="cell"><span class="lbl">Thrust</span>
+      <span class="val" id="r-thr">0<span class="u">%</span></span></div>
+    <div class="cell"><span class="lbl">Slams</span>
+      <span class="val" id="r-slam">0<span class="u">of 0</span></span></div>
+  </div>
+</div>
+
+<div id="nav" class="plate">
+  <span class="lbl">Wave realisation</span>
+  <div class="row" id="seeds"></div>
+  <p class="hint" style="margin:-2px 0 0">Same spectrum, different random
+    phases. The sea changes and so does the run &mdash; which is why the study
+    averages over realisations.</p>
+  <span class="lbl">Camera</span>
+  <div class="row">
+    <button id="cam-chase" aria-pressed="true">Chase</button>
+    <button id="cam-beam" aria-pressed="false">Beam</button>
+    <button id="cam-bird" aria-pressed="false">Bird</button>
+  </div>
+  <span class="lbl">Overlay</span>
+  <div class="row"><button id="tg-preview" aria-pressed="true">Preview 8 s</button></div>
+  <div class="row"><button id="tg-wire" aria-pressed="false">Wireframe</button></div>
+  <span class="lbl">Kelvin wake</span>
+  <div class="row" id="kelvin">
+    <button data-g="0" aria-pressed="false">Off</button>
+    <button data-g="1" aria-pressed="true">&times;1</button>
+    <button data-g="3" aria-pressed="false">&times;3</button>
+  </div>
+  <p class="hint" style="margin:-2px 0 0">The steady bow wave and V-wake, from
+    thin-ship theory. Absent from the rest of the model, which is solved at
+    zero forward speed &mdash; and ten times the size of what that model does
+    produce. <b id="k-info"></b></p>
+  <span class="lbl">Diffraction &amp; radiation</span>
+  <div class="row" id="wake">
+    <button data-g="0" aria-pressed="true">Off</button>
+    <button data-g="1" aria-pressed="false">&times;1</button>
+    <button data-g="25" aria-pressed="false">&times;25</button>
+  </div>
+  <p class="hint" style="margin:-2px 0 0">Diffracted + radiated surface. At
+    &times;1 it is invisible &mdash; peak 0.04 m against 2.2 m waves. &times;25
+    shows the ring pattern that carries the diffraction force.</p>
+  <p class="hint" style="margin:0">Drag to orbit &middot; scroll to zoom &middot;
+    space to pause</p>
+</div>
+
+<div id="legend"><i></i>slam event on the timeline</div>
+
+<div id="bar" class="plate">
+  <button id="play" aria-pressed="true">Pause</button>
+  <div class="row" style="flex:0 0 168px">
+    <button class="spd" data-s="0.25" aria-pressed="false">&frac14;&times;</button>
+    <button class="spd" data-s="0.5" aria-pressed="false">&frac12;&times;</button>
+    <button class="spd" data-s="1" aria-pressed="true">1&times;</button>
+    <button class="spd" data-s="2" aria-pressed="false">2&times;</button>
+  </div>
+  <div id="track"><div class="rail"></div><div class="fill"></div>
+    <div class="knob"></div></div>
+  <div id="clock"><b id="c-now">0.0</b> / <span id="c-end">0</span> s</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const DATA = /*__DATA__*/null;
+
+function fail(why) {
+  const box = document.getElementById("oops");
+  document.getElementById("oops-why").textContent = why;
+  box.hidden = false;
+}
+
+(function () {
+ try {
+  if (typeof THREE === "undefined")
+    return fail("three.js did not load from the CDN.");
+  const M = DATA.meta, RUNS = DATA.runs;
+  // Derived from the payload, not read from meta: an earlier re-export
+  // dropped the meta field and new Float32Array(undefined) gave a zero-length
+  // array, so the first .set() threw "offset is out of bounds" and the whole
+  // view died. Data that is already present should never be restated.
+  const NC = RUNS[0].a.length;
+  if (!NC || RUNS[0].p.length !== 4 * NC)
+    return fail("Wave component arrays are inconsistent (" + NC + " amplitudes, "
+                + RUNS[0].p.length + " packed values).");
+  const TEND = RUNS[0].frames[RUNS[0].frames.length - 1][0];
+
+  const canvas = document.getElementById("gl");
+  const renderer = new THREE.WebGLRenderer({canvas, antialias: true});
+  renderer.setClearColor(0x0a1017, 1);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(46, 1, 0.4, 900);
+  camera.up.set(0, 0, 1);
+
+  // Spectral components live in the shader in FACTORED form: frequencies are
+  // shared across headings, so w[NF], k[NF] and the heading unit vectors[ND]
+  // are stored apart from the NF*ND amplitudes and phases. Flat arrays would
+  // need ~720 uniform scalars; this needs ~300.
+  const uni = {
+    uTime:{value:0}, uOrigin:{value:new THREE.Vector2()},
+    uP:{value:Array.from({length:NC}, () => new THREE.Vector4())},
+    uA:{value:new Float32Array(NC)},
+    uPrevX:{value:0}, uPrevLen:{value:0}, uShowPrev:{value:1},
+    // (x, y, heading) of the vessel, and (gain, stretch, amplitude) for the
+    // baked wake. stretch = (u/U0)^2 carries it to the instantaneous speed.
+    uWakeTex:{value:null}, uWakeShip:{value:new THREE.Vector3()},
+    uWakeCtl:{value:new THREE.Vector3(0,1,0)},
+    uWakeBox:{value:new THREE.Vector4(-60,12,-30,30)}
+  };
+
+  // ---- the steady Kelvin wave system ---------------------------------
+  // Baked once in numpy (resolving its phase integral takes thousands of
+  // headings -- a minute, not a frame) and read back here as a lookup. It is
+  // steady in the SHIP frame, so one image serves every instant; the shader
+  // rotates into that frame and stretches by (u/U0)^2, which is exact for the
+  // pattern's geometry because the phase depends on x only through x g/U^2.
+  const WK = DATA.wake || null;
+  let kelvinTex = null, kelvinGain = WK ? 1 : 0;
+  if (WK) {
+    const bin = atob(WK.b64);
+    if (bin.length !== WK.w * WK.h)
+      return fail("Kelvin wake texture is " + bin.length + " bytes, expected "
+                  + (WK.w * WK.h) + ".");
+    // RGBA rather than a single-channel format: r128 predates RedFormat on
+    // WebGL1, and four bytes of VRAM per texel here is nothing.
+    const rgba = new Uint8Array(WK.w * WK.h * 4);
+    for (let i = 0; i < bin.length; i++) {
+      const v = bin.charCodeAt(i);
+      rgba[4 * i] = v; rgba[4 * i + 1] = v;
+      rgba[4 * i + 2] = v; rgba[4 * i + 3] = 255;
+    }
+    kelvinTex = new THREE.DataTexture(rgba, WK.w, WK.h, THREE.RGBAFormat);
+    kelvinTex.minFilter = kelvinTex.magFilter = THREE.LinearFilter;
+    kelvinTex.wrapS = kelvinTex.wrapT = THREE.ClampToEdgeWrapping;
+    kelvinTex.needsUpdate = true;
+    const ki = document.getElementById("k-info");
+    if (ki) ki.textContent = "Baked at " + WK.U0.toFixed(2) + " m/s: peak "
+      + WK.amp.toFixed(2) + " m, transverse wavelength "
+      + WK.lam_transverse.toFixed(1) + " m, half-angle 19.5"
+      + String.fromCharCode(176) + ".";
+  }
+
+  const waterMat = new THREE.ShaderMaterial({
+    uniforms: uni,
+    vertexShader:`
+      #define NC ${NC}
+      // uP[i] = (kx, ky, omega, phase) for one spectral component; uA[i] its
+      // amplitude. Packing the wavenumber vector into a vec4 keeps the whole
+      // spectrum inside 2*NC uniform slots.
+      uniform vec4 uP[NC];
+      uniform float uA[NC];
+      uniform float uTime;
+      uniform vec2 uOrigin;
+      uniform sampler2D uWakeTex;
+      uniform vec3 uWakeShip;    // x, y, heading
+      uniform vec3 uWakeCtl;     // gain, stretch = (u/U0)^2, amplitude
+      uniform vec4 uWakeBox;     // x0, x1, y0, y1 in ship coordinates
+      varying vec3 vN; varying float vH; varying vec2 vWorld;
+      varying float vWake;
+
+      // Steady wake at a world point: rotate into the ship frame, undo the
+      // speed stretch, and read the baked image. Outside the baked window it
+      // is zero -- the image was faded to zero at its own edges so this does
+      // not draw a rectangle on the sea.
+      float wakeAt(vec2 pw){
+        if (uWakeCtl.x <= 0.0) return 0.0;
+        vec2 d = pw - uWakeShip.xy;
+        float c = cos(uWakeShip.z), s = sin(uWakeShip.z);
+        vec2 b = vec2(c*d.x + s*d.y, -s*d.x + c*d.y) / uWakeCtl.y;
+        vec2 uv = (b - uWakeBox.xz) / (uWakeBox.yw - uWakeBox.xz);
+        if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) return 0.0;
+        // amplitude follows the same (u/U0)^2, because R_w goes as U^2
+        return (texture2D(uWakeTex, uv).r * 2.0 - 1.0)
+               * uWakeCtl.z * uWakeCtl.y * uWakeCtl.x;
+      }
+
+      void main(){
+        vec2 p = position.xy + uOrigin;
+        float h = 0.0; vec2 g = vec2(0.0);
+        for (int i = 0; i < NC; i++){
+          vec4 c = uP[i];
+          float ph = c.x*p.x + c.y*p.y - c.z*uTime + c.w;
+          h += uA[i]*cos(ph);
+          float s = -uA[i]*sin(ph);
+          g += vec2(s*c.x, s*c.y);
+        }
+        // two extra taps give the wake its own slope, so it catches the
+        // light instead of being a silent displacement
+        float wk = wakeAt(p);
+        float e = 0.75;
+        vec2 wg = vec2(wakeAt(p + vec2(e,0.0)) - wakeAt(p - vec2(e,0.0)),
+                       wakeAt(p + vec2(0.0,e)) - wakeAt(p - vec2(0.0,e)))
+                  / (2.0*e);
+        h += wk; g += wg;
+        vH = h; vWorld = p; vWake = wk;
+        vN = normalize(vec3(-g.x, -g.y, 1.0));
+        gl_Position = projectionMatrix * modelViewMatrix
+                    * vec4(position.xy, h, 1.0);
+      }`,
+    fragmentShader:`
+      precision highp float;
+      varying vec3 vN; varying float vH; varying vec2 vWorld;
+      varying float vWake;
+      uniform float uPrevX, uPrevLen, uShowPrev;
+      uniform vec2 uOrigin;
+      void main(){
+        vec3 trough=vec3(0.031,0.098,0.153), mid=vec3(0.075,0.263,0.353),
+             crest=vec3(0.404,0.686,0.741);
+        float t = clamp(vH/3.4 + 0.5, 0.0, 1.0);
+        vec3 col = t < 0.5 ? mix(trough,mid,t*2.0) : mix(mid,crest,(t-0.5)*2.0);
+        vec3 lt = normalize(vec3(-0.42,0.30,0.85));
+        col *= 0.60 + 0.55*max(dot(vN,lt),0.0);
+        vec3 hv = normalize(lt + vec3(0.0,0.0,1.0));
+        col += vec3(0.55,0.68,0.72)*pow(max(dot(vN,hv),0.0),46.0)*0.30;
+        // a light aerated tint on the wake crests, the way a real wake breaks
+        col = mix(col, vec3(0.82,0.90,0.94), clamp(vWake*1.6, 0.0, 0.55));
+        float rel = vWorld.x - uPrevX;
+        if (uShowPrev > 0.5 && rel > 0.0 && rel < uPrevLen
+            && abs(vWorld.y - uOrigin.y) < 26.0){
+          float e = smoothstep(0.0,3.0,rel)*(1.0-smoothstep(uPrevLen-9.0,uPrevLen,rel));
+          col = mix(col, col*0.82 + vec3(1.0,0.478,0.184)*0.30, e*0.55);
+        }
+        // the water plane is finite; fade its far edge into the sky instead of
+        // leaving a hard line
+        col = mix(col, vec3(0.039,0.063,0.090),
+                  smoothstep(78.0,146.0,length(vWorld - uOrigin)));
+        gl_FragColor = vec4(col,1.0);
+      }`
+  });
+  waterMat.fog = false;
+  if (WK && renderer.capabilities.maxVertexTextures < 1) {
+    const ki = document.getElementById("k-info");
+    if (ki) ki.textContent = "This GPU exposes no vertex texture units, "
+      + "so the baked wake cannot be sampled where the surface is displaced.";
+    kelvinGain = 0;
+  }
+  if (WK) {
+    uni.uWakeTex.value = kelvinTex;
+    uni.uWakeBox.value.set(WK.x0, WK.x1, WK.y0, WK.y1);
+    uni.uWakeCtl.value.set(kelvinGain, 1, WK.amp);
+  }
+
+  // 256 subdivisions across 300 m gives 1.17 m cells -- about ten across the
+  // 11 m transverse wave. At 152 the wake aliased into stripes.
+  const water = new THREE.Mesh(new THREE.PlaneGeometry(300,300,256,256), waterMat);
+  scene.add(water);
+
+  // ---- the vessel's own waves ----------------------------------------
+  // Rendered as a small body-fixed patch whose height and colour are computed
+  // in JS. Kept out of the water shader on purpose: the disturbance is 2% of
+  // the wave height, so it belongs behind a gain control where its size can be
+  // checked, not silently mixed into the sea.
+  //
+  // Exact within linear theory, one approximation noted: the transfer function
+  // was tabulated for head seas and is reused for all four headings. At 2% of
+  // the surface that is far below anything else in the error budget.
+  const D = DATA.disturb;
+  const DNF = D.omega.length, DNX = D.x.length, DNY = D.y.length;
+  const PW = 44, PN = 40;                       // patch metres, subdivisions
+  const patchGeo = new THREE.PlaneGeometry(PW, PW, PN, PN);
+  const patchCol = new Float32Array((PN + 1) * (PN + 1) * 3);
+  patchGeo.setAttribute("color", new THREE.BufferAttribute(patchCol, 3));
+  const patch = new THREE.Mesh(patchGeo, new THREE.MeshBasicMaterial({
+    vertexColors: true, transparent: true, opacity: 0.9,
+    depthWrite: false}));
+  patch.visible = false;
+  scene.add(patch);
+  let wakeGain = 0;
+
+  // each incident component contributes to the nearest tabulated frequency
+  function binOf(w) {
+    let b = 0, best = 1e9;
+    for (let f = 0; f < DNF; f++) {
+      const e = Math.abs(D.omega[f] - w);
+      if (e < best) { best = e; b = f; }
+    }
+    return b;
+  }
+  let compBin = null;
+
+  // Bilinear samples for the whole patch are precomputed once: the grid is
+  // body-fixed, so the interpolation weights never change. Per frame this
+  // leaves one multiply-add per (vertex, frequency).
+  const nP = (PN + 1) * (PN + 1);
+  const dRe = new Float32Array(nP * DNF), dIm = new Float32Array(nP * DNF);
+  (function bakeDisturbance() {
+    for (let iy = 0, vi = 0; iy <= PN; iy++) {
+      for (let ix = 0; ix <= PN; ix++, vi++) {
+        const xb = -PW/2 + PW*ix/PN, yb = -PW/2 + PW*iy/PN;
+        const gx = (xb - D.x[0]) / (D.x[DNX-1] - D.x[0]) * (DNX - 1);
+        const gy = (yb - D.y[0]) / (D.y[DNY-1] - D.y[0]) * (DNY - 1);
+        if (gx < 0 || gy < 0 || gx > DNX-1 || gy > DNY-1) continue;
+        const i = Math.min(DNX-2, Math.floor(gx));
+        const j = Math.min(DNY-2, Math.floor(gy));
+        const tx = gx - i, ty = gy - j;
+        const w00 = (1-tx)*(1-ty), w10 = tx*(1-ty),
+              w01 = (1-tx)*ty,     w11 = tx*ty;
+        for (let f = 0; f < DNF; f++) {
+          const b0 = (f*DNX + i)*DNY + j, b1 = (f*DNX + i + 1)*DNY + j;
+          dRe[vi*DNF + f] = D.re[b0]*w00 + D.re[b1]*w10
+                          + D.re[b0+1]*w01 + D.re[b1+1]*w11;
+          dIm[vi*DNF + f] = D.im[b0]*w00 + D.im[b1]*w10
+                          + D.im[b0+1]*w01 + D.im[b1+1]*w11;
+        }
+      }
+    }
+  })();
+
+  let patchTick = 0;
+  function updatePatch(fr) {
+    if (!wakeGain) { patch.visible = false; return; }
+    patch.visible = true;
+    patch.position.set(fr[1], fr[2], 0);
+    // The disturbance evolves at wave frequency, so a third of the frame rate
+    // resolves it with room to spare and keeps the JS cost off the hot path.
+    if (patchTick++ % 3) return;
+    const R = RUNS[state.run], t = fr[0], xv = fr[1], yv = fr[2];
+    // collapse the 64 components onto the 8 tabulated frequencies: within a
+    // bin they share a transfer function, so one complex coefficient each
+    const cr = new Float64Array(DNF), ci = new Float64Array(DNF);
+    for (let k = 0; k < NC; k++) {
+      const kx = R.p[4*k], ky = R.p[4*k+1], w = R.p[4*k+2], ph = R.p[4*k+3];
+      const psi = kx*xv + ky*yv - w*t + ph, a = R.a[k], b = compBin[k];
+      cr[b] += a*Math.cos(psi); ci[b] += a*Math.sin(psi);
+    }
+    // per-component phase at the vessel, hoisted out of the vertex loop
+    const ck = new Float64Array(NC), sk = new Float64Array(NC);
+    for (let k = 0; k < NC; k++) {
+      const psi = R.p[4*k]*xv + R.p[4*k+1]*yv - R.p[4*k+2]*t + R.p[4*k+3];
+      ck[k] = R.a[k]*Math.cos(psi); sk[k] = R.a[k]*Math.sin(psi);
+    }
+    const pos = patchGeo.attributes.position.array;
+    const col = patchGeo.attributes.color.array;
+    for (let iy = 0, vi = 0; iy <= PN; iy++) {
+      const yb = -PW/2 + PW*iy/PN;
+      for (let ix = 0; ix <= PN; ix++, vi++) {
+        const xb = -PW/2 + PW*ix/PN;
+        let dz = 0;
+        for (let f = 0; f < DNF; f++)
+          dz += cr[f]*dRe[vi*DNF + f] - ci[f]*dIm[vi*DNF + f];
+        // incident surface, so the patch sits on the water rather than
+        // floating above it: cos(A+psi) = cosA cos psi - sinA sin psi
+        let h = 0;
+        for (let k = 0; k < NC; k++) {
+          const a = R.p[4*k]*xb + R.p[4*k+1]*yb;
+          h += ck[k]*Math.cos(a) - sk[k]*Math.sin(a);
+        }
+        pos[vi*3] = xb; pos[vi*3+1] = yb;
+        pos[vi*3+2] = h + wakeGain*dz + 0.02;
+        const u = Math.max(-1, Math.min(1, dz*90));
+        col[vi*3]   = u > 0 ? 0.95 : 0.42;
+        col[vi*3+1] = 0.55 - 0.25*Math.abs(u);
+        col[vi*3+2] = u > 0 ? 0.35 : 0.92;
+      }
+    }
+    patchGeo.attributes.position.needsUpdate = true;
+    patchGeo.attributes.color.needsUpdate = true;
+  }
+
+  const hg = new THREE.BufferGeometry();
+  const hv = new Float32Array(DATA.hull.v.length*3);
+  DATA.hull.v.forEach((p,i)=>{hv[i*3]=p[0]; hv[i*3+1]=p[1]; hv[i*3+2]=p[2];});
+  hg.setAttribute("position", new THREE.BufferAttribute(hv,3));
+  hg.setIndex(DATA.hull.f.flat());
+  hg.computeVertexNormals();
+  const hull = new THREE.Mesh(hg, new THREE.MeshLambertMaterial({
+    color:0xff7a2f, emissive:0x2a1105, side:THREE.DoubleSide}));
+  scene.add(hull);
+  const wire = new THREE.LineSegments(new THREE.WireframeGeometry(hg),
+    new THREE.LineBasicMaterial({color:0xffb387, transparent:true, opacity:0.35}));
+  wire.visible = false; scene.add(wire);
+
+  scene.add(new THREE.HemisphereLight(0x9fc4d8, 0x0a1017, 0.85));
+  const sun = new THREE.DirectionalLight(0xffe6cc, 0.95);
+  sun.position.set(-42,30,85); scene.add(sun);
+
+  // ---- run selection ---------------------------------------------------
+  const state = {t:0, playing:true, speed:1, cam:"chase", run:0,
+                 yaw:-0.62, pitch:0.34, dist:34, drag:null};
+  let F = null, slamTimes = [];
+  const el = id => document.getElementById(id);
+  const track = el("track");
+
+  function loadRun(idx) {
+    const R = RUNS[idx];
+    state.run = idx; F = R.frames;
+    for (let i = 0; i < NC; i++)
+      uni.uP.value[i].set(R.p[4*i], R.p[4*i+1], R.p[4*i+2], R.p[4*i+3]);
+    uni.uA.value.set(R.a);
+    compBin = new Int32Array(NC);
+    for (let k = 0; k < NC; k++) compBin[k] = binOf(R.p[4*k+2]);
+    slamTimes = F.filter(f => f[10] > 0).map(f => f[0]);
+    track.querySelectorAll(".slam").forEach(n => n.remove());
+    slamTimes.forEach(s => {
+      const d = document.createElement("div");
+      d.className = "slam"; d.style.left = (s/TEND*100)+"%";
+      d.title = "slam at " + s.toFixed(1) + " s";
+      track.appendChild(d);
+    });
+    state.t = 0;
+  }
+
+  const seedRow = el("seeds");
+  RUNS.forEach((R,i) => {
+    const b = document.createElement("button");
+    b.textContent = "#" + R.seed;
+    b.title = R.slams + " slam" + (R.slams===1?"":"s") + " in this realisation";
+    b.setAttribute("aria-pressed", i===0 ? "true":"false");
+    b.onclick = () => {
+      loadRun(i);
+      [...seedRow.children].forEach((o,k)=>
+        o.setAttribute("aria-pressed", k===i ? "true":"false"));
+    };
+    seedRow.appendChild(b);
+  });
+  loadRun(0);
+  el("c-end").textContent = TEND.toFixed(0);
+
+  // ---- playback --------------------------------------------------------
+  function frameAt(t) {
+    const i = Math.min(F.length-1, Math.max(0, t/M.dt));
+    const a = F[Math.floor(i)], b = F[Math.min(F.length-1, Math.ceil(i))];
+    const f = i - Math.floor(i);
+    return a.map((v,k) => v + (b[k]-v)*f);
+  }
+
+  const qz = new THREE.Quaternion(), qy = new THREE.Quaternion(),
+        qx = new THREE.Quaternion(), q = new THREE.Quaternion();
+  const AX = new THREE.Vector3(1,0,0), AY = new THREE.Vector3(0,1,0),
+        AZ = new THREE.Vector3(0,0,1);
+  function poseHull(fr) {
+    hull.position.set(fr[1], fr[2], fr[3]);
+    qz.setFromAxisAngle(AZ, fr[6]);
+    qy.setFromAxisAngle(AY, fr[5]);
+    qx.setFromAxisAngle(AX, fr[4]);
+    q.multiplyQuaternions(qz, qy).multiply(qx);
+    hull.quaternion.copy(q);
+    wire.position.copy(hull.position); wire.quaternion.copy(q);
+  }
+
+  function placeCamera(fr) {
+    const tgt = new THREE.Vector3(fr[1], fr[2], fr[3] + 0.6);
+    let off;
+    if (state.cam === "bird") off = new THREE.Vector3(-6,-3,40);
+    else if (state.cam === "beam") off = new THREE.Vector3(1,-28,9);
+    else {
+      const d = state.dist, p = state.pitch, a = state.yaw;
+      off = new THREE.Vector3(Math.cos(a)*Math.cos(p)*d,
+                              Math.sin(a)*Math.cos(p)*d, Math.sin(p)*d);
+    }
+    camera.position.copy(tgt).add(off);
+    camera.lookAt(tgt);
+  }
+
+  function readout(fr) {
+    const [t,,,z,,pitch,,u,thr,acc] = fr;
+    el("r-heave").innerHTML = (z>=0?"+":"")+z.toFixed(2)+'<span class="u">m</span>';
+    const pd = pitch*180/Math.PI;
+    el("r-pitch").innerHTML = (pd>=0?"+":"")+pd.toFixed(1)+'<span class="u">deg</span>';
+    el("r-speed").innerHTML = u.toFixed(2)+
+      '<span class="u">m/s &middot; '+(u*1.9438).toFixed(1)+' kn</span>';
+    const ae = el("r-acc");
+    ae.innerHTML = Math.abs(acc).toFixed(2)+'<span class="u">g</span>';
+    ae.classList.toggle("hot", Math.abs(acc) > 0.6);
+    el("r-thr").innerHTML = Math.round(thr*100)+'<span class="u">%</span>';
+    el("r-slam").innerHTML = slamTimes.filter(s=>s<=t).length +
+      '<span class="u">of '+RUNS[state.run].slams+'</span>';
+    el("c-now").textContent = t.toFixed(1);
+    const p = t/TEND;
+    track.querySelector(".fill").style.width = (p*100)+"%";
+    track.querySelector(".knob").style.left = (p*100)+"%";
+  }
+
+  // ---- interaction -----------------------------------------------------
+  const press = (id,on) => el(id).setAttribute("aria-pressed", on?"true":"false");
+  ["chase","beam","bird"].forEach(c => el("cam-"+c).onclick = () => {
+    state.cam = c;
+    ["chase","beam","bird"].forEach(k => press("cam-"+k, k===c));
+  });
+  el("play").onclick = () => {
+    state.playing = !state.playing;
+    el("play").textContent = state.playing ? "Pause" : "Play";
+    press("play", state.playing);
+  };
+  document.querySelectorAll(".spd").forEach(b => b.onclick = () => {
+    state.speed = parseFloat(b.dataset.s);
+    document.querySelectorAll(".spd").forEach(o =>
+      o.setAttribute("aria-pressed", o===b ? "true":"false"));
+  });
+  el("tg-preview").onclick = () => {
+    uni.uShowPrev.value = uni.uShowPrev.value > 0.5 ? 0 : 1;
+    press("tg-preview", uni.uShowPrev.value > 0.5);
+  };
+  document.querySelectorAll("#kelvin button").forEach(b => b.onclick = () => {
+    kelvinGain = parseFloat(b.dataset.g);
+    document.querySelectorAll("#kelvin button").forEach(o =>
+      o.setAttribute("aria-pressed", o === b ? "true" : "false"));
+  });
+  document.querySelectorAll("#wake button").forEach(b => b.onclick = () => {
+    wakeGain = parseFloat(b.dataset.g);
+    document.querySelectorAll("#wake button").forEach(o =>
+      o.setAttribute("aria-pressed", o === b ? "true" : "false"));
+  });
+  el("tg-wire").onclick = () => {
+    wire.visible = !wire.visible; hull.visible = !wire.visible;
+    press("tg-wire", wire.visible);
+  };
+
+  function seek(ev) {
+    const r = track.getBoundingClientRect();
+    state.t = Math.max(0, Math.min(1, (ev.clientX-r.left)/r.width))*TEND;
+  }
+  track.onpointerdown = e => { seek(e); track.setPointerCapture(e.pointerId);
+                               track.onpointermove = seek; };
+  track.onpointerup = () => { track.onpointermove = null; };
+
+  canvas.onpointerdown = e => { state.drag = {x:e.clientX, y:e.clientY};
+                                canvas.setPointerCapture(e.pointerId); };
+  canvas.onpointerup = () => state.drag = null;
+  canvas.onpointermove = e => {
+    if (!state.drag) return;
+    state.yaw -= (e.clientX-state.drag.x)*0.006;
+    state.pitch = Math.max(0.04, Math.min(1.35,
+      state.pitch + (e.clientY-state.drag.y)*0.005));
+    state.drag = {x:e.clientX, y:e.clientY};
+    if (state.cam !== "chase") { state.cam = "chase";
+      ["chase","beam","bird"].forEach(k => press("cam-"+k, k==="chase")); }
+  };
+  canvas.onwheel = e => { e.preventDefault();
+    state.dist = Math.max(12, Math.min(140, state.dist*(1+e.deltaY*0.0011))); };
+  addEventListener("keydown", e => {
+    if (e.code === "Space") { e.preventDefault(); el("play").click(); }
+  });
+
+  // ---- loop ------------------------------------------------------------
+  function resize() {
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setSize(innerWidth, innerHeight, false);
+    camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
+  }
+  addEventListener("resize", resize); resize();
+
+  let last = performance.now();
+  function tick(now) {
+    const dt = Math.min((now-last)/1000, 0.1); last = now;
+    if (state.playing) { state.t += dt*state.speed;
+                         if (state.t > TEND) state.t = 0; }
+    const fr = frameAt(state.t);
+    uni.uTime.value = fr[0];
+    uni.uOrigin.value.set(fr[1], fr[2]);
+    water.position.set(fr[1], fr[2], 0);
+    uni.uPrevX.value = fr[1];
+    uni.uPrevLen.value = Math.max(fr[7], 0.5)*M.t_preview;
+    if (WK) {
+      uni.uWakeShip.value.set(fr[1], fr[2], fr[6]);
+      const r = Math.max(fr[7], 0.5) / WK.U0;
+      uni.uWakeCtl.value.set(kelvinGain, r*r, WK.amp);
+    }
+    poseHull(fr); placeCamera(fr); readout(fr); updatePatch(fr);
+    renderer.render(scene, camera);
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  // A shader that fails to link renders nothing and, without this, looks
+  // exactly like a broken page. Report it instead.
+  setTimeout(() => {
+    const d = renderer.info.render;
+    if (!d || d.triangles === 0)
+      fail("The water shader did not compile on this device. "
+           + "Open the browser console for the GLSL log.");
+  }, 1200);
+ } catch (e) {
+  fail(String(e && e.message ? e.message : e));
+ }
+})();
+</script>
