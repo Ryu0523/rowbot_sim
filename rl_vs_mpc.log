@@ -1,0 +1,17 @@
+12 HELD-OUT seas x 200 s (PPO trained on seeds 0-23, scored on 100-111)
+
+  constant thrust                done
+  autopilot                      done
+  MPC (steering, 8 s preview)    done
+  PPO (8 s preview)              done
+
+  controller                           J    +-      u  acc_p99    rvm  slamImp    wet    hdg  cross
+  constant thrust                 13.524 2.399   4.43    0.552  0.252    136.5   2.24   8.5d 54.24m
+  autopilot                        0.405 0.018   4.44    0.569  0.253    136.2   2.36   0.8d  2.44m
+  MPC (steering, 8 s preview)      0.357 0.019   4.22    0.558  0.249    120.2   2.16   2.5d  0.86m
+  PPO (8 s preview)                0.827 0.127   2.75    0.408  0.187     37.1   0.36   6.9d 10.20m
+
+  against constant thrust, on the operator objective J:
+    autopilot                        -97.0% +-17.7   RESOLVED
+    MPC (steering, 8 s preview)      -97.4% +-17.7   RESOLVED
+    PPO (8 s preview)                -93.9% +-17.8   RESOLVED

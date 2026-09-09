@@ -1,0 +1,14 @@
+non-causal oracle, 4 seeds x 200 s, 10 thrust knots
+
+  seed 0:  J 0.5939 -> 0.5291 (+10.9%)   u 4.49 -> 4.47   thrust std 3903 N
+  seed 1:  J 0.6632 -> 0.5091 (+23.2%)   u 4.44 -> 4.47   thrust std 3565 N
+  seed 2:  J 0.5643 -> 0.4881 (+13.5%)   u 4.46 -> 4.47   thrust std 2120 N
+  seed 3:  J 0.5854 -> 0.5453 (+6.8%)   u 4.50 -> 4.46   thrust std 2325 N
+
+  objective improvement: 13.6% +- 3.5%
+  speed drift between the two: 0.025 m/s (pinned, so the gain is not from slowing down)
+
+  --------------------------------------------------------------
+  The ceiling is 13.6% above constant thrust, so the
+  information IS exploitable and both earlier probes missed it.
+  A learned policy is worth building, and this is its target.

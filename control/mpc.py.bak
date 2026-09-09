@@ -53,18 +53,12 @@ class PreviewProvider:
         self.rel_noise = rel_noise
         self.rng = np.random.default_rng(seed)
 
-    def at(self, x_positions, y_positions, t, t_ahead):
-        """Wave elevation at real points on the water.
-
-        `y_positions` used to be hard-coded to zero, so the controller sampled
-        the sea along the x-axis no matter where the vessel actually was or
-        which way it pointed. Harmless while every study ran straight down +x
-        with the rudder locked; wrong the moment it steers, which is now.
-        """
+    def at(self, x_positions, t, t_ahead):
         if t_ahead > self.t_preview:
             return np.zeros_like(x_positions)
-        e = self.sea.eta(np.ravel(x_positions), np.ravel(y_positions),
-                         t).reshape(np.shape(x_positions))
+        e = self.sea.eta(x_positions.ravel(),
+                         np.zeros(x_positions.size), t).reshape(
+                             np.shape(x_positions))
         if self.rel_noise > 0:
             e = e + self.rng.normal(0.0, self.rel_noise * self.sea.hs / 4,
                                     e.shape)
@@ -90,9 +84,6 @@ class MPPIController:
         self.nominal[0] = 0.5                      # mid throttle
         self.x_st = np.linspace(-model.p["L"] / 2, model.p["L"] / 2,
                                 n_stations)
-        # port / centre / starboard, for the transverse slope
-        b = 0.5 * model.p.get("B", 2.5)
-        self.y_off = np.array([-b, 0.0, b])
         self.last_cmd = np.array([0.5, 0.0])
         # The rudder can be locked out for studies that are about thrust
         # scheduling alone. It is not cosmetic: rudder lift produces a SWAY
@@ -118,18 +109,8 @@ class MPPIController:
         p = self.m.p
         for h in range(self.H):
             t = t0 + h * self.dt
-            # Station positions in the WATER, rotated by the vessel's own
-            # predicted heading, and sampled at three lateral offsets so the
-            # model can see the transverse wave slope -- the thing that pushes
-            # a hull sideways and yaws it. Sampling only the centreline left
-            # the steering channels blind to wave excitation entirely.
-            psi_h = s[:, 7:8]
-            ch, sh = np.cos(psi_h), np.sin(psi_h)
-            xb = self.x_st[None, :, None]              # (1, n_st, 1)
-            yb = self.y_off[None, None, :]             # (1, 1, 3)
-            xs = s[:, 0:1, None] + xb * ch[..., None] - yb * sh[..., None]
-            ys = s[:, 1:2, None] + xb * sh[..., None] + yb * ch[..., None]
-            eta = self.pv.at(xs, ys, t, h * self.dt)
+            xs = s[:, 0:1] + self.x_st[None, :]
+            eta = self.pv.at(xs, t, h * self.dt)
             thrust = np.clip(seq[:, 0, h], 0.0, 1.0) * 12000.0
             rudder = np.clip(seq[:, 1, h], -1.0, 1.0) * np.radians(35.0)
             s, a_bow, rel = self.m.step(s, thrust, rudder, eta, self.x_st,

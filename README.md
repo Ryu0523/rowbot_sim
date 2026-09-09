@@ -58,6 +58,34 @@ Then open <http://127.0.0.1:8731/seaway_full.html>.
 also just double-click it, or email it to someone. The local server is only
 needed if your browser is strict about `file://`.
 
+### Drive it yourself
+
+The viewer has a **Take the helm** button. `W`/`S` throttle, `A`/`D` rudder,
+space centres the rudder, `R` restarts. The panel shows speed, heading, angle
+relative to the waves, bow acceleration, velocity made good, and a ride cost
+(bow acceleration squared per metre of progress). Head seas is the reference —
+try 45 degrees off and watch the cost.
+
+Out of the box this integrates the **10-state reduced model**, the one the MPC
+plans with, because a browser cannot run the 110-state solve. For the real
+thing:
+
+```bash
+python -m viewer.helm
+```
+
+Then open <http://127.0.0.1:8770/seaway_full.html>. The badge changes to **LIVE
+PLANT · 110 states**. The plant now runs in Python at wall-clock pace (measured
+1.001x real time) and the browser is reduced to rendering and input.
+
+That matters for more than fidelity: it is **exactly the environment
+`sim/rl_env.py` trains on**, so a human lap and a learned policy are directly
+comparable. It also returns three things the reduced model structurally cannot:
+roll, slam force, and the speed you lose to waves.
+
+The page falls back to the reduced model automatically when no server answers,
+which is why the published artifact still works standalone.
+
 ### What you are looking at
 
 The browser is **not playing a recording of the water.** It re-evaluates the same
@@ -103,9 +131,16 @@ python -m sim.verify_rao             # 22 s   time domain vs exact frequency dom
 python -m sim.test_sections          #  1 s   exact panel integration vs closed form
 python -m sim.test_vessel            # 61 s   nonlinear plant, 7 checks
 python -m hydro.kelvin               # 97 s   steady wake geometry, 6 checks
+python -m sim.test_manoeuvre         # 60 s   turning circle, drift, course stability
+python -m studies.model_horizon      #  4 m   can the MPC's internal model carry preview
 ```
 
-All six currently pass. Reference numbers live in `PLAN.md`; every historical
+`test_manoeuvre` currently FAILS one check on purpose: the rudder's maximum
+deflection (35 deg) is past its own stall angle (28 deg), so the last third of
+its travel makes the vessel turn worse. One of those two numbers is wrong and
+it is a design decision, not a bug to paper over.
+
+The rest pass. Reference numbers live in `PLAN.md`; every historical
 failure and its cause is in `DEFECTS.md`.
 
 ---
@@ -180,10 +215,21 @@ control/
 learn/
   tune.py               CMA-ES over 7 bounded weights
 
+sim/rl_env.py           direct-control RL environment: action is (thrust,
+                        rudder), observation is vessel state plus configurable
+                        wave preview, reward is dense and event-free.
+                        169 control steps/s = 85x real time, no gymnasium
+                        required (a gymnasium subclass appears if installed)
+
 studies/                each answers one question and writes a .json
 viewer/
-  seaway.html           the WebGL viewer (three.js r128, single file)
+  seaway.html           the WebGL viewer (three.js r128, single file).
+                        Drive mode integrates the reduced model locally, or
+                        defers to viewer/helm.py when it is running
   build.py              inlines viewer_data.json → seaway_full.html
+  helm.py               serves the page AND runs the real 110-state plant in
+                        real time, so a person can steer the same environment
+                        the RL policy trains on. Standard library only
 
 step0_preview_spec.py   JONSWAP spectrum and directional spreading.
                         Still imported by sim/wavefield.py, so it must stay at

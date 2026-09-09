@@ -24,67 +24,6 @@ from scipy.linalg import expm
 G = 9.81
 
 
-def _fit_wave_horizontal(plant, L, B, n_st=5, t_end=180.0, dt=0.05,
-                         seeds=(0, 1, 2)):
-    """Regress the plant's unexplained sway/yaw acceleration on the wave slope.
-
-    The reduced model already accounts for rudder lift, sway damping and the
-    Coriolis term. What it cannot account for is the sea pushing the hull
-    sideways and slewing it, and in short-crested waves that is most of what
-    happens to heading. So: run the plant with the rudder locked (no lift, no
-    Coriolis worth speaking of), measure v_dot and r_dot directly, and fit
-
-        v_dot_residual = c_sway * g * (transverse slope)
-        r_dot          = c_yaw  * g * (twist of that slope along the hull)
-
-    Least squares through the origin, pooled over seeds. Returning zero when
-    the fit is degenerate is deliberate: a wrong coefficient here is worse than
-    none, because it would make the controller act at the wrong phase.
-    """
-    from sim.wavefield import SeaState
-    from sim.vessel import NonlinearVessel
-    g = 9.81
-    x_st = np.linspace(-L / 2, L / 2, n_st)
-    xc = x_st - x_st.mean()
-    den = max((xc ** 2).sum(), 1e-12)
-    hb = 0.5 * B
-    A_s, b_s, A_y, b_y = [], [], [], []
-    for sd in seeds:
-        sea = SeaState(3.25, 9.7, n_freq=24, n_dir=5, seed=sd)
-        v = NonlinearVessel(plant.db, sea, L=L, B=B, T=plant.T, dt=dt)
-        s = v.initial_state(4.0)
-        t = 0.0
-        prev = None
-        for i in range(int(t_end / dt)):
-            s = v.step(s, t, 7000.0, 0.0, dt)
-            t += dt
-            if i % 4:
-                continue
-            psi = s[5]
-            ch, sh = np.cos(psi), np.sin(psi)
-            xs = s[0] + xc[:, None] * ch - np.array([-hb, 0, hb])[None, :] * sh
-            ys = s[1] + xc[:, None] * sh + np.array([-hb, 0, hb])[None, :] * ch
-            e = sea.eta(xs.ravel(), ys.ravel(), t).reshape(n_st, 3)
-            tsl = (e[:, 2] - e[:, 0]) / (2 * hb)
-            t_slope = float(tsl.mean())
-            t_twist = float((tsl * xc).sum() / den)
-            if prev is not None:
-                dtt = 4 * dt
-                vdot = (s[7] - prev[0]) / dtt
-                rdot = (s[11] - prev[1]) / dtt
-                # subtract what the reduced model already explains in sway
-                known = (-plant.visc[1] * prev[0] * abs(prev[0])
-                         - plant.M[0, 0] * prev[2] * prev[1]) / plant.Mtot[1, 1]
-                A_s.append(g * t_slope); b_s.append(vdot - known)
-                A_y.append(g * t_twist); b_y.append(rdot)
-            prev = (float(s[7]), float(s[11]), float(s[6]))
-    A_s = np.array(A_s); b_s = np.array(b_s)
-    A_y = np.array(A_y); b_y = np.array(b_y)
-    c_s = float(A_s @ b_s / max(A_s @ A_s, 1e-12)) if A_s.size else 0.0
-    c_y = float(A_y @ b_y / max(A_y @ A_y, 1e-12)) if A_y.size else 0.0
-    return c_s, c_y
-
-
 class ReducedModel:
     """State: [x, y, u, z, zdot, th, thdot, psi, r].
 
@@ -186,20 +125,7 @@ class ReducedModel:
                       k_lift=k_lift, k_lin_sway=k_lin,
                       rud_stall=float(rud.stall))
 
-        # --- wave-induced sway force and yaw moment ------------------------
-        # Fitted, not guessed: run the plant in short-crested seas with the
-        # rudder locked, and regress the part of its sway and yaw acceleration
-        # that the reduced model does NOT already explain onto g*t_slope and
-        # g*t_twist. One least-squares solve each.
-        # Fitted and found worthless -- R^2 of 0.004 and 0.000. Pinned to zero
-        # rather than left in: a coefficient that explains nothing would still
-        # make the controller act, at a phase the fit could not determine, and
-        # a wrong phase is worse than silence. `_fit_wave_horizontal` is kept
-        # so the result can be reproduced.
-        c_ws, c_wy = 0.0, 0.0
-
-        p = dict(L=L, T=plant.T, B=float(plant.B),
-                 c_wave_sway=c_ws, c_wave_yaw=c_wy, tau_u=tau_u, k_drag=k_drag,
+        p = dict(L=L, T=plant.T, tau_u=tau_u, k_drag=k_drag,
                  wn_heave=wn["heave"], z_heave=zeta["heave"],
                  wn_pitch=wn["pitch"], z_pitch=zeta["pitch"],
                  k_nomoto=k_nomoto, tau_r=max(tau_r, 0.5),
@@ -247,25 +173,9 @@ class ReducedModel:
         """Vectorised over rollouts. s is (N, 10); eta_stations is (N, n_st)."""
         p = self.p
         x, y, u, z, zd, th, thd, psi, r, v = s.T
-        eta = np.asarray(eta_stations, float)
+        eta_bar = eta_stations.mean(axis=1)
         xc = x_st - x_st.mean()
-        den = max((xc ** 2).sum(), 1e-12)
-        if eta.ndim == 3:
-            # (N, n_st, 3): port / centre / starboard
-            eta_c = eta[:, :, 1]
-            half_b = 0.5 * p.get("B", 2.5)
-            # transverse slope at each station, from the two outer samples
-            tsl = (eta[:, :, 2] - eta[:, :, 0]) / (2.0 * half_b)
-            t_slope = tsl.mean(axis=1)                   # pushes the hull sideways
-            # how that slope changes along the hull: bow and stern pushed
-            # opposite ways is exactly a yaw moment
-            t_twist = (tsl * xc).sum(axis=1) / den
-        else:
-            eta_c = eta
-            t_slope = np.zeros(eta.shape[0])
-            t_twist = np.zeros(eta.shape[0])
-        eta_bar = eta_c.mean(axis=1)
-        slope = (eta_c * xc).sum(axis=1) / den
+        slope = (eta_stations * xc).sum(axis=1) / max((xc ** 2).sum(), 1e-12)
 
         # Linearising m_eff*udot = thrust - k u^2 about u_ss gives a first-order
         # time constant tau = m_eff / (2 k u_ss), so m_eff = 2 k u_ss tau.
@@ -311,37 +221,12 @@ class ReducedModel:
         lift = p["k_lift"] * u * np.abs(u) * rud_eff
         vd = (lift - p["k_lin_sway"] * v - p["k_sway"] * v * np.abs(v)
               - p["m_coriolis"] * u * r) / p["m_sway"]
-        # REVERTED, and the reason is worth keeping. The obvious way to give
-        # this model wave-induced sway and yaw is a gravity component: a hull on
-        # a laterally tilted surface slides down it, and if that tilt differs
-        # bow to stern the two ends are pushed opposite ways and it yaws. Both
-        # terms come out dimensionally clean, and the coefficients were fitted
-        # against the plant rather than guessed.
-        #
-        # It explains nothing. Regressed on 3 x 180 s of short-crested seas:
-        #
-        #     sway   correlation +0.066   R^2 0.004
-        #     yaw    correlation +0.003   R^2 0.000
-        #
-        # and the feature is the same SIZE as the response (std 0.248 against
-        # 0.215), so this is not a scaling failure -- the two signals simply do
-        # not line up in time. Wave excitation is not instantaneous local
-        # geometry; it is the BEM excitation transfer function, which carries a
-        # frequency-dependent PHASE LAG. No real coefficient on an instantaneous
-        # geometric feature can represent a phase shift.
-        #
-        # The honest fix is to carry the wave components and apply the complex
-        # excitation per component, as the plant does -- see the note in
-        # `studies/model_horizon.py`. Left at zero rather than deleted so the
-        # measurement above is not repeated by the next person.
-        vd = vd + p["c_wave_sway"] * 9.81 * t_slope
 
         # First-order channels: surge is slow (tau 6.3 s vs dt 0.5) so explicit
         # stepping is fine; yaw is marginal at tau_r = 0.5 s, so it gets the
         # exact first-order update too.
         ay = float(np.exp(-dt / p["tau_r"]))
-        r_rud = p["k_nomoto"] * rudder + (r - p["k_nomoto"] * rudder) * ay
-        r_new = r_rud + p["c_wave_yaw"] * 9.81 * t_twist * dt
+        r_new = p["k_nomoto"] * rudder + (r - p["k_nomoto"] * rudder) * ay
 
         ns = np.empty_like(s)
         ns[:, 2] = u + ud * dt
@@ -367,9 +252,7 @@ class ReducedModel:
         a_bow = ((nzd - zd) + p["sign_pitch"] * (p["L"] / 2)
                  * (nthd - thd)) / dt
         z_bow = z + p["sign_pitch"] * (p["L"] / 2) * th
-        # the bow station on the CENTRELINE, not the whole port/centre/stbd
-        # triple -- eta_c already selected it
-        rel = z_bow - eta_c[:, -1]
+        rel = z_bow - eta_stations[:, -1]
         return ns, a_bow, rel
 
     def from_plant_state(self, s_plant):

@@ -1,0 +1,201 @@
+#!/usr/bin/env python3
+"""
+Reduced prediction model for the MPC, IDENTIFIED from the verified plant.
+
+The plant is 110+ states. Rolling that forward for a few hundred MPPI samples
+at every control step is not affordable, and it is not necessary: the MPC needs
+the right timescales, not the right hydrodynamics. So it carries a small model
+
+    surge   first-order thrust response plus quadratic drag and added resistance
+    heave   second-order oscillator driven by the wave surface under the hull
+    pitch   second-order oscillator driven by the wave slope along the hull
+    yaw     first-order (Nomoto) response to rudder
+
+and every coefficient in it is fitted to the M3/M4 model rather than guessed.
+That is the difference between this and the Phase 0 toy: the numbers now come
+from the hull, so when the hull changes the controller model follows.
+
+Identification uses the same three experiments a real vessel would:
+a thrust step, a free decay, and a regular-wave sweep.
+"""
+import numpy as np
+from scipy.linalg import expm
+
+G = 9.81
+
+
+class ReducedModel:
+    """State: [x, y, u, z, zdot, th, thdot, psi, r].
+
+    y is carried so cross-track error is a real quantity in the cost rather
+    than a placeholder; sway is neglected, so ydot = u sin(psi).
+    """
+
+    NS = 9
+
+    def __init__(self, p):
+        self.p = p
+        self._phi_cache = {}
+
+    @classmethod
+    def identify(cls, plant, db, verbose=False):
+        from sim.test_vessel import Monochromatic, _run
+        from sim.vessel import NonlinearVessel, SIGN_PITCH
+
+        L = plant.L
+
+        # --- surge: thrust step in calm water -> gain and time constant ----
+        calm = Monochromatic(1.0, 0.0)
+        v = NonlinearVessel(db, calm, L=L, dt=0.05)
+        t, s = _run(v, 240.0, thrust=8000.0)
+        u = s[:, 6]
+        u_ss = float(np.mean(u[-200:]))
+        # first-order rise: u(t) = u_ss (1 - exp(-t/tau))
+        idx = np.argmax(u > 0.632 * u_ss)
+        tau_u = float(t[idx]) if idx > 0 else 8.0
+        k_drag = 8000.0 / max(u_ss ** 2, 1e-6)      # steady drag balance
+
+        # --- heave / pitch: free decay -> natural frequency and damping ----
+        wn, zeta = {}, {}
+        for dof, col, vcol in (("heave", 2, 8), ("pitch", 4, 10)):
+            s0 = v.initial_state()
+            s0[col] = 0.5 if dof == "heave" else 0.08
+            n = int(30.0 / 0.05)
+            y = np.empty(n + 1)
+            st = s0.copy()
+            for i in range(n):
+                st = v.step(st, i * 0.05, 0.0, 0.0, 0.05)
+                y[i + 1] = st[col]
+            y[0] = s0[col]
+            tt = np.arange(n + 1) * 0.05
+            zc = np.where(np.diff(np.sign(y)))[0]
+            T = 2 * np.mean(np.diff(tt[zc])) if len(zc) > 2 else 2.0
+            wn[dof] = 2 * np.pi / T
+            pk = [i for i in range(1, n) if y[i] > y[i - 1] and y[i] > y[i + 1]
+                  and y[i] > 0.02 * abs(s0[col])]
+            if len(pk) >= 2:
+                dlt = np.log(abs(y[pk[0]] / y[pk[1]]))
+                zeta[dof] = float(dlt / np.sqrt(4 * np.pi ** 2 + dlt ** 2))
+            else:
+                zeta[dof] = 0.3
+
+        # --- yaw: rudder step -> Nomoto gain and time constant -------------
+        st = v.initial_state(u_ss)
+        n = int(60.0 / 0.05)
+        r = np.empty(n + 1)
+        r[0] = 0.0
+        for i in range(n):
+            st = v.step(st, i * 0.05, 8000.0, np.radians(20.0), 0.05)
+            r[i + 1] = st[11]
+        r_ss = float(np.mean(r[-100:]))
+        k_nomoto = r_ss / np.radians(20.0)
+        idx = np.argmax(np.abs(r) > 0.632 * abs(r_ss)) if abs(r_ss) > 1e-9 else 0
+        tau_r = float(idx * 0.05) if idx > 0 else 3.0
+
+        p = dict(L=L, T=plant.T, tau_u=tau_u, k_drag=k_drag,
+                 wn_heave=wn["heave"], z_heave=zeta["heave"],
+                 wn_pitch=wn["pitch"], z_pitch=zeta["pitch"],
+                 k_nomoto=k_nomoto, tau_r=max(tau_r, 0.5),
+                 sign_pitch=SIGN_PITCH,
+                 v_slam=0.093 * np.sqrt(G * L),
+                 draft=plant.T, u_ss=u_ss, u_max=u_ss * 1.35,
+                 m_surge=max(2.0 * k_drag * u_ss * tau_u, 1e-6))
+        if verbose:
+            print("  identified reduced model:")
+            for k, val in p.items():
+                print(f"    {k:>12} = {val:.4g}")
+        return cls(p)
+
+    # ------------------------------------------------------------ dynamics
+    def _phi(self, wn, zeta, dt):
+        """Exact one-step transition for  e_ddot = -wn^2 e - 2 zeta wn e_dot.
+
+        Heave and pitch are LINEAR second-order systems, so their discrete
+        transition over a fixed step is available in closed form and is
+        unconditionally stable. That matters here because the control step is
+        0.5 s while wn is 3.1 (heave) and 3.6 (pitch) rad/s, so wn*dt is 1.5 to
+        1.8 -- far outside where explicit Euler is stable on an oscillator.
+
+        This was a real defect, not a refinement. With forward Euler the
+        rollout amplified error by sqrt(1 + (wn dt)^2) ~ 1.8-2.1 PER STEP, and
+        `studies.model_horizon` measured the consequence: prediction error grew
+        to 10^12 times the signal across the MPC's own 12 s horizon, and the
+        correlation with the plant fell below 0.5 after 1.0 s. The controller
+        was optimising against noise for 90% of its horizon, which made every
+        preview result meaningless -- a controller limit masquerading as a
+        statement about physics.
+
+        Cached per (wn, zeta, dt); there are only ever two or three.
+        """
+        key = (round(float(wn), 9), round(float(zeta), 9), round(float(dt), 9))
+        hit = self._phi_cache.get(key)
+        if hit is None:
+            A = np.array([[0.0, 1.0], [-wn ** 2, -2.0 * zeta * wn]])
+            hit = expm(A * dt)
+            self._phi_cache[key] = hit
+        return hit
+
+    def step(self, s, thrust, rudder, eta_stations, x_st, dt):
+        """Vectorised over rollouts. s is (N, 8); eta_stations is (N, n_st)."""
+        p = self.p
+        x, y, u, z, zd, th, thd, psi, r = s.T
+        eta_bar = eta_stations.mean(axis=1)
+        xc = x_st - x_st.mean()
+        slope = (eta_stations * xc).sum(axis=1) / max((xc ** 2).sum(), 1e-12)
+
+        # Linearising m_eff*udot = thrust - k u^2 about u_ss gives a first-order
+        # time constant tau = m_eff / (2 k u_ss), so m_eff = 2 k u_ss tau.
+        # Using u_max here instead of u_ss made the modelled surge response
+        # about 30% too fast.
+        drag = p["k_drag"] * u * np.abs(u)
+        ud = (thrust - drag) / p["m_surge"]
+
+        wz, zz = p["wn_heave"], p["z_heave"]
+        wp, zp = p["wn_pitch"], p["z_pitch"]
+        alpha = np.arctan(slope) * p["sign_pitch"]
+
+        # Exact transition, measured from the forcing. Holding eta_bar and the
+        # wave slope constant across one control step is a zero-order hold --
+        # the standard and consistent choice, and the equilibrium of each
+        # subsystem under that hold is exactly z = eta_bar and th = alpha.
+        Pz = self._phi(wz, zz, dt)
+        Pp = self._phi(wp, zp, dt)
+        ez, ep_ = z - eta_bar, th - alpha
+        nz = Pz[0, 0] * ez + Pz[0, 1] * zd
+        nzd = Pz[1, 0] * ez + Pz[1, 1] * zd
+        nth = Pp[0, 0] * ep_ + Pp[0, 1] * thd
+        nthd = Pp[1, 0] * ep_ + Pp[1, 1] * thd
+
+        # First-order channels: surge is slow (tau 6.3 s vs dt 0.5) so explicit
+        # stepping is fine; yaw is marginal at tau_r = 0.5 s, so it gets the
+        # exact first-order update too.
+        ay = float(np.exp(-dt / p["tau_r"]))
+        r_new = p["k_nomoto"] * rudder + (r - p["k_nomoto"] * rudder) * ay
+
+        ns = np.empty_like(s)
+        ns[:, 2] = u + ud * dt
+        ns[:, 3] = nz + eta_bar
+        ns[:, 4] = nzd
+        ns[:, 5] = nth + alpha
+        ns[:, 6] = nthd
+        ns[:, 8] = r_new
+        ns[:, 7] = psi + 0.5 * (r + r_new) * dt
+        ns[:, 0] = x + ns[:, 2] * np.cos(ns[:, 7]) * dt
+        ns[:, 1] = y + ns[:, 2] * np.sin(ns[:, 7]) * dt
+        # Bow acceleration as the AVERAGE over the step, not the instantaneous
+        # value at its leading edge. The wave forcing is held constant across a
+        # control step (zero-order hold), so the instantaneous formula sees the
+        # staircase edge and over-predicted the amplitude by 2.1x -- measured
+        # against the plant in `studies.model_horizon`. Averaging is also what
+        # the cost actually wants, since it integrates over the step.
+        a_bow = ((nzd - zd) + p["sign_pitch"] * (p["L"] / 2)
+                 * (nthd - thd)) / dt
+        z_bow = z + p["sign_pitch"] * (p["L"] / 2) * th
+        rel = z_bow - eta_stations[:, -1]
+        return ns, a_bow, rel
+
+    def from_plant_state(self, s_plant):
+        """Project the full plant state onto the reduced state."""
+        eta, nu = s_plant[:6], s_plant[6:12]
+        return np.array([eta[0], eta[1], nu[0], eta[2], nu[2],
+                         eta[4], nu[4], eta[5], nu[5]])

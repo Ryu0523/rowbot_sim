@@ -88,7 +88,21 @@ class Rudder:
     scales with the square of inflow speed, so authority vanishes at low speed
     exactly when a following sea is pushing the stern around."""
 
-    def __init__(self, area=0.18, cl_alpha=3.5, stall_deg=28.0, x_rud=-4.9,
+    # Stall at 38 deg, not 28. The two numbers were inconsistent: the rudder
+    # could be commanded to 35 deg while stalling at 28, so the last third of
+    # its travel REDUCED the turning moment and the turning circle widened
+    # again past 25 deg of helm (measured 2.27 L at 25 deg, 2.70 L at 35 deg).
+    # Nobody builds that.
+    #
+    # Raising stall is the defensible fix rather than cutting the maximum.
+    # 35 deg is the standard maximum on essentially every vessel, and a rudder
+    # sitting in the propeller race stalls far later than the same foil in free
+    # stream -- the accelerated slipstream re-energises the boundary layer.
+    # Rudders are designed so that stall sits at or beyond the stops, which is
+    # what 38 deg now expresses. It remains a placeholder like the viscous
+    # terms, but it is a self-consistent one, and `sim/test_manoeuvre.py`
+    # bounds it.
+    def __init__(self, area=0.18, cl_alpha=3.5, stall_deg=38.0, x_rud=-4.9,
                  z_rud=-0.45, max_deg=35.0, rate_deg=25.0, tau=0.25,
                  delay=0.10, rho=1025.0, dt=0.05):
         self.area, self.cl_alpha = area, cl_alpha

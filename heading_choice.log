@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\Administrator\Documents\usv-rl-mpc\studies\heading_choice.py", line 164, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\Administrator\Documents\usv-rl-mpc\studies\heading_choice.py", line 135, in main
+    r, rse = ref[k]
+             ~~~^^^
+KeyError: 'acc_rms'
+8 seeds x 220 s, long-crested SS5, compared at VMG = 3.0 m/s toward a destination dead upwind
+
+  180deg  VMG range 3.08 - 5.60 m/s
+  165deg  VMG range 3.04 - 5.90 m/s
+  150deg  VMG range 2.69 - 5.20 m/s
+  135deg  VMG range 2.18 - 4.19 m/s
+  120deg  VMG range 1.57 - 2.98 m/s   <-- CANNOT REACH TARGET
+
+  every metric at VMG = 3.0 m/s, relative to head seas (%)
+
+  metric                  180d        165d        150d        135d        120d

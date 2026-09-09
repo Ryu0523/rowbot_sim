@@ -27,11 +27,16 @@ from control.mpc import MPPIController, PreviewProvider
 
 DB = "hydro_wigley_10m.npz"
 G = 9.81
-SEEDS = list(range(10))
+SEEDS = list(range(16))     # 10 left the group case unresolved at +-2%
 T_END = 260.0
 N_DIR = 1
 HS, TP = 3.25, 9.7
-THRUSTS = (5000, 7000, 9000, 11000)
+# Down to 3 kN. The group-preview case settles at 3.62 m/s, below the 3.86 m/s
+# the old 5 kN floor produced -- and np.interp CLAMPS outside its range, so that
+# case was silently compared against a baseline running 0.24 m/s faster than it.
+# Since slowing down improves nearly every metric, that flattered it. Same class
+# of error as an optimum sitting on the edge of its bracket.
+THRUSTS = (3000, 4000, 5000, 7000, 9000, 11000)
 
 CASES = [("no preview", 0.0, 24, 0.5),
          ("short 8 s", 8.0, 24, 0.5),
@@ -86,8 +91,19 @@ def baseline(db):
 
 
 def interp(base, key, u):
+    """Baseline value at speed u. Refuses to extrapolate.
+
+    np.interp clamps silently outside its range, which turns an out-of-bracket
+    comparison into a wrong number rather than an error. Every metric here
+    improves as the vessel slows, so comparing a slow controller against a
+    clamped (faster) baseline manufactures an improvement out of nothing.
+    """
     us = np.array([b["u_mean"] for b in base])
     o = np.argsort(us)
+    if not (us.min() - 1e-9 <= u <= us.max() + 1e-9):
+        raise ValueError(
+            f"speed {u:.2f} m/s is outside the baseline bracket "
+            f"[{us.min():.2f}, {us.max():.2f}] -- widen THRUSTS")
     return (float(np.interp(u, us[o], np.array([b[key] for b in base])[o])),
             float(np.mean([b[key + "_se"] for b in base])))
 

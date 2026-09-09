@@ -1,0 +1,16 @@
+  controller              J    +-     u  acc_p99    rvm  slamImp    wet   cross    hdg
+  autopilot           0.407 0.020  4.43    0.570  0.253    137.7   2.40   2.31m   0.9d
+  MPC u_ref=4.5       0.354 0.016  4.21    0.555  0.250    119.9   2.19   0.85m   2.4d
+  MPC u_ref=3.4       0.300 0.015  3.37    0.473  0.218     68.8   1.01   0.90m   3.1d
+  PPO aligned         0.455 0.025  2.30    0.359  0.168     23.5   0.18   4.10m   4.9d
+  PPO loose (old)     0.767 0.107  2.75    0.408  0.187     37.7   0.37   9.63m   6.8d
+
+  PPO(aligned) vs MPC at the nearest speed:
+    reference MPC u_ref=3.4   speeds 2.30 vs 3.37 m/s
+    bow accel p99      -24.1% +-  4.4   RESOLVED
+    rel motion         -23.0% +-  4.3   RESOLVED
+    slam impulse       -65.9% +-  9.8   RESOLVED
+    deck wetness       -82.0% +- 17.9   RESOLVED
+    cross-track       +356.1% +- 70.8   RESOLVED
+    heading rms        +61.3% +- 15.2   RESOLVED
+    objective J        +51.8% +-  9.8   RESOLVED

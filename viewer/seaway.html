@@ -42,6 +42,25 @@
   button[aria-pressed="true"]{color:var(--ground); background:var(--accent);
     border-color:var(--accent); font-weight:600}
   button:focus-visible{outline:2px solid var(--accent-soft); outline-offset:1px}
+  .drow{display:flex; align-items:center; gap:8px; font-size:11px;
+        color:var(--dim); margin:3px 0}
+  .drow>span:first-child{width:52px}
+  .drow i{flex:1; height:7px; background:#1b2733; border-radius:4px;
+          position:relative; display:block}
+  .drow i b{position:absolute; top:0; bottom:0; background:var(--accent);
+            border-radius:4px; display:block; width:0}
+  .drow>span:last-child{width:40px; text-align:right;
+                        font-variant-numeric:tabular-nums}
+  .badge{font-size:9.5px; letter-spacing:.09em; text-transform:uppercase;
+         color:var(--dimmer); border:1px solid var(--line); border-radius:3px;
+         padding:2px 6px; display:inline-block; margin:6px 0 2px}
+  .badge.on{color:#0a1017; background:var(--accent); border-color:var(--accent);
+            font-weight:600}
+  .dgrid{display:grid; grid-template-columns:1fr 1fr; gap:5px 10px;
+         margin-top:8px}
+  .dgrid>div{font-size:10.5px; color:var(--dim)}
+  .dgrid b{display:block; font-size:15px; color:var(--text);
+           font-variant-numeric:tabular-nums}
   .hint{font-size:10.5px; color:var(--dimmer); line-height:1.45; letter-spacing:.02em}
 
   #bar{position:fixed; left:14px; right:14px; bottom:14px; padding:9px 13px 11px;
@@ -86,7 +105,8 @@
   <div class="sub">
     H<sub>s</sub> <b>3.25 m</b> &nbsp; T<sub>p</sub> <b>9.7 s</b> &nbsp;
     &lambda;<sub>p</sub>/L <b>14.7</b><br>
-    short-crested, cos<sup>2s</sup> spreading &middot; 16&times;4 components
+    short-crested, cos<sup>2s</sup> spreading &middot; 16&times;4 components<br>
+    <b>MPC steers</b> &mdash; thrust and rudder, 192 rollouts every 0.5 s
   </div>
   <div class="grid">
     <div class="cell"><span class="lbl">Heave</span>
@@ -101,6 +121,8 @@
       <span class="val" id="r-thr">0<span class="u">%</span></span></div>
     <div class="cell"><span class="lbl">Slams</span>
       <span class="val" id="r-slam">0<span class="u">of 0</span></span></div>
+    <div class="row"><span class="lbl">Rudder</span>
+      <span class="val" id="r-rud">0<span class="u">deg</span></span></div>
   </div>
 </div>
 
@@ -119,6 +141,38 @@
   <span class="lbl">Overlay</span>
   <div class="row"><button id="tg-preview" aria-pressed="true">Preview 8 s</button></div>
   <div class="row"><button id="tg-wire" aria-pressed="false">Wireframe</button></div>
+  <span class="lbl">Drive it yourself</span>
+  <div class="row"><button id="tg-drive" aria-pressed="false">Take the helm</button></div>
+  <div id="drive-panel" hidden>
+    <p class="hint" style="margin:2px 0 6px">
+      <b>W</b>/<b>S</b> throttle &middot; <b>A</b>/<b>D</b> rudder &middot;
+      <b>space</b> centre rudder &middot; <b>R</b> restart<br>
+      Arrow keys work too.</p>
+    <div class="drow"><span>throttle</span><i><b id="d-thr"></b></i>
+      <span id="d-thr-v">0%</span></div>
+    <div class="drow"><span>rudder</span><i><b id="d-rud"></b></i>
+      <span id="d-rud-v">0&deg;</span></div>
+    <div id="live-badge" class="badge">reduced model &middot; 10 states</div>
+    <div class="dgrid">
+      <div><span>speed</span><b id="d-u">0.00</b> m/s</div>
+      <div><span>roll</span><b id="d-roll">0.0</b>&deg;</div>
+      <div><span>slam force</span><b id="d-slam">0</b> kN</div>
+      <div><span>heading</span><b id="d-psi">0</b>&deg;</div>
+      <div><span>rel. to waves</span><b id="d-mu">180</b>&deg;</div>
+      <div><span>bow accel</span><b id="d-acc">0.00</b> g</div>
+      <div><span>made good</span><b id="d-vmg">0.00</b> m/s</div>
+      <div><span>ride cost</span><b id="d-cost">0.00</b></div>
+    </div>
+    <p class="hint" style="margin:6px 0 0">
+      Cost is bow acceleration squared per metre of progress toward the
+      original heading &mdash; lower is better. Straight into the waves is
+      the reference. Try 45&deg; off.</p>
+    <p class="hint" style="margin:6px 0 0; opacity:.75">
+      Driving integrates the <b>reduced</b> 10-state model, the same one the
+      MPC plans with &mdash; not the 110-state solve, which a browser cannot
+      run. Measured against the full plant: correlation 0.64&ndash;0.90 over
+      12 s, amplitude 0.78&ndash;0.84.</p>
+  </div>
   <span class="lbl">Kelvin wake</span>
   <div class="row" id="kelvin">
     <button data-g="0" aria-pressed="false">Off</button>
@@ -472,6 +526,36 @@ function fail(why) {
   sun.position.set(-42,30,85); scene.add(sun);
 
   // ---- run selection ---------------------------------------------------
+  function driveHud(){
+    const el2 = id => document.getElementById(id);
+    const P = DRV;
+    el2("d-thr").style.width = (100*DS.thr).toFixed(0) + "%";
+    el2("d-thr-v").textContent = (100*DS.thr).toFixed(0) + "%";
+    const rf = 0.5 + 0.5*DS.rud/P.rud_max;
+    el2("d-rud").style.left = (100*Math.min(rf,0.5)).toFixed(0) + "%";
+    el2("d-rud").style.width = (100*Math.abs(rf-0.5)).toFixed(0) + "%";
+    el2("d-rud-v").textContent = (DS.rud*180/Math.PI).toFixed(0) + "\u00b0";
+    el2("d-u").textContent = DS.u.toFixed(2);
+    let deg = DS.psi*180/Math.PI; deg = ((deg%360)+540)%360-180;
+    el2("d-psi").textContent = deg.toFixed(0);
+    // relative heading to the waves: they run along -x, so head seas is 180
+    el2("d-mu").textContent = (180 - Math.abs(deg)).toFixed(0);
+    el2("d-acc").textContent = Math.abs(DS.aBow/M.g).toFixed(2);
+    const rl = el2("d-roll"), sl = el2("d-slam");
+    if (rl) rl.textContent = LIVE.on && DS.roll !== undefined
+      ? (DS.roll*180/Math.PI).toFixed(1) : "\u2014";
+    if (sl) sl.textContent = LIVE.on && DS.slamF !== undefined
+      ? DS.slamF.toFixed(0) : "\u2014";
+    el2("d-vmg").textContent = DS.vmg.toFixed(2);
+    if (LIVE.on) {
+      el2("d-cost").textContent = (DS.liveCost === null
+        || DS.liveCost === undefined) ? "--" : DS.liveCost.toFixed(2);
+    } else {
+      el2("d-cost").textContent = DS.dist > 5
+        ? (DS.cost/DS.dist*100).toFixed(2) : "--";
+    }
+  }
+
   const state = {t:0, playing:true, speed:1, cam:"chase", run:0,
                  yaw:-0.62, pitch:0.34, dist:34, drag:null};
   let F = null, slamTimes = [];
@@ -514,6 +598,148 @@ function fail(why) {
   el("c-end").textContent = TEND.toFixed(0);
 
   // ---- playback --------------------------------------------------------
+  // ---- DRIVE MODE ----------------------------------------------------
+  // The viewer normally replays a trajectory because the 110-state plant does
+  // not run in a browser. To hand over the helm the browser has to integrate
+  // the vessel itself, so it gets the REDUCED model -- the same 10-state one
+  // the MPC plans with, and the one `studies.model_horizon` measured against
+  // the full plant (correlation 0.64-0.90 over 12 s, amplitude 0.78-0.84).
+  //
+  // It produces a frame in exactly the replay format, so the camera, hull
+  // pose, water origin, preview corridor and Kelvin wake all work untouched.
+  const DRV = DATA.drive || null;
+  let driving = false;
+  const DS = {x:0, y:0, u:0, z:0, zd:0, th:0, thd:0, psi:0, r:0, v:0,
+              thr:0, rud:0, thrCmd:0, rudCmd:0, t:0, cost:0, dist:0};
+  const KEY = {};
+
+  function waveAtJS(R, x, y, t){
+    let h = 0;
+    for (let k = 0; k < NC; k++)
+      h += R.a[k]*Math.cos(R.p[4*k]*x + R.p[4*k+1]*y - R.p[4*k+2]*t
+                           + R.p[4*k+3]);
+    return h;
+  }
+
+  // exact one-step transition for  e'' = -wn^2 e - 2 z wn e'
+  function phi(wn, z, dt){
+    const wd = wn*Math.sqrt(Math.max(1 - z*z, 1e-9));
+    const e = Math.exp(-z*wn*dt), c = Math.cos(wd*dt), sn = Math.sin(wd*dt);
+    return [e*(c + z*wn/wd*sn), e*sn/wd,
+            -e*wn*wn/wd*sn,     e*(c - z*wn/wd*sn)];
+  }
+
+  // ---- LIVE PLANT ------------------------------------------------------
+  // The reduced model above is what a browser can integrate. It is not what
+  // the project's conclusions rest on. `python -m viewer.helm` runs the real
+  // 110-state plant at wall-clock pace and serves this page; when that server
+  // is there, the browser stops doing physics and becomes a display and a
+  // joystick, and what you steer is exactly the environment sim/rl_env.py
+  // trains on -- so a human lap and a learned policy become comparable.
+  const LIVE = {on:false, s:null, t:0, pending:false, last:0, sent:0};
+
+  function livePoll(){
+    if (!LIVE.on || LIVE.pending) return;
+    LIVE.pending = true;
+    fetch("/state", {cache:"no-store"}).then(r => r.json()).then(d => {
+      LIVE.pending = false;
+      if (!d || d.t === undefined) return;
+      LIVE.s = d;
+      // ease the local clock onto the server's rather than snapping it, or
+      // the water jumps every poll while the hull does not
+      if (Math.abs(LIVE.t - d.t) > 1.0) LIVE.t = d.t;
+      else LIVE.t += (d.t - LIVE.t)*0.25;
+    }).catch(() => { LIVE.pending = false; LIVE.on = false; liveBadge(); });
+  }
+
+  function liveSend(reset){
+    const body = {thrust: DS.thrCmd, rudder: DS.rudCmd/DRV.rud_max};
+    if (reset) { body.reset = true; body.seed = RUNS[state.run].seed; }
+    fetch("/cmd", {method:"POST", headers:{"Content-Type":"application/json"},
+                   body: JSON.stringify(body)}).catch(() => {});
+  }
+
+  function liveBadge(){
+    const b = document.getElementById("live-badge");
+    if (!b) return;
+    b.textContent = LIVE.on ? "LIVE PLANT \u00b7 110 states"
+                            : "reduced model \u00b7 10 states";
+    b.className = LIVE.on ? "badge on" : "badge";
+  }
+
+  function liveFrame(dt){
+    LIVE.t += dt;
+    const d = LIVE.s;
+    if (!d) return [LIVE.t, 0, 0, 0, 0, 0, 0, 0, DS.thrCmd, 0, 0];
+    DS.aBow = d.acc*M.g; DS.vmg = d.vmg; DS.u = d.u;
+    DS.psi = d.yaw; DS.thr = d.thr; DS.rud = d.rud;
+    DS.roll = d.roll; DS.slamF = d.slam_f; DS.liveCost = d.cost;
+    return [LIVE.t, d.x, d.y, d.z, d.roll, d.pitch, d.yaw, d.u,
+            d.thr, d.acc, 0];
+  }
+
+  function driveReset(){
+    DS.x = DS.y = DS.z = DS.zd = DS.th = DS.thd = DS.r = DS.v = 0;
+    DS.psi = 0; DS.u = 3.5; DS.t = 0; DS.thr = DS.thrCmd = 0.45;
+    DS.rud = DS.rudCmd = 0; DS.cost = 0; DS.dist = 0;
+  }
+
+  function driveStep(R, dt){
+    const P = DRV, nst = 5, L = P.L;
+    // actuators: first-order lag plus a rate limit, as on the vessel
+    const dThr = Math.max(-P.prop_rate/P.t_max*dt,
+                    Math.min(P.prop_rate/P.t_max*dt, DS.thrCmd - DS.thr));
+    DS.thr += dThr + (DS.thrCmd - DS.thr)*Math.min(dt/P.prop_tau, 1)*0;
+    const dRud = Math.max(-P.rud_rate*dt,
+                    Math.min(P.rud_rate*dt, DS.rudCmd - DS.rud));
+    DS.rud += dRud;
+
+    // wave under the hull: mean elevation drives heave, slope drives pitch
+    let sum = 0, num = 0, den = 0;
+    const cp = Math.cos(DS.psi), sp = Math.sin(DS.psi);
+    for (let i = 0; i < nst; i++){
+      const xb = -L/2 + L*i/(nst-1);
+      const e = waveAtJS(R, DS.x + xb*cp, DS.y + xb*sp, DS.t);
+      sum += e; num += e*xb; den += xb*xb;
+    }
+    const etaBar = sum/nst, slope = num/den;
+    const alpha = Math.atan(slope)*P.sign_pitch;
+
+    const Pz = phi(P.wn_heave, P.z_heave, dt);
+    const Pp = phi(P.wn_pitch, P.z_pitch, dt);
+    const ez = DS.z - etaBar, ep = DS.th - alpha;
+    const nz  = Pz[0]*ez + Pz[1]*DS.zd, nzd  = Pz[2]*ez + Pz[3]*DS.zd;
+    const nth = Pp[0]*ep + Pp[1]*DS.thd, nthd = Pp[2]*ep + Pp[3]*DS.thd;
+    const aBow = ((nzd - DS.zd) + P.sign_pitch*(L/2)*(nthd - DS.thd))/dt;
+
+    const thrust = DS.thr*P.t_max;
+    const ud = (thrust - P.k_drag*DS.u*Math.abs(DS.u))/P.m_surge;
+    const rNew = P.k_nomoto*DS.rud
+               + (DS.r - P.k_nomoto*DS.rud)*Math.exp(-dt/P.tau_r);
+    const a_ = Math.max(-P.rud_stall, Math.min(P.rud_stall, DS.rud));
+    const lift = P.k_lift*DS.u*Math.abs(DS.u)*a_;
+    const vd = (lift - P.k_lin_sway*DS.v - P.k_sway*DS.v*Math.abs(DS.v)
+                - P.m_coriolis*DS.u*DS.r)/P.m_sway;
+
+    DS.u += ud*dt;  DS.v += vd*dt;
+    DS.z = nz + etaBar; DS.zd = nzd;
+    DS.th = nth + alpha; DS.thd = nthd;
+    DS.psi += 0.5*(DS.r + rNew)*dt; DS.r = rNew;
+    const c2 = Math.cos(DS.psi), s2 = Math.sin(DS.psi);
+    DS.x += (DS.u*c2 - DS.v*s2)*dt;
+    DS.y += (DS.u*s2 + DS.v*c2)*dt;
+    DS.t += dt;
+
+    // progress toward the ORIGINAL heading, which is what turning away costs
+    const vmg = DS.u*c2 - DS.v*s2;
+    DS.dist += Math.max(vmg, 0)*dt;
+    DS.cost += (aBow/M.g)*(aBow/M.g)*dt;
+    DS.aBow = aBow;
+    DS.vmg = vmg;
+    return [DS.t, DS.x, DS.y, DS.z, 0, DS.th, DS.psi, DS.u,
+            DS.thr, aBow/M.g, 0];
+  }
+
   function frameAt(t) {
     const i = Math.min(F.length-1, Math.max(0, t/M.dt));
     const a = F[Math.floor(i)], b = F[Math.min(F.length-1, Math.ceil(i))];
@@ -562,6 +788,12 @@ function fail(why) {
     el("r-thr").innerHTML = Math.round(thr*100)+'<span class="u">%</span>';
     el("r-slam").innerHTML = slamTimes.filter(s=>s<=t).length +
       '<span class="u">of '+RUNS[state.run].slams+'</span>';
+    // fr[11] is the rudder the MPC commanded; absent in drive mode, where the
+    // panel shows its own
+    const rd = el("r-rud");
+    if (rd) rd.innerHTML = (driving && !LIVE.on) ? '&mdash;'
+      : ((fr[11] === undefined ? 0 : fr[11]*180/Math.PI).toFixed(1)
+         + '<span class="u">deg</span>');
     el("c-now").textContent = t.toFixed(1);
     const p = t/TEND;
     track.querySelector(".fill").style.width = (p*100)+"%";
@@ -598,6 +830,57 @@ function fail(why) {
     document.querySelectorAll("#wake button").forEach(o =>
       o.setAttribute("aria-pressed", o === b ? "true" : "false"));
   });
+  const dpanel = el("drive-panel");
+  el("tg-drive").onclick = () => {
+    if (!DRV) { alert("This export has no drive parameters; re-run "
+                      + "studies.export_viewer."); return; }
+    driving = !driving;
+    press("tg-drive", driving);
+    dpanel.hidden = !driving;
+    el("bar").style.opacity = driving ? 0.35 : 1;
+    if (driving) {
+      driveReset();
+      // one probe. If there is no server the page simply keeps integrating
+      // the reduced model, which is why the published artifact still works
+      // with nothing installed.
+      fetch("/state", {cache:"no-store"})
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(d => { if (d && d.t !== undefined) {
+            LIVE.on = true; LIVE.s = d; LIVE.t = d.t;
+            liveSend(true); liveBadge(); } })
+        .catch(() => { LIVE.on = false; liveBadge(); });
+    }
+    liveBadge();
+  };
+  addEventListener("keydown", e => {
+    if (!driving) return;
+    const k = e.key.toLowerCase();
+    KEY[k] = true;
+    // Apply one increment immediately as well as polling for held keys. The
+    // poll alone runs every 33 ms, so a quick tap that begins and ends inside
+    // one tick was silently dropped -- which is exactly what a keyboard test
+    // does, and what an impatient person does too.
+    nudge(k);
+    if (k === "r") { driveReset(); if (LIVE.on) liveSend(true); }
+    if (k === " ") { DS.rudCmd = 0; e.preventDefault(); }
+    if (["arrowup","arrowdown","arrowleft","arrowright"," "].includes(k))
+      e.preventDefault();
+  });
+  addEventListener("keyup", e => { KEY[e.key.toLowerCase()] = false; });
+  function nudge(k){
+    if (!driving || !DRV) return;
+    if (k === "w" || k === "arrowup")    DS.thrCmd = Math.min(1, DS.thrCmd + 0.02);
+    if (k === "s" || k === "arrowdown")  DS.thrCmd = Math.max(0, DS.thrCmd - 0.02);
+    if (k === "a" || k === "arrowleft")
+      DS.rudCmd = Math.max(-DRV.rud_max, DS.rudCmd - 0.02);
+    if (k === "d" || k === "arrowright")
+      DS.rudCmd = Math.min(DRV.rud_max, DS.rudCmd + 0.02);
+  }
+  setInterval(() => {
+    for (const k of ["w", "s", "a", "d", "arrowup", "arrowdown",
+                     "arrowleft", "arrowright"]) if (KEY[k]) nudge(k);
+  }, 33);
+
   el("tg-wire").onclick = () => {
     wire.visible = !wire.visible; hull.visible = !wire.visible;
     press("tg-wire", wire.visible);
@@ -642,7 +925,24 @@ function fail(why) {
     const dt = Math.min((now-last)/1000, 0.1); last = now;
     if (state.playing) { state.t += dt*state.speed;
                          if (state.t > TEND) state.t = 0; }
-    const fr = frameAt(state.t);
+    let fr;
+    if (driving) {
+      if (LIVE.on) {
+        fr = liveFrame(Math.min(dt, 0.25));
+        const nowms = performance.now();
+        if (nowms - LIVE.last > 55) { LIVE.last = nowms; livePoll(); }
+        if (nowms - LIVE.sent > 90) { LIVE.sent = nowms; liveSend(false); }
+      } else {
+        const R = RUNS[state.run];
+        // fixed physics substep so the boat behaves the same on any frame rate
+        let acc = Math.min(dt, 0.25);
+        while (acc > 1e-4) { const h = Math.min(acc, 0.02);
+                             fr = driveStep(R, h); acc -= h; }
+      }
+      driveHud();
+    } else {
+      fr = frameAt(state.t);
+    }
     uni.uTime.value = fr[0];
     uni.uOrigin.value.set(fr[1], fr[2]);
     water.position.set(fr[1], fr[2], 0);
@@ -661,12 +961,30 @@ function fail(why) {
 
   // A shader that fails to link renders nothing and, without this, looks
   // exactly like a broken page. Report it instead.
-  setTimeout(() => {
-    const d = renderer.info.render;
-    if (!d || d.triangles === 0)
-      fail("The water shader did not compile on this device. "
-           + "Open the browser console for the GLSL log.");
-  }, 1200);
+  // Confirm TWICE before crying failure. A single check at 1.2 s fired while
+  // the scene was merely slow to draw, and the page then showed a "shader did
+  // not compile" banner over a perfectly working 3-D view -- a false alarm is
+  // worse than no alarm, because it teaches people to ignore the real one.
+  // A hidden page does not get requestAnimationFrame at all, so nothing is
+  // ever drawn and any triangle-count check "fails". Opening the page in a
+  // background tab therefore raised a shader-compile alarm over code that was
+  // fine. Only judge while the page is actually visible, and re-arm when it
+  // becomes visible.
+  function checkRendered(){
+    if (document.visibilityState !== "visible") return;
+    if (renderer.info.render && renderer.info.render.triangles > 0) return;
+    setTimeout(() => {
+      if (document.visibilityState !== "visible") return;
+      const d = renderer.info.render;
+      if (!d || d.triangles === 0)
+        fail("The water shader did not compile on this device. "
+             + "Open the browser console for the GLSL log.");
+    }, 2500);
+  }
+  setTimeout(checkRendered, 1200);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") setTimeout(checkRendered, 1500);
+  });
  } catch (e) {
   fail(String(e && e.message ? e.message : e));
  }

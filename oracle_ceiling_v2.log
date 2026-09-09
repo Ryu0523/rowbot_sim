@@ -1,0 +1,22 @@
+non-causal oracle, 3 seeds x 200 s, 10 knots, 200 evaluations per seed
+
+  SS5 swell   Tp 9.7 s   (quasi-static, we/wn = 0.27 -- expect nothing)
+    seed 0:  flat 0.5799  cma 0.4820 (+16.9%)   random 0.4656 (+19.7%)   u 4.49->4.48   thrust sd 2297 N
+    seed 1:  flat 0.6323  cma 0.5173 (+18.2%)   random 0.5807 (+8.2%)   u 4.44->4.43   thrust sd 2838 N
+    seed 2:  flat 0.5554  cma 0.5155 (+7.2%)   random 0.5270 (+5.1%)   u 4.46->4.45   thrust sd 4296 N
+    mean gain: CMA-ES +14.1%   random +11.0%
+
+  wind chop   Tp 3.5 s   (near resonance, we/wn ~ 1 -- expect a real gain)
+    seed 0:  flat 5.7976  cma 5.7184 (+1.4%)   random 5.6355 (+2.8%)   u 3.10->3.09   thrust sd 2966 N
+    seed 1:  flat 5.9463  cma 5.7520 (+3.3%)   random 5.8504 (+1.6%)   u 3.11->3.08   thrust sd 3177 N
+    seed 2:  flat 6.3887  cma 5.5275 (+13.5%)   random 5.7723 (+9.6%)   u 3.13->3.14   thrust sd 3202 N
+    mean gain: CMA-ES +6.0%   random +4.7%
+
+  ------------------------------------------------------------------
+  condition                   CMA-ES    random               verdict
+  SS5 swell   Tp 9.7 s        +14.1%    +11.0%          search works
+  wind chop   Tp 3.5 s         +6.0%     +4.7%          search works
+
+  ------------------------------------------------------------------
+  Both conditions show a gain (+14.1% swell, +6.0% chop).
+  The earlier probes missed exploitable structure; RL is worth it.

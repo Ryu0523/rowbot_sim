@@ -1,0 +1,30 @@
+8 seeds x 220 s, long-crested SS5, compared at VMG = 3.2 m/s toward a destination dead upwind
+
+  180deg  VMG range 2.53 - 5.60 m/s
+  165deg  VMG range 2.45 - 5.44 m/s
+  150deg  VMG range 2.21 - 4.95 m/s
+  135deg  VMG range 1.82 - 4.14 m/s
+
+  every metric at VMG = 3.2 m/s, relative to head seas (%)
+
+  metric                  180d        165d        150d        135d
+  acc_rms                0.207      +0.2        +0.4        -3.2* 
+  acc_p99                0.530      -0.0        -2.2        -5.1* 
+  fatigue               10.745      +0.2        -1.0       -12.6* 
+  rvm_rms                0.244      -1.6*       -6.2*      -14.2* 
+  rvv_rms                0.607      +0.0        -4.3       -14.4* 
+  slam_impulse          79.440      +8.4       +35.3*      +65.1* 
+  slam_rate_ochi         0.043     -12.6       -61.2       -89.9* 
+  wet_rate               1.910      -6.1       -28.3*      -59.4* 
+  roll_rms               0.002  +53262.1*  +106752.7*  +156556.4* 
+
+  first column is the absolute value in head seas; the rest are
+  percentage changes from it. * = beyond twice its standard error.
+
+  resolved IMPROVEMENTS from turning off head seas: 10
+  largest: slam_rate_ochi -89.9% at 135 deg
+
+  => heading is a real lever, and it costs only distance made
+     good -- which is a ROUTING decision, not a sensing one. The
+     wave direction it needs is a slow statistic the hull already
+     measures from its own motion.

@@ -96,6 +96,17 @@ class NonlinearVessel:
         self.last_slam_force = 0.0
         self.last_rel_bow = 0.0
         self._w_wave_bow = 0.0
+        # Hull lateral force derivative and the lever it acts on. Placeholders
+        # in the same sense as `visc` -- see `hull_side_force`.
+        # Only the two terms whose SIGN is unambiguous: a side force opposing
+        # sway, and a moment opposing yaw. The full linear manoeuvring set also
+        # has the cross terms Y_r and the destabilising Munk moment N_v, and
+        # adding the Munk moment ALONE made the vessel directionally unstable
+        # (45 deg drift, 0.2 L turning radius) because nothing balanced it.
+        # Half a manoeuvring model is worse than none; the cross terms need
+        # their signs pinned by a real turning trial before they go in.
+        self.Yv_prime = 0.030
+        self.Nr_prime = 0.0030
         self._emerged = False
         self.v_slam = 0.093 * np.sqrt(G * L)
 
@@ -201,6 +212,36 @@ class NonlinearVessel:
              * v_entry ** 2 * self.sec.dx)                  # N, upward
         return float(np.sum(f)), float(SIGN_PITCH * np.sum(self.sec.x * f))
 
+    def hull_side_force(self, nu):
+        """Lift-like lateral force from the hull at a drift angle.
+
+        A hull moving with drift angle beta = v/u behaves like a very
+        low-aspect-ratio lifting surface, and generates a side force
+        proportional to u*v -- NOT to v|v|. That term was missing entirely: the
+        only lateral resistance was the quadratic viscous one, which is
+        negligible at the small drift angles a controller actually works at.
+
+        The consequence was not subtle. With 5 degrees of rudder the hull
+        reached a 30 degree drift angle and a turning radius of 0.7 ship
+        lengths, and the surge Coriolis coupling m*v*r then ate 5.1 kN of a
+        7 kN thrust. Every preview study in this project ran with the rudder
+        LOCKED, and the stated reason was that the reduced model had no sway
+        state -- but the plant was misbehaving too, and locking the channel hid
+        it.
+
+        Written as  Y = -0.5 rho L^2 |u| v Yv'  with the non-dimensional
+        derivative in the usual range for a slender hull. That coefficient is a
+        CALIBRATION PLACEHOLDER of the same standing as the viscous terms: the
+        form is right, the number needs a turning-circle trial. It is gated on
+        producing a physically plausible turning circle (see
+        `sim/test_manoeuvre.py`), which pins it far better than nothing.
+        """
+        u, v, r = nu[0], nu[1], nu[5]
+        Y = -0.5 * RHO * self.L ** 2 * abs(u) * v * self.Yv_prime
+        # Yaw damping from the same mechanism: the hull resists rotation.
+        N = -0.5 * RHO * self.L ** 4 * abs(u) * r * self.Nr_prime
+        return Y, N
+
     def coriolis(self, nu):
         """Rigid-body Coriolis for the terms that matter at these speeds:
         the yaw-rate x surge-speed coupling that makes a turning vessel
@@ -222,10 +263,11 @@ class NonlinearVessel:
         thrust_eff = self.prop.effective(thr, self.prop_submergence(eta, t))
 
         lift, yaw_m, drag = self.rudder.force(rud, nu[0])
+        Yh, Nh = self.hull_side_force(nu)
         tau_a = np.zeros(6)
         tau_a[0] = thrust_eff - drag
-        tau_a[1] = lift
-        tau_a[5] = yaw_m
+        tau_a[1] = lift + Yh
+        tau_a[5] = Nh + yaw_m
         tau_a[3] = lift * self.rudder.z_rud
         tau_a[0] += self.added_resistance(nu, eta, t)
 

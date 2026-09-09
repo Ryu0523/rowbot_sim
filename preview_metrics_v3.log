@@ -1,0 +1,25 @@
+16 seeds x 260 s, long-crested head seas
+  constant-thrust baseline:
+        3 kN -> u 3.07
+        4 kN -> u 3.50
+        5 kN -> u 3.86
+        7 kN -> u 4.46
+        9 kN -> u 4.96
+       11 kN -> u 5.41
+
+  delta vs constant thrust AT EQUAL SPEED, per metric
+  metric                      no preview             short 8 s            group 90 s
+  acc_rms                  +1.4 ¡À0.4 *         +0.7 ¡À0.5           +1.5 ¡À1.7  
+  acc_p99                  +1.8 ¡À1.4           +1.0 ¡À1.8           +3.6 ¡À1.7 *
+  fatigue                  +4.0 ¡À1.9 *         +3.0 ¡À2.0          +10.1 ¡À5.4  
+  rvm_rms                  +0.6 ¡À0.7           +0.4 ¡À0.8           +1.0 ¡À1.7  
+  rvv_rms                  +2.0 ¡À2.6           +1.1 ¡À2.7           +1.0 ¡À3.7  
+  slam_impulse             +0.3 ¡À1.7           +1.6 ¡À2.0          +14.0 ¡À6.2 *
+  slam_p99                 -1.6 ¡À3.8           +9.0 ¡À4.2 *        +22.3 ¡À6.3 *
+  slam_rate_ochi           +5.9 ¡À11.6          +2.3 ¡À13.0         +26.3 ¡À32.9 
+  wet_rate                 +3.5 ¡À4.2           +2.1 ¡À4.6           +5.4 ¡À9.5  
+
+  speeds: no preview 4.24 m/s  short 8 s 4.12 m/s  group 90 s 3.67 m/s
+  * = exceeds twice its own standard error
+
+  metrics IMPROVED beyond noise by any preview strategy: 0 of 27

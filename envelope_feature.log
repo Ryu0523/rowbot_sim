@@ -1,0 +1,35 @@
+16 seeds x 300 s, long-crested head seas
+  fixed-throttle reference curve:
+      3.0 kN -> u 3.07
+      4.0 kN -> u 3.50
+      5.0 kN -> u 3.86
+      7.0 kN -> u 4.47
+      9.0 kN -> u 4.97
+     11.0 kN -> u 5.41
+
+  delta vs fixed throttle AT EQUAL SPEED
+  metric              constant (gain 0)  look 20 s, gain 0.5  look 40 s, gain 0.5
+  acc_rms                 +0.0 ¡À0.4          -0.0 ¡À0.4          +0.1 ¡À0.4  
+  acc_p99                 +0.0 ¡À1.3          +0.2 ¡À1.4          +0.4 ¡À1.4  
+  fatigue                 +0.0 ¡À1.6          +0.6 ¡À1.6          +0.6 ¡À1.6  
+  rvm_rms                 +0.0 ¡À0.6          -0.2 ¡À0.5          -0.0 ¡À0.5  
+  rvv_rms                 +0.0 ¡À2.3          -0.9 ¡À2.1          -0.2 ¡À2.2  
+  slam_impulse            +0.0 ¡À1.1          -0.5 ¡À1.1          -0.2 ¡À1.1  
+  slam_p99                +0.0 ¡À2.6          -1.6 ¡À2.5          -0.3 ¡À2.6  
+  slam_rate_ochi          +0.0 ¡À8.3          -3.6 ¡À7.5          -0.7 ¡À8.0  
+  wet_rate                +0.0 ¡À3.3          -1.4 ¡À3.0          -0.2 ¡À3.2  
+
+  case                       u    acc_rms    rvm_rms  slam_impu   wet_rate
+  constant (gain 0)       4.47     +0.0       +0.0       +0.0       +0.0  
+  look 20 s, gain 0.5     4.48     -0.0       -0.2       -0.5       -1.4  
+  look 40 s, gain 0.5     4.47     +0.1       -0.0       -0.2       -0.2  
+  look 40 s, gain 1.0     4.47     +0.1       -0.1       -0.6       -0.1  
+  look 70 s, gain 1.0     4.47     +0.1       +0.0       -0.1       -0.3  
+  look 40 s, gain 2.0     4.42     -0.1       -0.4       -1.2       -1.2  
+
+  * = exceeds twice its own standard error
+  resolved IMPROVEMENTS across all cases: 0
+
+  => the group envelope carries no usable signal for this vessel.
+     A learned policy would be searching an empty room: the
+     information is not in the input, so no encoder recovers it.
