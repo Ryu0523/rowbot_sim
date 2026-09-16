@@ -30,17 +30,17 @@ import matplotlib.pyplot as plt
 from hydro import bem
 from .cummins import (LinearVessel, rao_frequency_domain,
                       excitation_series, extract_amplitude_phase)
+from .config import head_index      # beta = pi, found by angle
 
 DB = "hydro_wigley_10m.npz"
 G = 9.81
 TEST_OMEGAS = [0.4, 0.6, 0.8, 1.0, 1.3, 1.6, 2.0, 2.5]
-HEAD_SEAS = 12          # direction index: beta = pi
 
 
 def run(path=DB, dt=0.01, n_periods=45):
     db = bem.load(path)
     print(f"database: {db}")
-    print(f"  head seas: beta = {np.degrees(db.directions[HEAD_SEAS]):.0f} deg\n")
+    print(f"  head seas: beta = {np.degrees(db.directions[head_index(db)]):.0f} deg\n")
 
     ves = LinearVessel(db, verbose=True)
     print(f"  total model states: {ves.n_state} "
@@ -53,14 +53,14 @@ def run(path=DB, dt=0.01, n_periods=45):
           f"{'|heave| fd':>12}{'|heave| td':>12}{'err%':>7}"
           f"{'|pitch| fd':>12}{'|pitch| td':>12}{'err%':>7}{'dphase':>8}")
     for w in TEST_OMEGAS:
-        xi, wa = rao_frequency_domain(db, w, HEAD_SEAS)
-        fn, _ = excitation_series(db, w, HEAD_SEAS, sign=sign)
+        xi, wa = rao_frequency_domain(db, w, head_index(db))
+        fn, _ = excitation_series(db, w, head_index(db), sign=sign)
         t, s = ves.simulate(fn, n_periods * 2 * np.pi / wa, dt=dt)
         amp = np.empty(6); pha = np.empty(6)
         for d in range(6):
             amp[d], pha[d] = extract_amplitude_phase(t, s[:, d], wa)
         lam = 2 * np.pi * G / wa ** 2
-        dph = np.angle(np.exp(1j * (pha[2] - np.angle(xi[2]))))
+        dph = _phase_error(pha[2], xi[2])
         rows.append((wa, np.abs(xi), amp, dph))
         print(f"  {wa:>7.2f}{2*np.pi/wa:>7.2f}{lam/db.L:>7.1f}"
               f"{np.abs(xi[2]):>12.4f}{amp[2]:>12.4f}"
@@ -76,16 +76,30 @@ def run(path=DB, dt=0.01, n_periods=45):
     return rows
 
 
+def _phase_error(ph_td, xi):
+    """Time-domain phase against the frequency-domain answer, in ONE
+    convention. extract_amplitude_phase fits y = a cos(wt + ph). Capytaine's
+    amplitudes are for e^{-iwt}, so Re[xi e^{-iwt}] = |xi| cos(wt - arg xi):
+    the time-domain ph must equal -arg(xi). This comparison used to be ph
+    against +arg(xi) -- the other convention's reading -- which is why the
+    frequency-domain reference had +i w B and the time domain was forced
+    with e^{+iwt}: two compensating errors that let the gate pass (DEFECTS
+    F3). Corrected alone, the phase check then failed by exactly 2 arg(xi)."""
+    return np.angle(np.exp(1j * (ph_td + np.angle(xi))))
+
+
 def _determine_convention(db, ves, dt):
-    """Amplitudes are the same either way; only the phase distinguishes them."""
-    w = 1.0
-    xi, wa = rao_frequency_domain(db, w, HEAD_SEAS)
+    """Amplitudes are the same either way; only the phase distinguishes them,
+    and only where the response has a phase: 2.5 rad/s, where the heave
+    lags by 13 deg. At 1 rad/s it lags by under 1 deg and both look right."""
+    w = 2.5
+    xi, wa = rao_frequency_domain(db, w, head_index(db))
     best, best_err = -1.0, 1e9
     for sign in (-1.0, +1.0):
-        fn, _ = excitation_series(db, w, HEAD_SEAS, sign=sign)
+        fn, _ = excitation_series(db, w, head_index(db), sign=sign)
         t, s = ves.simulate(fn, 40 * 2 * np.pi / wa, dt=dt)
         _, ph = extract_amplitude_phase(t, s[:, 2], wa)
-        err = abs(np.angle(np.exp(1j * (ph - np.angle(xi[2])))))
+        err = abs(_phase_error(ph, xi[2]))
         print(f"  time convention e^({'+' if sign > 0 else '-'}iwt): "
               f"heave phase error {np.degrees(err):6.1f} deg")
         if err < best_err:
@@ -97,8 +111,8 @@ def _determine_convention(db, ves, dt):
 def _low_frequency_limit(db, ves, dt, sign):
     """A small body in a long wave rides the surface: heave RAO -> 1."""
     w = db.omega[np.argmin(np.abs(db.omega - 0.25))]
-    xi, wa = rao_frequency_domain(db, w, HEAD_SEAS)
-    fn, _ = excitation_series(db, wa, HEAD_SEAS, sign=sign)
+    xi, wa = rao_frequency_domain(db, w, head_index(db))
+    fn, _ = excitation_series(db, wa, head_index(db), sign=sign)
     t, s = ves.simulate(fn, 40 * 2 * np.pi / wa, dt=dt)
     a_heave, _ = extract_amplitude_phase(t, s[:, 2], wa)
     lam = 2 * np.pi * G / wa ** 2

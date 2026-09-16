@@ -24,7 +24,7 @@ burned by both.
   observed system. Stacking six frames covers 3 s, which is that memory span --
   the number comes from the physics, not from a hyperparameter sweep.
 
-Run: python -m learn.ppo_train [--steps 400000]
+Run: python -m learn.ppo_train [--steps 400000] [--hull NAME]
 """
 import argparse
 import os
@@ -36,21 +36,33 @@ warnings.filterwarnings("ignore")
 
 TRAIN_SEEDS = tuple(range(0, 24))
 EVAL_SEEDS = tuple(range(100, 112))      # never seen during training
-T_END = 120.0
-N_STACK = 6                              # 6 x 0.5 s = 3 s ~ the memory span
+T_END = 120.0                            # s for the USV; x sqrt(L / 10 m)
+# 6 x 0.5 s = 3 s ~ the memory span. Both the control step and the memory
+# scale as sqrt(L) (Froude), so six frames cover it on any vessel.
+N_STACK = 6
 OUT = "ppo_usv"
 
 
-def make_env(seeds, t_preview, t_end=T_END, rank=0):
+def _time_scale(hull):
+    """sqrt(L / 10 m). Episode lengths and the preview horizon were chosen
+    for the 10 m USV and scale with the vessel's own time scale."""
+    from sim.config import hull_of
+    return float(np.sqrt(hull_of(hull).L / 10.0))
+
+
+def make_env(seeds, t_preview=None, t_end=None, rank=0, hull="wigley10"):
+    """t_preview None = the environment's own, 8 s Froude-scaled."""
     from sim.rl_env import USVControlGym
+    if t_end is None:
+        t_end = T_END * _time_scale(hull)
 
     def _f():
         from stable_baselines3.common.monitor import Monitor
         # 16x4 = 64 components, matching the viewer. The wave sum is the
         # per-step cost driver, and 24x5 = 120 made it 40% slower for no
         # change in the physics that matters here.
-        e = USVControlGym(seeds=seeds, t_end=t_end, t_preview=t_preview,
-                          n_freq=16, n_dir=4)
+        e = USVControlGym(hull=hull, seeds=seeds, t_end=t_end,
+                          t_preview=t_preview, n_freq=16, n_dir=4)
         e.reset(seed=1000 + rank)
         # Monitor, or SB3 logs no episode returns at all. Building a
         # SubprocVecEnv by hand skips the wrapper that `make_vec_env` adds for
@@ -61,7 +73,11 @@ def make_env(seeds, t_preview, t_end=T_END, rank=0):
     return _f
 
 
-def train(steps=400_000, n_envs=6, t_preview=8.0, out=OUT, seed=0):
+def train(steps=400_000, n_envs=6, t_preview=None, out=None, seed=0,
+          hull="wigley10"):
+    # the vessel's own preview horizon (8 s for the USV) and file name
+    t_preview = 8.0 * _time_scale(hull) if t_preview is None else t_preview
+    out = out or (OUT if hull == "wigley10" else f"ppo_{hull}")
     import torch
     from stable_baselines3 import PPO
     from stable_baselines3.common.vec_env import (SubprocVecEnv, VecNormalize,
@@ -75,7 +91,7 @@ def train(steps=400_000, n_envs=6, t_preview=8.0, out=OUT, seed=0):
     # processes do: each worker pays the same 2.7x, but six of them in parallel
     # beat one fast one comfortably.
     torch.set_num_threads(1)     # the policy net is tiny; give the cores to physics
-    venv = SubprocVecEnv([make_env(TRAIN_SEEDS, t_preview, rank=i)
+    venv = SubprocVecEnv([make_env(TRAIN_SEEDS, t_preview, rank=i, hull=hull)
                           for i in range(n_envs)], start_method="spawn")
     venv = VecFrameStack(venv, n_stack=N_STACK)
     # Observation scaling matters more than usual here: elevations are O(1),
@@ -91,7 +107,11 @@ def train(steps=400_000, n_envs=6, t_preview=8.0, out=OUT, seed=0):
 
     model = PPO("MlpPolicy", venv, seed=seed, verbose=1,
                 n_steps=512, batch_size=512, gae_lambda=0.95, gamma=0.995,
-                learning_rate=3e-4, ent_coef=0.0, clip_range=0.2,
+                # ent_coef non-zero. In the run before this the action std
+                # collapsed 1.01 -> 0.58 and then sat there, and the policy
+                # scored 3.8x worse than the MPC on its OWN reward -- stuck,
+                # not mis-priced. A small entropy bonus keeps it exploring.
+                learning_rate=3e-4, ent_coef=0.003, clip_range=0.2,
                 n_epochs=10, policy_kwargs=dict(net_arch=[128, 128]))
     print(f"  {n_envs} envs x {N_STACK} stacked frames, "
           f"{len(TRAIN_SEEDS)} training seas, preview {t_preview} s")
@@ -107,10 +127,13 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--steps", type=int, default=400_000)
     ap.add_argument("--envs", type=int, default=6)
-    ap.add_argument("--preview", type=float, default=8.0)
-    ap.add_argument("--out", default=OUT)
+    ap.add_argument("--preview", type=float, default=None,
+                    help="s; default 8 s for the USV, Froude-scaled")
+    ap.add_argument("--out", default=None)
+    ap.add_argument("--hull", default="wigley10",
+                    help="a vessel from hydro/hulls.py")
     a = ap.parse_args()
-    train(a.steps, a.envs, a.preview, a.out)
+    train(a.steps, a.envs, a.preview, a.out, hull=a.hull)
 
 
 if __name__ == "__main__":

@@ -159,6 +159,81 @@ class SlamLoad:
         ma = 0.5 * np.pi * rho * np.maximum(b, 0.0) ** 2
         self.dma = np.gradient(ma, self.dd, axis=0)         # kg/m^2
         self.idx = np.arange(sec.n)
+        self._wagner(np.maximum(b, 0.0), rho)
+
+    def _wagner(self, b, rho, n_theta=48):
+        """Generalised Wagner added mass, per station, from the section shape.
+
+        The wetted half-width c at penetration h (measured from the keel)
+        follows from Wagner's condition
+
+            integral_0^(pi/2) h_b(c sin theta) d theta = (pi/2) h
+
+        with h_b(y) the height of the body surface above the keel at
+        half-width y. For a wedge, h_b = y tan(beta), it gives
+        c = (pi/2) h / tan(beta) -- the familiar pile-up -- and the force below
+        equals PILE_UP times the geometric one exactly. For a curved section it
+        is NOT a constant factor, which is why it is computed here rather than
+        assumed: a first version of this fix applied the wedge's pi/2 to every
+        section, and on the Wigley's parabolic sections that separates the flow
+        at 40% of the draught instead of the 47% Wagner's condition gives.
+
+        The flow separates -- and the entry force ends -- when c reaches the
+        widest point of the section: the knuckle of a chined hull, the
+        waterline of a wall-sided one. That timing is what the drop test in
+        studies/exp_slam_wedge.py checks: 15.7 ms for the 30 deg wedge against
+        a measured force peak at about 15 ms; the geometric width, which the
+        model used before, gets there at 25 ms.
+
+        Re-entrant sections (the waist of a bulbous bow) go through the
+        monotone envelope of b, i.e. the hollow is ignored -- Wagner's theory
+        has no answer for it either.
+        """
+        th, wt = np.polynomial.legendre.leggauss(n_theta)
+        th = 0.25 * np.pi * (th + 1.0)            # nodes mapped to (0, pi/2)
+        wt = 0.25 * np.pi * wt
+        s = np.sin(th)
+        self.ma_w = np.zeros_like(b)
+        self.dma_w = np.zeros_like(b)
+        self.h_separation = np.full(b.shape[1], np.nan)
+        for j in range(b.shape[1]):
+            bj = np.maximum.accumulate(b[:, j])   # monotone envelope
+            if bj[-1] <= 0.0:
+                continue
+            wet = np.where(bj > 1e-9 * bj[-1])[0]
+            if len(wet) < 3:
+                continue
+            i_keel = max(wet[0] - 1, 0)
+            h = self.d - self.d[i_keel]           # height above the keel
+            b_max = bj[-1]
+            y_tab, h_tab = bj[i_keel:], h[i_keel:]
+            c_grid = np.linspace(0.0, b_max, 257)
+            hw = np.array([np.sum(wt * np.interp(c * s, y_tab, h_tab))
+                           for c in c_grid]) * 2.0 / np.pi
+            h_sep = hw[-1]
+            c = np.where(h <= 0.0, 0.0,
+                         np.interp(np.clip(h, 0.0, h_sep), hw, c_grid))
+            ma = 0.5 * np.pi * rho * c ** 2
+            dma = np.gradient(ma, self.dd)
+            dma[(h >= h_sep) | (h <= 0.0)] = 0.0  # separated, or not yet wet
+            self.ma_w[:, j] = ma
+            self.dma_w[:, j] = np.maximum(dma, 0.0)
+            self.h_separation[j] = h_sep
+
+    def _table(self, table, d):
+        g = np.clip((np.asarray(d, float) - self.d[0]) / self.dd,
+                    0.0, len(self.d) - 1.001)
+        i = g.astype(int)
+        f = g - i
+        return (1.0 - f) * table[i, self.idx] + f * table[i + 1, self.idx]
+
+    def wagner_slope(self, d):
+        """d m_a/dd from generalised Wagner: the entry-force coefficient the
+        vessel uses, F' = (d m_a/dd) v_entry^2 per metre."""
+        return self._table(self.dma_w, d)
+
+    def wagner_added_mass(self, d):
+        return self._table(self.ma_w, d)
 
     def slope(self, d):
         """dm_a/dd at each station, linearly interpolated."""
@@ -179,8 +254,11 @@ class WigleySections(HullSections):
         edges = np.linspace(-L / 2, L / 2, n_stations + 1)
         self.x = 0.5 * (edges[:-1] + edges[1:])
         self.dx = edges[1] - edges[0]
+        self.x_bow = L / 2
+        self.x_stern = float(edges[0])
         self.y0 = (B / 2) * (1 - (2 * self.x / L) ** 2)
         self.n = n_stations
+        self.keel = np.full(n_stations, -T)     # every Wigley section reaches -T
 
     def area(self, d):
         T, y0 = self.T, self.y0
@@ -307,17 +385,32 @@ class MeshSections(HullSections):
 
     def __init__(self, mesh, L, T, n_stations=41, n_immersion=101,
                  freeboard=None):
+        if hasattr(mesh, "merged"):      # Capytaine symmetric meshes store a half
+            mesh = mesh.merged()
         self.L, self.T, self.n = L, T, n_stations
-        edges = np.linspace(-L / 2, L / 2, n_stations + 1)
-        self.x = 0.5 * (edges[:-1] + edges[1:])
-        self.dx = edges[1] - edges[0]
-
         tri, nrm = self._triangulate(mesh)
         fb = T if freeboard is None else freeboard
-        self.d_grid = np.linspace(-T, fb, n_immersion)
+        # Stations span the hull as it IS. They spanned -L/2..L/2 about the
+        # origin, which is where the Wigley has its midship and an imported
+        # file has whatever it likes -- KVLCC2's IGES, the aft perpendicular,
+        # so the stations covered the stern half and a stretch of open water.
+        z = tri[..., 2]
+        xs = tri[z.min(axis=1) <= fb][..., 0]
+        edges = np.linspace(float(xs.min()), float(xs.max()), n_stations + 1)
+        self.x = 0.5 * (edges[:-1] + edges[1:])
+        self.dx = edges[1] - edges[0]
+        self.x_bow = float(edges[-1])
+        self.x_stern = float(edges[0])
+        # from the deepest point of the mesh, not from -T: a bulb or a skeg
+        # below the nominal draught would otherwise never reach zero area
+        self.d_grid = np.linspace(min(-T, float(z.min())), fb, n_immersion)
         self._A = np.zeros((n_stations, n_immersion))
         self._zc = np.full((n_stations, n_immersion), -T / 2)
         self.y0 = np.zeros(n_stations)
+        # each station's own lowest point: a raked stem or a cut-up stern is
+        # out of the water long before the midship keel is, and the slam
+        # criterion used to treat every section as reaching -T
+        self.keel = np.zeros(n_stations)
 
         # A station plane that lands exactly on a mesh grid line finds NO
         # crossing triangles: every adjacent vertex sits at s = 0, so neither
@@ -337,12 +430,19 @@ class MeshSections(HullSections):
             a0, _ = _area_moment(_clip_below(seg, 0.0), 0.0)
             am, _ = _area_moment(_clip_below(seg, -eps), -eps)
             self.y0[i] = max((a0 - am) / eps, 0.0) / 2      # dA/dd = width
+            self.keel[i] = float(np.min(seg[:, [1, 3]]))
+            # The contour itself, above the waterline too. This used to stop
+            # at the waterline and go wall-sided above it, whatever the hull
+            # did there; a CAD hull carries its topsides, and bow flare is
+            # exactly what decides how much buoyancy -- and slamming -- a bow
+            # picks up when it plunges. Where the mesh ends (a BEM mesh cut at
+            # the waterline, or topsides stopping short of the level) the
+            # formula continues vertically from the contour's last points on
+            # its own: those closing walls have dy = 0 and contribute nothing
+            # to the contour integral, which is exactly wall-sided. On the
+            # Wigley and every waterline-cut mesh the result is unchanged.
             for j, d in enumerate(self.d_grid):
-                dd = min(d, 0.0)
-                A, M = _area_moment(_clip_below(seg, dd), dd)
-                if d > 0.0:                       # wall-sided above the WL
-                    A += 2 * self.y0[i] * d
-                    M += 2 * self.y0[i] * d * (d / 2)
+                A, M = _area_moment(_clip_below(seg, d), d)
                 self._A[i, j] = max(A, 0.0)
                 self._zc[i, j] = M / max(A, 1e-9) if A > 1e-9 else -T / 2
 

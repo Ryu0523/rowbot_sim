@@ -23,9 +23,9 @@ from hydro import bem
 from .vessel import NonlinearVessel, LIMITATIONS
 from .wavefield import SeaState
 from .cummins import rao_frequency_domain, extract_amplitude_phase
+from .config import head_index      # beta = pi, found by angle
 
 DB = "hydro_wigley_10m.npz"
-HEAD = 12          # direction index for beta = pi
 
 
 class Monochromatic(SeaState):
@@ -78,7 +78,7 @@ def main():
         sea = Monochromatic(w, amp)
         v = NonlinearVessel(db, sea, L=db.L, dt=0.01,
                             visc=np.zeros(6))       # linear model has none
-        xi, wa = rao_frequency_domain(db, w, HEAD)
+        xi, wa = rao_frequency_domain(db, w, head_index(db))
         t, s = _run(v, 45 * 2 * np.pi / wa, dt=0.01)
         ah, _ = extract_amplitude_phase(t, s[:, 2], wa)
         ap, _ = extract_amplitude_phase(t, s[:, 4], wa)

@@ -1,0 +1,166 @@
+{
+ "A": {
+  "title": "integrity",
+  "ok": true,
+  "info": {
+   "placeholders": [
+    "displacement",
+    "z_cog",
+    "k_roll",
+    "k_pitch",
+    "k_yaw",
+    "prop_series",
+    "t_max",
+    "rudder_max_deg",
+    "rudder_rate_deg",
+    "visc",
+    "roll_damping",
+    "wind_areas"
+   ]
+  },
+  "seconds": 0.0
+ },
+ "B": {
+  "title": "calm float",
+  "ok": true,
+  "info": {
+   "sinkage_over_T": 1.3796751241265025e-16,
+   "trim_deg": -1.0225285603345367e-15,
+   "heave_ptp_over_T": 1.6282517416824669e-16,
+   "pitch_ptp_deg": 1.169071220462167e-15,
+   "roll_max_deg": 0.0
+  },
+  "seconds": 1.9
+ },
+ "C": {
+  "title": "linear limit vs frequency domain",
+  "ok": true,
+  "info": {
+   "worst_heave": 0.0025641245173309503,
+   "worst_pitch": 0.0015294735768223938,
+   "rows": [
+    {
+     "omega": 0.6,
+     "lam_over_L": 17.121679962064373,
+     "heave_fd": 0.9971991750736431,
+     "heave_td": 0.997585375730121,
+     "pitch_fd": 0.03663232373745141,
+     "pitch_td": 0.0366289180963815,
+     "err_heave": 0.00038728537500981624,
+     "err_pitch": 9.296819645710045e-05
+    },
+    {
+     "omega": 1.0,
+     "lam_over_L": 6.163804786343174,
+     "heave_fd": 0.9785828149145811,
+     "heave_td": 0.9798676438817644,
+     "pitch_fd": 0.10048989106266609,
+     "pitch_td": 0.10043060367456239,
+     "err_heave": 0.001312948631021529,
+     "err_pitch": 0.0005899836040894409
+    },
+    {
+     "omega": 1.4000000000000001,
+     "lam_over_L": 3.14479836037917,
+     "heave_fd": 0.9188523995072377,
+     "heave_td": 0.9210434440078765,
+     "pitch_fd": 0.18903040109393515,
+     "pitch_td": 0.18905642976415588,
+     "err_heave": 0.0023845445708296537,
+     "err_pitch": 0.00013769568318161194
+    },
+    {
+     "omega": 1.8000000000000003,
+     "lam_over_L": 1.9024088846738187,
+     "heave_fd": 0.7794532386337821,
+     "heave_td": 0.781451853793076,
+     "pitch_fd": 0.28396991858098775,
+     "pitch_td": 0.2844042430680698,
+     "err_heave": 0.0025641245173309503,
+     "err_pitch": 0.0015294735768223938
+    }
+   ]
+  },
+  "seconds": 37.1
+ },
+ "D": {
+  "title": "heading invariance",
+  "ok": true,
+  "info": {
+   "waves_turned": {
+    "heave": 0.04971150976579719,
+    "roll_deg": 0.43763958298484884,
+    "pitch_deg": 0.1547158501655982
+   },
+   "vessel_turned": {
+    "heave": 0.04971150976579719,
+    "roll_deg": 0.43763958298484884,
+    "pitch_deg": 0.1547158501655982
+   },
+   "worst_rel": 0.0
+  },
+  "seconds": 7.5
+ },
+ "E": {
+  "title": "propulsion reaches design speed",
+  "ok": true,
+  "info": {
+   "u_full": 5.9617732318233685,
+   "u_design": 4.5,
+   "Fn_full": 0.6019230147408182,
+   "t_max": 12000.0
+  },
+  "seconds": 5.5
+ },
+ "F": {
+  "title": "manoeuvring",
+  "ok": true,
+  "info": {
+   "rudder_deg": 35.0,
+   "radius_over_L": 1.785324240535476,
+   "tactical_diameter_over_L": 3.9277133291780473,
+   "drift_deg": 15.638222074252818,
+   "speed_in_turn": 3.9510208330649443,
+   "r_kick": 0.07945620599094524,
+   "r_after": 6.48948366323209e-07
+  },
+  "seconds": 5.1
+ },
+ "G": {
+  "title": "mission sea, Froude-scaled SS5",
+  "ok": true,
+  "info": {
+   "hs": 3.25,
+   "tp": 9.7,
+   "finite": true,
+   "u_calm": 4.845952172309339,
+   "u_waves": 4.533773319328484,
+   "speed_loss_pct": 6.4420539427669645,
+   "roll_max_deg": 5.6266055894944875,
+   "pitch_max_deg": 16.838239027177465,
+   "heave_max_over_T": 3.343338952630387,
+   "slams": 4
+  },
+  "seconds": 10.4
+ },
+ "H": {
+  "title": "control chain",
+  "ok": true,
+  "info": {
+   "u_ss_over_u_design": 1.131900027398468,
+   "tau_u": 4.3500000000000005,
+   "wn_heave": 3.255536428590459,
+   "wn_pitch": 3.4586341140438086,
+   "k_nomoto": -0.4237891535226605,
+   "tau_r": 2.6500000000000004,
+   "episode_finite": true,
+   "u_mean_over_u_ref": 0.9723147324845747,
+   "heading_rms_deg": 1.1199055448294049,
+   "cross_rms_over_L": 0.04176282526107506,
+   "acc_p99_g": 0.4947440447842434,
+   "rl_env_finite": true,
+   "rl_obs_max": 1.79087233543396
+  },
+  "seconds": 11.2
+ }
+}

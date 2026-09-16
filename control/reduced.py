@@ -24,7 +24,7 @@ from scipy.linalg import expm
 G = 9.81
 
 
-def _fit_wave_horizontal(plant, L, B, n_st=5, t_end=180.0, dt=0.05,
+def _fit_wave_horizontal(plant, L, B, n_st=5, t_end=180.0, dt=None,
                          seeds=(0, 1, 2)):
     """Regress the plant's unexplained sway/yaw acceleration on the wave slope.
 
@@ -42,21 +42,22 @@ def _fit_wave_horizontal(plant, L, B, n_st=5, t_end=180.0, dt=0.05,
     none, because it would make the controller act at the wrong phase.
     """
     from sim.wavefield import SeaState
-    from sim.vessel import NonlinearVessel
     g = 9.81
-    x_st = np.linspace(-L / 2, L / 2, n_st)
+    rs = np.sqrt(L / 10.0)
+    dt = plant.dt if dt is None else dt
+    x_st = np.linspace(plant.sec.x_stern, plant.sec.x_bow, n_st)
     xc = x_st - x_st.mean()
     den = max((xc ** 2).sum(), 1e-12)
     hb = 0.5 * B
     A_s, b_s, A_y, b_y = [], [], [], []
     for sd in seeds:
         sea = SeaState(3.25, 9.7, n_freq=24, n_dir=5, seed=sd)
-        v = NonlinearVessel(plant.db, sea, L=L, B=B, T=plant.T, dt=dt)
-        s = v.initial_state(4.0)
+        v = plant.with_sea(sea)             # the plant's own vessel
+        s = v.initial_state(4.0 * rs)
         t = 0.0
         prev = None
-        for i in range(int(t_end / dt)):
-            s = v.step(s, t, 7000.0, 0.0, dt)
+        for i in range(int(t_end * rs / dt)):
+            s = v.step(s, t, 7000.0 * plant.prop.t_max / 12000.0, 0.0, dt)
             t += dt
             if i % 4:
                 continue
@@ -99,59 +100,103 @@ class ReducedModel:
         self._phi_cache = {}
 
     @classmethod
-    def identify(cls, plant, db, verbose=False):
+    def identify(cls, plant, db=None, verbose=False):
+        """Fit the reduced model to `plant` with three calm-water experiments.
+
+        On the plant's OWN vessel: a calm-water clone of it (with_sea), not a
+        vessel built here. This used to build NonlinearVessel(db, calm, L=L),
+        which took the Wigley's sections and B = 2.5, T = 0.8 whatever the
+        plant was, so the surge, heave, pitch and yaw of the reduced model came
+        from one boat and its sway from another.
+
+        Test inputs are fractions of the plant's own limits and the windows
+        multiples of its own time scale, sqrt(L / 10 m) -- for the 10 m USV
+        exactly the old 8 kN step, 240 s, 0.5 m release and so on. As absolute
+        numbers they left a tanker model barely moving in 240 s and released a
+        2 m boat 4 draughts above the water.
+        """
+        from sim.forces import Wind
         from sim.test_vessel import Monochromatic, _run
-        from sim.vessel import NonlinearVessel, SIGN_PITCH
+        from sim.vessel import SIGN_PITCH
 
         L = plant.L
+        rs = np.sqrt(L / 10.0)                       # time scale vs the USV
+        dt = plant.dt
+        t_max = plant.prop.t_max
+        # multiplied before dividing, so the USV gets exactly its old 8000 N
+        thr_id = 8000.0 * t_max / 12000.0
+        u_des = plant.prop.u_ref
+
+        # A FRESH calm-water vessel for every experiment. A plant carries
+        # actuator state that initial_state() does not reset -- the thruster's
+        # transport-delay line -- and the decays below used to start with the
+        # surge step's commands still in it: a kilonewton-scale push during a
+        # "free" decay, and on KVLCC2 the push that started a blow-up.
+        calm = Monochromatic(1.0, 0.0)
+
+        def fresh():
+            return plant.with_sea(calm, wind=Wind())
 
         # --- surge: thrust step in calm water -> gain and time constant ----
-        calm = Monochromatic(1.0, 0.0)
-        v = NonlinearVessel(db, calm, L=L, dt=0.05)
-        t, s = _run(v, 240.0, thrust=8000.0)
+        v = fresh()
+        t, s = _run(v, 240.0 * rs, thrust=thr_id)
         u = s[:, 6]
         u_ss = float(np.mean(u[-200:]))
         # first-order rise: u(t) = u_ss (1 - exp(-t/tau))
         idx = np.argmax(u > 0.632 * u_ss)
-        tau_u = float(t[idx]) if idx > 0 else 8.0
-        k_drag = 8000.0 / max(u_ss ** 2, 1e-6)      # steady drag balance
+        tau_u = float(t[idx]) if idx > 0 else 8.0 * rs
+        k_drag = thr_id / max(u_ss ** 2, 1e-6)      # steady drag balance
 
         # --- heave / pitch: free decay -> natural frequency and damping ----
         wn, zeta = {}, {}
         for dof, col, vcol in (("heave", 2, 8), ("pitch", 4, 10)):
+            v = fresh()
             s0 = v.initial_state()
-            s0[col] = 0.5 if dof == "heave" else 0.08
-            n = int(30.0 / 0.05)
+            s0[col] = 0.625 * plant.T if dof == "heave" else 0.08
+            n = int(30.0 * rs / dt)
             y = np.empty(n + 1)
             st = s0.copy()
             for i in range(n):
-                st = v.step(st, i * 0.05, 0.0, 0.0, 0.05)
+                st = v.step(st, i * dt, 0.0, 0.0, dt)
                 y[i + 1] = st[col]
             y[0] = s0[col]
-            tt = np.arange(n + 1) * 0.05
-            zc = np.where(np.diff(np.sign(y)))[0]
-            T = 2 * np.mean(np.diff(tt[zc])) if len(zc) > 2 else 2.0
-            wn[dof] = 2 * np.pi / T
+            tt = np.arange(n + 1) * dt
+            # From the equilibrium the vessel settles to (a trimmed hull's is
+            # not zero), and only while the oscillation is still there. The
+            # period used to average EVERY zero crossing of the record, the
+            # numerical tail's included, and the Wigley's heave frequency
+            # moved 3.27 -> 3.58 -> 3.26 rad/s for changes that did not touch
+            # its physics (DEFECTS G5).
+            y = y - np.median(y[3 * len(y) // 4:])
+            thr = 0.02 * abs(y[0])
+            live = np.nonzero(np.abs(y) > thr)[0]
+            end = int(live[-1]) if len(live) else n
+            zc = [i for i in np.nonzero(np.diff(np.sign(y)))[0] if i < end]
+            tc = np.array([tt[i] - y[i] * dt / (y[i + 1] - y[i]) for i in zc])
             pk = [i for i in range(1, n) if y[i] > y[i - 1] and y[i] > y[i + 1]
-                  and y[i] > 0.02 * abs(s0[col])]
+                  and y[i] > thr]
             if len(pk) >= 2:
                 dlt = np.log(abs(y[pk[0]] / y[pk[1]]))
                 zeta[dof] = float(dlt / np.sqrt(4 * np.pi ** 2 + dlt ** 2))
             else:
                 zeta[dof] = 0.3
+            # crossings give the DAMPED period; the model's wn is undamped
+            Td = 2.0 * float(np.mean(np.diff(tc))) if len(tc) > 2 else 2.0 * rs
+            wn[dof] = 2 * np.pi / Td / np.sqrt(max(1.0 - zeta[dof] ** 2, 0.05))
 
         # --- yaw: rudder step -> Nomoto gain and time constant -------------
+        v = fresh()
         st = v.initial_state(u_ss)
-        n = int(60.0 / 0.05)
+        n = int(60.0 * rs / dt)
         r = np.empty(n + 1)
         r[0] = 0.0
         for i in range(n):
-            st = v.step(st, i * 0.05, 8000.0, np.radians(20.0), 0.05)
+            st = v.step(st, i * dt, thr_id, np.radians(20.0), dt)
             r[i + 1] = st[11]
         r_ss = float(np.mean(r[-100:]))
         k_nomoto = r_ss / np.radians(20.0)
         idx = np.argmax(np.abs(r) > 0.632 * abs(r_ss)) if abs(r_ss) > 1e-9 else 0
-        tau_r = float(idx * 0.05) if idx > 0 else 3.0
+        tau_r = float(idx * dt) if idx > 0 else 3.0 * rs
 
         # Sway coefficients are COPIED, not fitted. Fitting would add error to
         # terms the plant computes in closed form and that we can simply read.
@@ -171,12 +216,13 @@ class ReducedModel:
         m_cor = float(plant.M[0, 0])
         k_lift = float(0.5 * rud.rho * rud.area * rud.cl_alpha)
 
-        st = plant.initial_state(4.5)
+        v = fresh()
+        st = v.initial_state(u_des)
         d_id = np.radians(15.0)
         tt = 0.0
-        for _ in range(int(90.0 / 0.05)):
-            st = plant.step(st, tt, 7000.0, d_id, 0.05)
-            tt += 0.05
+        for _ in range(int(90.0 * rs / dt)):
+            st = v.step(st, tt, 7000.0 * t_max / 12000.0, d_id, dt)
+            tt += dt
         u_s, v_s, r_s = float(st[6]), float(st[7]), float(st[11])
         lift_s = k_lift * u_s * abs(u_s) * d_id
         k_lin = (lift_s - k_quad * v_s * abs(v_s) - m_cor * u_s * r_s) / v_s
@@ -202,11 +248,19 @@ class ReducedModel:
                  c_wave_sway=c_ws, c_wave_yaw=c_wy, tau_u=tau_u, k_drag=k_drag,
                  wn_heave=wn["heave"], z_heave=zeta["heave"],
                  wn_pitch=wn["pitch"], z_pitch=zeta["pitch"],
-                 k_nomoto=k_nomoto, tau_r=max(tau_r, 0.5),
+                 k_nomoto=k_nomoto, tau_r=max(tau_r, 0.5 * rs),
                  sign_pitch=SIGN_PITCH,
                  v_slam=0.093 * np.sqrt(G * L),
                  draft=plant.T, u_ss=u_ss, u_max=u_ss * 1.35,
                  m_surge=max(2.0 * k_drag * u_ss * tau_u, 1e-6),
+                 # the plant's own limits and extent, for the MPC: it used
+                 # 12 kN, 35 deg and +-L/2 about the origin whatever the plant
+                 t_max=float(t_max), rud_max=float(plant.rudder.max),
+                 u_design=float(u_des), dt_ctrl=0.5 * rs,
+                 x_bow=float(plant.sec.x_bow),
+                 x_stern=float(plant.sec.x_stern),
+                 # the bow station's own keel, as the plant's slam criterion
+                 draft_bow=float(-plant.sec.keel[-1]),
                  **p_sway)
         if verbose:
             print("  identified reduced model:")
@@ -364,9 +418,9 @@ class ReducedModel:
         # staircase edge and over-predicted the amplitude by 2.1x -- measured
         # against the plant in `studies.model_horizon`. Averaging is also what
         # the cost actually wants, since it integrates over the step.
-        a_bow = ((nzd - zd) + p["sign_pitch"] * (p["L"] / 2)
-                 * (nthd - thd)) / dt
-        z_bow = z + p["sign_pitch"] * (p["L"] / 2) * th
+        x_bow = p.get("x_bow", p["L"] / 2)      # the bow, not +L/2 from the CG
+        a_bow = ((nzd - zd) + p["sign_pitch"] * x_bow * (nthd - thd)) / dt
+        z_bow = z + p["sign_pitch"] * x_bow * th
         # the bow station on the CENTRELINE, not the whole port/centre/stbd
         # triple -- eta_c already selected it
         rel = z_bow - eta_c[:, -1]

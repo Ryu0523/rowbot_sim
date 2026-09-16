@@ -1,0 +1,149 @@
+  collecting 30,000 MPC demonstration steps ...
+    seed 0: 241 / 30000 demo steps
+    seed 1: 482 / 30000 demo steps
+    seed 2: 723 / 30000 demo steps
+    seed 3: 964 / 30000 demo steps
+    seed 4: 1205 / 30000 demo steps
+    seed 5: 1446 / 30000 demo steps
+    seed 6: 1687 / 30000 demo steps
+    seed 7: 1928 / 30000 demo steps
+    seed 8: 2169 / 30000 demo steps
+    seed 9: 2410 / 30000 demo steps
+    seed 10: 2651 / 30000 demo steps
+    seed 11: 2892 / 30000 demo steps
+    seed 12: 3133 / 30000 demo steps
+    seed 13: 3374 / 30000 demo steps
+    seed 14: 3615 / 30000 demo steps
+    seed 15: 3856 / 30000 demo steps
+    seed 16: 4097 / 30000 demo steps
+    seed 17: 4338 / 30000 demo steps
+    seed 18: 4579 / 30000 demo steps
+    seed 19: 4820 / 30000 demo steps
+    seed 20: 5061 / 30000 demo steps
+    seed 21: 5302 / 30000 demo steps
+    seed 22: 5543 / 30000 demo steps
+    seed 23: 5784 / 30000 demo steps
+    seed 0: 6025 / 30000 demo steps
+    seed 1: 6266 / 30000 demo steps
+    seed 2: 6507 / 30000 demo steps
+    seed 3: 6748 / 30000 demo steps
+    seed 4: 6989 / 30000 demo steps
+    seed 5: 7230 / 30000 demo steps
+    seed 6: 7471 / 30000 demo steps
+    seed 7: 7712 / 30000 demo steps
+    seed 8: 7953 / 30000 demo steps
+    seed 9: 8194 / 30000 demo steps
+    seed 10: 8435 / 30000 demo steps
+    seed 11: 8676 / 30000 demo steps
+    seed 12: 8917 / 30000 demo steps
+    seed 13: 9158 / 30000 demo steps
+    seed 14: 9399 / 30000 demo steps
+    seed 15: 9640 / 30000 demo steps
+    seed 16: 9881 / 30000 demo steps
+    seed 17: 10122 / 30000 demo steps
+    seed 18: 10363 / 30000 demo steps
+    seed 19: 10604 / 30000 demo steps
+    seed 20: 10845 / 30000 demo steps
+    seed 21: 11086 / 30000 demo steps
+    seed 22: 11327 / 30000 demo steps
+    seed 23: 11568 / 30000 demo steps
+    seed 0: 11809 / 30000 demo steps
+    seed 1: 12050 / 30000 demo steps
+    seed 2: 12291 / 30000 demo steps
+    seed 3: 12532 / 30000 demo steps
+    seed 4: 12773 / 30000 demo steps
+    seed 5: 13014 / 30000 demo steps
+    seed 6: 13255 / 30000 demo steps
+    seed 7: 13496 / 30000 demo steps
+    seed 8: 13737 / 30000 demo steps
+    seed 9: 13978 / 30000 demo steps
+    seed 10: 14219 / 30000 demo steps
+    seed 11: 14460 / 30000 demo steps
+    seed 12: 14701 / 30000 demo steps
+    seed 13: 14942 / 30000 demo steps
+    seed 14: 15183 / 30000 demo steps
+    seed 15: 15424 / 30000 demo steps
+    seed 16: 15665 / 30000 demo steps
+    seed 17: 15906 / 30000 demo steps
+    seed 18: 16147 / 30000 demo steps
+    seed 19: 16388 / 30000 demo steps
+    seed 20: 16629 / 30000 demo steps
+    seed 21: 16870 / 30000 demo steps
+    seed 22: 17111 / 30000 demo steps
+    seed 23: 17352 / 30000 demo steps
+    seed 0: 17593 / 30000 demo steps
+    seed 1: 17834 / 30000 demo steps
+    seed 2: 18075 / 30000 demo steps
+    seed 3: 18316 / 30000 demo steps
+    seed 4: 18557 / 30000 demo steps
+    seed 5: 18798 / 30000 demo steps
+    seed 6: 19039 / 30000 demo steps
+    seed 7: 19280 / 30000 demo steps
+    seed 8: 19521 / 30000 demo steps
+    seed 9: 19762 / 30000 demo steps
+    seed 10: 20003 / 30000 demo steps
+    seed 11: 20244 / 30000 demo steps
+    seed 12: 20485 / 30000 demo steps
+    seed 13: 20726 / 30000 demo steps
+    seed 14: 20967 / 30000 demo steps
+    seed 15: 21208 / 30000 demo steps
+    seed 16: 21449 / 30000 demo steps
+    seed 17: 21690 / 30000 demo steps
+    seed 18: 21931 / 30000 demo steps
+    seed 19: 22172 / 30000 demo steps
+    seed 20: 22413 / 30000 demo steps
+    seed 21: 22654 / 30000 demo steps
+    seed 22: 22895 / 30000 demo steps
+    seed 23: 23136 / 30000 demo steps
+    seed 0: 23377 / 30000 demo steps
+    seed 1: 23618 / 30000 demo steps
+    seed 2: 23859 / 30000 demo steps
+    seed 3: 24100 / 30000 demo steps
+    seed 4: 24341 / 30000 demo steps
+    seed 5: 24582 / 30000 demo steps
+    seed 6: 24823 / 30000 demo steps
+    seed 7: 25064 / 30000 demo steps
+    seed 8: 25305 / 30000 demo steps
+    seed 9: 25546 / 30000 demo steps
+    seed 10: 25787 / 30000 demo steps
+    seed 11: 26028 / 30000 demo steps
+    seed 12: 26269 / 30000 demo steps
+    seed 13: 26510 / 30000 demo steps
+    seed 14: 26751 / 30000 demo steps
+    seed 15: 26992 / 30000 demo steps
+    seed 16: 27233 / 30000 demo steps
+    seed 17: 27474 / 30000 demo steps
+    seed 18: 27715 / 30000 demo steps
+    seed 19: 27956 / 30000 demo steps
+    seed 20: 28197 / 30000 demo steps
+    seed 21: 28438 / 30000 demo steps
+    seed 22: 28679 / 30000 demo steps
+    seed 23: 28920 / 30000 demo steps
+    seed 0: 29161 / 30000 demo steps
+    seed 1: 29402 / 30000 demo steps
+    seed 2: 29643 / 30000 demo steps
+    seed 3: 29884 / 30000 demo steps
+    seed 4: 30125 / 30000 demo steps
+  cached -> bc_demos.npz
+
+  cloning 60 epochs on 30,000 pairs ...
+    epoch   0  action MSE 0.02769
+    epoch  10  action MSE 0.00738
+    epoch  20  action MSE 0.00346
+    epoch  30  action MSE 0.00193
+    epoch  40  action MSE 0.00133
+    epoch  50  action MSE 0.00102
+    epoch  59  action MSE 0.00091
+  log_std pinned to std = 0.15
+
+  deterministic clone vs the MPC it copied, 6 HELD-OUT seas
+
+  controller         u  acc_p99    rvm  slamImp   cross     hdg
+  MPC             4.23    0.566  0.253    128.8   0.83m    2.2d
+  BC clone        4.15    0.546  0.248    121.5   1.27m    3.9d
+
+  --------------------------------------------------------------
+  The clone flies. Whatever went wrong happened in FINE-TUNING,
+  and the culprit is the action noise: cloning leaves log_std at
+  1.0, so the first PPO rollouts sample near-randomly and throw
+  the clone away before it can be improved.

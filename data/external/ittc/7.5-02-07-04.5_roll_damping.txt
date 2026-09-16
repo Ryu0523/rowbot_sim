@@ -1,0 +1,4065 @@
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 1 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+Updated / Edited by Approved 
+Stability in Waves Committee of the 29th 
+ITTC 
+ 
+29th ITTC 2021 
+ 
+Date 03/2020 Date 06/2021 
+ 
+ 
+ITTC Quality System Manual 
+ 
+Recommended Procedures and Guidelines 
+ 
+ 
+Procedure 
+ 
+Estimation of Roll Damping 
+ 
+7.5 Process Control 
+7.5-02 Testing and Extrapolation Methods 
+7.5-02-07 Loads and Responses 
+7.5-02-07-04 Stability 
+7.5-02-07-04.5 Estimation of Roll Damping 
+ 
+ 
+ 
+ 
+Disclaimer 
+All the information in ITTC Recommended Procedures and Guidelines is published in good faith.  Neither ITTC 
+nor committee members provide any warranties about the completeness, reliability, accuracy or otherwise of this 
+information.  Given the technical evolution, the ITTC Recommended Procedures and Guidelines are checked reg-
+ularly by the relevant committ ee and updated when necessary.  I t is therefore important to always use the latest 
+version. 
+A n y ac t i on  y o u  t ak e  u p on  t h e  i n f or m at i o n  y ou  f i n d  i n  t h e  I T T C  Recommended Procedures and Guidelines is 
+strictly at your own responsib ility.  Neither ITTC nor committe e members shall be liable for any losses and/or 
+damages whatsoever in connection with the use of information av ailable in the ITTC Recommended Procedures 
+and Guidelines. 
+ 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 2 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+Table of Contents 
+ 
+1.  PURPOSE OF PROCEDURE .............. 4 
+2.  BACKGROUND EQUATIONS ........... 4 
+2.1  Equation of ship roll motion ............. 4 
+2.2  Restoring coefficients ........................ 5 
+2.3  Roll damping coefficients .................. 5 
+2.4  Equivalent linear damping 
+coefficient ............................................ 6 
+3.  PROCEDURE FOR ESTIMATING 
+ROLL DAMPING FROM 
+EXPERIMENTS .................................... 7 
+3.1  Roll decay tests in calm water .......... 7 
+3.1.1  Model and installation .................. 8 
+3.1.2  Measurement systems .................. 9 
+3.1.3  Instrumentation ............................. 9 
+3.1.4  Calibration .................................... 9 
+3.1.5  Pre-test considerations ................ 10 
+3.1.6  Test procedure and data 
+acquisition .................................. 10 
+3.1.7  Data reduction and analysis ........ 10 
+3.2  Free running forced roll tests ......... 11 
+3.2.1  Model and installation ................ 11 
+3.2.2  Measurement systems ................ 11 
+3.2.3  Instrumentation ........................... 11 
+3.2.4  Calibration .................................. 12 
+3.2.5  Pre-test considerations ................ 12 
+3.2.6  Test procedure and data 
+acquisition .................................. 12 
+3.2.7  Data reduction and analysis ........ 13 
+3.3  (Semi-) Captive forced roll tests ..... 14 
+3.3.1  Model and installation ................ 15 
+3.3.2  Measurement systems ................ 15 
+3.3.3  Instrumentation ........................... 15 
+3.3.4  Calibration .................................. 15 
+3.3.5  Pre-test considerations ............... 15 
+3.3.6  Test procedure and data 
+acquisition .................................. 15 
+3.3.7  Data reduction and analysis ....... 17 
+3.4  General Comparison and 
+Recommendations............................ 17 
+4.  PROCEDURE FOR ESTIMATING 
+ROLL DAMPING FROM 
+EMPIRICAL METHODS .................. 18 
+4.1  Definition of Component Discrete 
+Type Method .................................... 18 
+4.2  Ikeda’s Method ................................ 19 
+4.2.1  Displacement type mono-hull .... 19 
+4.2.2  Hard chine type hull ................... 27 
+4.2.3  Multi-hull ................................... 29 
+4.2.4  Additional damping for a planning 
+hull .............................................. 30 
+4.2.5  Additional damping for flooded 
+ship ............................................. 31 
+4.3  Simplified Ikeda’s Method ............. 32 
+4.3.1  Wave component ........................ 32 
+4.3.2  Lift component ........................... 33 
+4.3.3  Frictional component ................. 33 
+4.3.4  Eddy making component ............ 34 
+4.3.5  Bilge keel component ................. 34 
+5.  VALIDATION ..................................... 34 
+5.1  Uncertainty Analysis ....................... 34 
+5.2  Benchmark Model Test Data .......... 35 
+6.  DOCUMENTATION .......................... 35 
+7.  REFERENCES .................................... 35 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 3 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+  SIMPLIFIED IKEDA’S 
+METHOD FACTORS ......................... 41 
+  NOMENCLATURE ..... 43 
+ 
+  
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 4 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+Estimation of Roll Damping 
+ 
+1. PURPOSE OF PROCEDURE 
+Roll damping is, in general, the energy that 
+a system dissipates when rolling, which is a cru-
+cial parameter for the proper estimation of the 
+ship behaviour in a seaway. Traditionally, the 
+most common practice to obtain roll damping is 
+to perform the roll decay test. With the develop-
+ment of model testing techniques, more sophis-
+ticated methods such as free running forced roll 
+tests and (semi-) captive forced roll tests be-
+come available to help investigate the more de-
+tailed characteristics of roll damping as the 
+function of frequency and amplitude. These 
+methods can also be useful for CFD validation 
+purposes. 
+This procedure provides detailed guidance 
+on how to carry out model tests, or using empir-
+ical formula, to determine roll damping: 
+ Roll decay tests in calm water 
+ Free running forced roll tests 
+ (Semi-) Captive forced roll tests 
+ Simplified Ikeda’s method 
+ Ikeda’s method 
+Roll decay tests in waves are performed oc-
+casionally but are not included in this procedure, 
+reference can be found in literature (Tao et al, 
+2005). 
+2. BACKGROUND EQUATIONS 
+In this section,t he equation of ship roll mo-
+tion is presented. Then, the general formulation 
+to model the restoring moment is illustrated. 
+Lastly, some of the expressions commonly used 
+to model roll damping are introduced, along 
+with the review of the relations among them. 
+2.1 Equation of ship roll motion 
+Ship motions can be expressed in six-de-
+grees-of freedom. Roll motion, specifically, is 
+the rotation of the ship around the longitudinal 
+axis, which is coupled to sway and yaw motions. 
+However, coupling of roll with other degrees of 
+freedom is generally neglected because a good 
+balance is achieved between simplicity and ac-
+curacy when using one degree-of-freedom, alt-
+hough it should be decided on a specific ship 
+hull basis.  
+To begin with, a generic formulation is ex-
+pressed in order to introduce the roll damping 
+formulation. However, it should be noted that 
+the specific equation of ship roll motion used to 
+analyse the tests in this procedure should be 
+carefully established in order to properly model 
+the physics involved. 
+In the following, in order to discuss the prob-
+lem of nonlinear roll damping, the equation of 
+ship roll motion is expressed in the simple sin-
+gle-degree-of-freedom form: 
+ሺ𝐼ସସ ൅𝜕 𝐼ସସሻ ⋅𝜑ሷ ൅𝐵 ሺ 𝜑ሶ ሻ൅𝐶 ସସ ൌ𝐾  (1) 
+where 𝜑[𝑟𝑎𝑑] is the roll angle (dots represent 
+derivatives with respect to time); 𝑡 [𝑠] is time, 
+ሺ𝐼ସସ ൅𝜕 𝐼ସସሻ [𝑘𝑔 ⋅ 𝑚ଶ] is the total roll moment 
+of inertia, including the hydrodynamic added in-
+ertia (𝜕𝐼ସସ) along a longitudinal axis through the 
+centre of gravity; 𝐵ሺ𝜑ሶ ሻ [𝑁⋅𝑚 ] is the damping 
+moment function, assumed to be dependent only 
+on the ship’s roll angular velocity;  𝐶ସସ [𝑁⋅𝑚 ] 
+is the restoring moment and 𝐾 [𝑁⋅𝑚 ] is the ex-
+citing roll moment applied to the ship due to 
+waves or external/internal forces. 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 5 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+Dividing Eq.(1) by ሺ𝐼ସସ ൅𝜕 𝐼ସସሻ , the so-
+called normalized roll motion equation (IMO, 
+2006) can be obtained: 
+𝜑ሷ ൅𝑑 ሺ𝜑ሶ ሻ ൅𝑐 ସସ ൌ𝑘   ( 2 )  
+where: 
+𝑑ሺ𝜑ሶ ሻ ൌ
+஻ሺఝሶ ሻ
+ሺூరరାడூరరሻ ,    𝑐ସସ ൌ
+஼రర
+ሺூరరାడூరరሻ,    
+𝑘ൌ
+௄
+ሺூరరାడூరరሻ
+ (3) 
+2.2 Restoring coefficients 
+The restoring moment,  𝐶ସସ , can be ex-
+pressed in the following nonlinear form: 
+𝐶ସସ ൌΔ⋅𝐺 𝑍ሺ𝜑ሻ  ( 4 )  
+where 𝛥  [ 𝑁 ] is the ship displacement and 
+𝐺𝑍ሺ𝜑ሻ [𝑚] is the hydrostatic roll righting lever 
+with respect to the centre of gravity of the ship. 
+Because of Eq. (4), and considering Eq. (2), 
+𝑐ସସ is equivalent to: 
+𝑐ସସ ൌ𝜔 ௫
+ଶ ⋅
+ீ௓ሺఝሻ
+ீெ ൌ𝜔 ௫
+ଶ ⋅𝑟 ሺ𝜑ሻ (5) 
+where 𝜔௫[𝑟𝑎𝑑 𝑠⁄ ] represents the undamped ship 
+roll natural frequency and 𝐺𝑀 [𝑚] is the meta-
+centric height with respect to the ship centre of 
+gravity, considering the vessel freely floating 
+with displacement 𝛥. 
+For symmetric ships symmetrically loaded, 
+where𝐺𝑍ሺ𝜑ሻ is symmetric around 𝜑ൌ0 , 𝑟ሺ𝜑ሻ 
+may be considered to be a polynomial, generally 
+an odd polynomial. The general form of 𝑟ሺ𝜑ሻ is 
+as follows: 
+𝑟ሺ𝜑ሻ ൌ ∑ 𝛾௡ ⋅𝜑 ௡
+௡ୀଵ,ଷ,ହ,...
+with 𝛾ଵ ൌ1  (6) 
+For a specific ship hull and loading condi-
+tion, if the hydrostatic roll righting lever 
+( 𝐺𝑍ሺ𝜑ሻ ) presents a linear behaviour for the 
+range of expected and/or tested rolling angles, 
+the restoring moment may be considered linear 
+and, therefore, be defined as: 
+𝐶ସସ ൌΔ⋅𝐺 𝑀  ( 7 )  
+corresponding to 𝑟ሺ𝜑ሻ=1 in Eq. (5). 
+2.3 Roll damping coefficients 
+Roll damping coefficients can be expressed 
+in many ways, for example, in the linear or non-
+linear form. The damping moment function 
+𝐷ሺ𝜑ሶ ሻሾ𝑁⋅𝑚 ሿcan be expressed following a non-
+linear representation as a  series expansion of 𝜑ሶ  
+and |𝜑ሶ | in the form: 
+𝐵ሺ𝜑ሶ ሻ ൌ𝐵 ఝ,ଵ ⋅𝜑ሶ ൅𝐵 ఝ,ଶ ⋅𝜑ሶ ⋅ |𝜑ሶ | ൅𝐵 ఝ,ଷ ⋅𝜑ሶ ଷ ൅
+⋯  ( 8 )  
+The  𝐵ఝ,ଵ [𝑁⋅𝑚⋅𝑠 ], 𝐵ఝ,ଶ[𝑁⋅𝑚⋅𝑠 ଶ], 𝐵ఝ,ଷ 
+[ 𝑁⋅𝑚⋅𝑠 ଷ ], etc. in Eq.(8) are the nonlinear 
+damping components and are considered con-
+stants during the steady periodic oscillation con-
+cerned, which are characterized by the steady 
+rolling amplitude 𝜑௔ and the steady periodic os-
+cillation 𝜔ா. It should be noted that these coef-
+ficients may not be the same values for a differ-
+ent steady periodic oscillation, so, they may de-
+pend on the amplitude 𝜑௔ and the frequency 
+𝜔ாof steady periodic oscillation. 
+Among all the available mathematical mod-
+els of nonlinear roll damping, the most typical is 
+the linear-quadratic-cubic damping model, 
+whose expression is (Bulian, 2004): 
+𝑑ሺ𝜑ሶ ሻ ൌ2⋅𝜇⋅𝜑 ሶ ൅𝛽⋅𝜑 ሶ ⋅ |𝜑ሶ | ൅𝛿⋅𝜑 ሶ ଷ (9) 
+where 𝜇 [1𝑠⁄ ], 𝛽 [െ] and 𝛿 [𝑠] are the lin-
+ear, quadratic and cubic damping components, 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 6 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+respectively. Also, depending on the ship hull 
+and on the presence of bilge keels, the linear-
+quadratic (𝛿ൌ0 ) or linear-cubic (𝛽ൌ0 ) damp-
+ing models may be considered as well. 
+The relationship between 𝜇, 𝛽, 𝛿 and 𝐵ఝ,ଵ , 
+𝐵ఝ,ଶ, 𝐵ఝ,ଷ is as follows: 
+𝜇ൌ
+஻ക,భ
+ଶ⋅ሺூరరାడூరరሻ ;    𝛽 ൌ
+஻ക,మ
+ሺூరరାడூరరሻ
+𝛿ൌ
+஻ക,య
+ሺூరరାడூరరሻ
+ (10) 
+2.4 Equivalent linear damping coefficient 
+Since it is difficult to analyse strictly the 
+nonlinear equation stated in Eq. (1), or the anal-
+ogous Eq. (2), when considering the nonlinear 
+damping formulation, as no analytical solution 
+exist, Parametric Identification Techniques 
+(PIT) should be used or , alternatively, the non-
+linear damping model may be replaced by line-
+arized damping model in a limited time window, 
+as follows: 
+൜𝐵ሺ𝜑ሶ ሻൌ𝐵 ௘௤ ⋅𝜑ሶ
+𝑑ሺ𝜑ሶ ሻൌ2⋅𝜇 ௘௤ ⋅𝜑ሶ   (11) 
+where 𝐵௘௤ [ሺ𝑁⋅𝑚 ሻ 𝑠⁄ ] denotes the equivalent 
+linear damping component and 𝜇௘௤  [1𝑠⁄ ] the 
+equivalent linear damping coefficient per unit 
+mass moment of inertia 𝐵௘௤ ൫2 ⋅ሺ𝐼ସସ ൅𝜕 𝐼ସସሻ൯⁄ . 
+There are several ways to express the equiv-
+alent linear damping coefficient in terms of the 
+nonlinear damping coefficients. Prior to deter-
+mine their relationship, a specific mathematical 
+model of roll damping must be assumed, such as 
+the one presented in Eq. (9). The most general 
+way to relate the nonlinear damping coefficients 
+and the equivalent linear damping coefficient is 
+to assume that the energy loss due to damping 
+during a half cycle of roll is the same when non-
+linear and linear damping are used (Tasai, 1965; 
+Bulian et al., 2009). 
+If the roll motion is assumed to be a steady 
+periodic oscillation with its amplitude 𝜙௔ and 
+its circular frequency 𝜔ா , the relationship be-
+tween them is defined by a parametric model 
+which may be obtained by requiring, in a least 
+squares sense, the following: 
+𝑑ሺ𝜑ሶ ሻ ⋅𝜑ሶ 𝑑𝑡
+ଶ⋅గ ఠಶ⁄
+଴
+ଶ⋅గ ఠಶ⁄
+଴
+𝜑ሶ ൌ𝜑 ௔ ⋅𝜔 ா ⋅s i nሺ𝜔ா ⋅𝑡 ሻ
+  (12) 
+Applying the previous equation, considering 
+the nonlinear damping model of Eq. (9), the re-
+lationship between 𝜇௘௤ and 𝜇, 𝛽 and 𝛿 is repre-
+sented by the following parametric model: 
+⎩⎪⎨
+⎪⎧𝜇௘௤ሺ𝜑௔ሻ ൌ𝜇൅
+ସ
+ଷ⋅గ ⋅𝛽⋅ ሺ𝜔ாሺ𝜑௔ሻ ⋅𝜑 ௔ሻ ൅
+൅
+ଷ
+଼ ⋅𝛿⋅ ሺ𝜔ாሺ𝜑௔ሻ ⋅𝜑 ௔ሻଶ
+𝜔ாሺ𝜑௔ሻ ൌ ඥ𝜔௫,௘௤ଶ ሺ𝜑௔ሻ ൅𝜇 ௘௤ଶ ሺ𝜑௔ሻ
+ (13) 
+where 𝜔௫,௘௤  [ 𝑟𝑎𝑑 𝑠⁄ ] is the equivalent un-
+damped roll natural frequency, which when con-
+sidering the nonlinear restoring expressed in Eq. 
+(5), may be determined by: 
+𝜔௫,௘௤
+ଶ ሺ𝜑௔ሻ ൌ
+ఠೣమ
+ீெ ⋅
+⋅
+ீ௓൫ఝୀఝೌ⋅ୡ୭ୱሺఈሻ൯⋅ୡ୭ୱሺఈሻௗఈమ⋅ഏ
+బ
+గ⋅ఝೌ
+ (14) 
+If the nonlinear restori ng is not considered, 
+then simply the equivalent undamped roll natu-
+ral frequency 𝜔௫,௘௤  is equal to the undamped 
+roll natural frequency 𝜔௫. 
+From Eq. (11) and Eq. (13), the equivalent 
+linear damping component may be derived: 
+𝐵ୣ୯ ൌ𝐵 ఝ,ଵ ൅
+଼
+ଷ⋅గ ⋅ ሺ𝜔୉ ⋅𝜑 ୟሻ ⋅𝐵 ఝ,ଶ ൅
+൅
+ଷ
+ସ ⋅ ሺ𝜔୉ ⋅𝜑 ୟሻଶ ⋅𝐵 ఝ,ଷ
+ (15) 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 7 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+For more general periodic motion, the paramet-
+ric model of roll damping can be derived by 
+equating the first terms of the Fourier expan-
+sions of Eqs.(11) and (8) (Takaki et al, 1973). 
+In the case of irregular roll motion, the line-
+arization of the roll damping expression, follow-
+ing the work of Kaplan (1966), Vassilopoulos 
+(1971) and others, may be done by assuming 
+that the difference of the damping moment be-
+tween its linearized and nonlinear forms can be 
+minimized in the sense of the least squares 
+method. Also, making the further assumptions 
+that the undulation of the roll angular velocity 𝜑ሶ  
+is subject to a Gaussian process and that the 
+damping coefficients remain constant. Consid-
+ering the linear-quadratic-cubic damping model 
+(JSRA, 1977; Oliveira et al., 2018): 
+ቐ
+𝜒ௗ ൌ2⋅𝜇⋅𝜑 ሶ ൅𝛽⋅ |𝜑ሶ | ൅𝛿⋅𝜑 ሶ ଷ െ2⋅𝜇 ୣ୯ ⋅𝜑ሶ
+డఞ೏
+మ
+డఓ౛౧
+ൌ0
+  (16) 
+The relationship between the linearized roll 
+damping coefficient and the nonlinear damping 
+coefficients is: 
+⎩
+⎨
+⎧𝜇௘௤ሺ𝜎௫ሶ ሻ ൌ𝜇൅ ට
+ଶ
+గ ⋅𝛽⋅𝜎 ௫ሶ ൅
+ଷ
+ଶ ⋅𝛿⋅𝜎 ௫ሶ ଶ
+𝐵௘௤ሺ𝜎௫ሶ ሻ ൌ𝐵 ఝ,ଵ ൅ ට
+଼
+గ ⋅𝐵 ఝ,ଶ ⋅𝜎 ௫ሶ ൅3⋅𝐵 ఝ,ଷ ⋅𝜎 ௫ሶ ଶ
+  (17) 
+where 𝜎௫ሶ [𝑟𝑎𝑑 𝑠⁄ ] represents the standard devia-
+tion of the roll velocity 𝜑ሶ . 
+Another form of expressing the linearized 
+roll damping coefficient is the Bertin’s roll 
+damping coefficient 𝑁ሺ𝜑௔ሻ or also called “N-
+coefficient” (Bertin, 1874a, 1874b; Motora, 
+1964). The relationship between the Bertin’s ex-
+pression and the equivalent linear roll damping 
+coefficient is as follows: 
+𝜇௘௤ሺ𝜑௔ሻ ൌ
+ଵ
+గ ⋅𝑁 ሺ𝜑௔ሻ ⋅𝜑 ௔ ⋅𝜔 ௫ (18) 
+The N-coefficient may be used to process the 
+decaying curves of a roll decay tests, as exem-
+plified in the MSC.1/Circ. 1200 (IMO, 2006). 
+Caution should be taken not to double count 
+the wave making component of roll damping 
+when numerical computations are carried out 
+using potential codes (Kuroda et al, 2018). 
+3. PROCEDURE FOR ESTIMATING 
+ROLL DAMPING FROM EXPERIMENTS 
+The procedures proposed herein are intended 
+to provide a basis to carry out roll decay and 
+forced roll tests, for a hull fitted with or without 
+appendages and for each loading condition. 
+They may be subject to modifications on a spe-
+cific case base. The procedures are based on the 
+IMO MSC.1/Circ. 1200 (IMO, 2006) and on the 
+IMO SLF 47/6/8 (IMO, 2004) document. 
+Scale effects of roll damping have not been 
+considered in the procedure, although some 
+guidelines are provided to avoid them. Some in-
+formation on this regard may be found in the lit-
+erature (e.g. Gawn, 1940; Bertgalia et al., 2004; 
+Bulian et al., 2009; Söder et al., 2012; Hand-
+schel et al., 2014b), but further studies are re-
+quired to overcome the roll damping extrapola-
+tion and fully understand the scale effects. 
+When experimentally determined roll damp-
+ing coefficients are used in numerical calcula-
+tions, care should be taken to validate that nu-
+merical code determines the same rolling ampli-
+tudes as the experiments when assuming the 
+same hydrodynamic scenario. 
+3.1 Roll decay tests in calm water 
+Roll decay tests are based on inducing an in-
+itial heel to the ship model, releasing it allowing 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 8 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+to roll freely, and then recording and analysing 
+the transitory roll motion, i.e. the decaying os-
+cillations. 
+Roll decay tests may be performed with and 
+without forward speed. If the tests are carried 
+out with forward speed, the roll damping de-
+rived from them may be different to the roll 
+damping from roll decays tests without forward 
+speed and, generally, larger. Furthermore, it 
+should be considered that, when performing the 
+test with forward speed, the model needs to be 
+either towed or free running. If the model is 
+towed, special attention should be paid to the 
+position of the towing point, which will influ-
+ence the roll damping estimation result. There-
+fore, it is preferable to perform the roll decay 
+tests with forward speed by free running models. 
+3.1.1 Model and installation 
+The model should be manufactured accord-
+ing to the ITTC Recommended Procedure 7.5-
+01-01-01, Ship Models, particular attention 
+should be paid to model manufacturing toler-
+ances, surface finish and appendage manufac-
+ture. 
+The model should be as large as possible for 
+the size of the towing tank, taking into consider-
+ation wall blockage and finite depth effects 
+(when performing the tests at forward speed). 
+All superstructures included in stability cal-
+culations or that may be submerged during the 
+tests should be reproduced to ensure that the 
+model has the correct righting arm curve. 
+The bilge keels or rudder, such as other rele-
+vant appendages, should be fitted to the hull 
+model, properly scaled, and the report should 
+state which appendages were fitted during the 
+tests. 
+Following the guidelines from MSC.1/Circ. 
+1200 (IMO, 2006), to avoid scale effect on roll 
+damping, the model overall length should be at 
+least 4 m, unless frictional effect on roll damp-
+ing is corrected with proper theoretical methods, 
+but, in any case, not less than 2 m or a scale 1:75, 
+whichever is greater. If the model is fitted with 
+bilge keels, the model should be scaled up to 
+make the breadth of the bilge keels greater than 
+7 mm. 
+The model should be ballasted to the appro-
+priate displacement and the weights should be 
+placed to achieve the correct position of the cen-
+tre of gravity. Unsymmetrical weights distribu-
+tion should be avoided, as far as practicable, in 
+order to guarantee a reasonable radius of gyra-
+tion for pitch.  
+Inclining tests should be carried out to verify 
+that the ship’s metacentric height 𝐺𝑀  corre-
+sponds to the desired one within an error of 2% 
+or 1 mm at model scale, whichever is larger. In 
+addition, roll radius of gyration in air (the pre-
+ferred source) or natural roll period in water 
+should be checked to correspond to the desired 
+one within an error of 2%. To measure the natu-
+ral roll period in water, roll decay tests should 
+be performed but starting at a small roll ampli-
+tude (less than 5 deg), in order to avoid the in-
+fluence of nonlinear effects due to the restoring 
+and the damping moments. When measuring the 
+oscillation angle of the model (for measuring the 
+roll radius of gyration in air or the natural roll 
+period in water), the same instrument that is 
+used for the measurement of the roll motion 
+should be used. The number of rolling period 
+used for the estimation of the natural roll period 
+should be, at least, 8. 
+When performing tests with no forward 
+speed, the model should be placed in a transver-
+sal position with respect to the towing tank main 
+direction and should be free, without any re-
+striction, and the location should be to suffer the 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 9 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+minimum wave reflection and distortion. If a 
+(soft) restriction is used to restrain excessive 
+drifting, it should be properly explained in the 
+report document. The spring stiffness of the re-
+straint lines should be based on the natural pe-
+riod consideration, i.e., the restraint system’s 
+natural period should be at least one order of 
+magnitude greater than the model natural pe-
+riod. 
+When forward speed is considered and the 
+ship model is towed, the position of the towing 
+point is important, as for small angle of rolling, 
+the roll axis is close to the waterplane and for 
+large angle of rolling, the roll axis is close to the 
+centre of gravity. 
+3.1.2 Measurement systems 
+The following quantities are measured: 
+ Roll motion, and motions in other degrees of 
+freedom if necessary (simultaneously meas-
+ured) 
+ Model speed (when performing free running 
+tests with forward speed) 
+ Water temperature (for calculation of vis-
+cosity and density) 
+3.1.3 Instrumentation 
+Model speed 
+Refer to the ITTC Recommended Procedure 
+7.5-02-02-01, Resistance test. 
+Temperature 
+The water temperature should be measured 
+at a depth near half of the model draught using 
+a thermometer. 
+Roll motion (and other degrees of freedom) 
+The use of non-intrusive measurement sys-
+tems to measure the ship motion is recom-
+mended, when feasible. If it is necessary to at-
+tach cables to the model, care should be taken to 
+minimise interference. 
+The ship rotations and translations should be 
+recorded at a sampling rate of, at least, 50 Hz 
+sample rate. 
+The instrumentation installed on the model 
+is considered as part of the ballast and needs to 
+be in place when determining the centre of grav-
+ity and moments of inertia. 
+The location and orientation of the instru-
+mentation should be documented. 
+3.1.4 Calibration 
+All devices used for data acquisition should 
+be calibrated regularly. Calibration should gen-
+erally be in accordance with ITTC Recom-
+mended Procedure 7.6-01-01 and following the 
+advice of the manufacturer. 
+Speed 
+Refer to the ITTC Recommended Procedure 
+7.5-02-02-01, Resistance test. 
+Thermometer 
+Thermometer should be calibrated according 
+to common standards and/or following the ad-
+vice of the manufacturer and should be accurate 
+to within 0.1ºC. 
+Motion measurement system 
+The motion measurement system used 
+should be calibrated according to the advice of 
+the manufacturer. 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 10 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+3.1.5 Pre-test considerations 
+Sign convention 
+Sign convention should be established for 
+the basin, model and appropriate instrumenta-
+tion, and should be documented adequately. 
+Following the model and instrumentation in-
+stallation, and prior to perform the experiments, 
+the sign convention of the instrumentation 
+should be verified by applying a known transla-
+tion or rotation to the ship model. 
+Calm water acquisition 
+Prior to perform the experiments, a data ac-
+quisition should be done in calm water of the 
+ship position (and of the waves probes), to pro-
+vide a record of “zero” levels. Additional calm 
+water runs should be acquired throughout the 
+experimental campaign, at the beginning of each 
+day and after calibrating the instruments. 
+3.1.6 Test procedure and data acquisition 
+The data acquisition for each test should start 
+before releasing the model, being the model at 
+rest at the beginning of the recording. Then, the 
+data acquisition should not be stopped until the 
+model has reached rolling angles smaller than 
+0.5deg. 
+At least, 4 tests should be carried out where 
+the initial angle should correspond to the largest 
+initial heel angle that may be impressed to the 
+ship model or, alternatively, the maximum angle 
+of rolling amplitude that is of interest to estimate 
+the roll damping. If the roll damping is very 
+large or non-zero forward speed tests are carried 
+out, the number of tests should be increased to 
+obtain enough peaks of the roll angle. 
+During this test, no disturbance including 
+wave propagating in the longitudinal direction 
+of the basin and reflected by its end should be 
+given to the model. 
+The procedure followed to heel initially the 
+ship model should ensure that fulfilment of the 
+initial conditions required in roll decay tests, 
+i.e., zero angular velocity and no excitation to 
+other degrees of freedom. To ensure these con-
+ditions and allow repeat ability (reduce uncer-
+tainties), the initial heel angle should be im-
+pressed by using mechanical devices and reduce 
+as far as possible human intervention. 
+For each test, recording of the roll time his-
+tory should be saved and provided. 
+3.1.7 Data reduction and analysis 
+The speed of the test, when it exists, should 
+be presented as a mean value derived from an 
+integration of the insta ntaneous measured val-
+ues over the same measuring interval. 
+Equivalent linear roll damping coefficient 
+and nonlinear roll damping coefficients are cal-
+culated using the equations given in Section 2. 
+Analysis of model scale roll decay tests 
+Different methods to determine roll damping 
+coefficients from roll decay tests exist. Most of 
+them use the measured amplitude of the time 
+history of rolling motion, as well as the instan-
+taneous time where the amplitude occurs. Com-
+monly used methods to analyse roll decay tests 
+are (Haddara, 2005): 
+ Logarithmic decrement method:  T h i s  
+method consists on determining the equiva-
+lent linear roll damping coefficient by as-
+suming the linear differential equation de-
+fined by Eqs. (2) and (11), and then deter-
+mine the nonlinear roll damping coefficients 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 11 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+by least-squares fitting. The benefits of this 
+methodology are that it may consider non-
+linearities in restoring and damping terms, it 
+is simple and also all ows to aggregate data 
+from different decay tests (if they constitute 
+the same test case) prior to perform the least-
+square fitting, which is more reliable than 
+analysing each decay tests separately and 
+calculating the mean of the determined non-
+linear damping coefficients. Further infor-
+mation of this method may be found in Ap-
+pendix 1 of Bulian et al. (2009), Wasser-
+mann (2016a) and Oliveira et al. (2018) 
+ Froude energy method: This method equates 
+the energy lost to damping in each half cycle 
+to the work done by the restoring moment 
+during the same period. Further information 
+may be found in Froude (1955), Idle et al. 
+(1912), Wassermann (2016a) and Oliveira et 
+al. (2018) 
+ Roberts energy method: this method is based 
+on the energy conservation, where the roll 
+decrement is treated as an energy loss func-
+tion, which is equated to the roll damping. 
+Further information may be found in Roberts 
+(1985) and Wassermann (2016a) 
+ Least-squares iterative method: this method 
+constitutes a Parameter Identification Tech-
+nique and is based on the fitting of the nu-
+merical solution of the nonlinear differential 
+equation of roll to the time series of the de-
+cay test, performing an iterative fitting based 
+on the least-squares method. Further infor-
+mation may be found in Section 4.6.2 of 
+MSC. 1/Circ. 1200 (IMO, 2006) and 
+Oliveira et al. (2018) 
+3.2 Free running forced roll tests 
+Free running forced rol l tests consist on ex-
+citing the ship to contin uously roll applying an 
+internal roll moment or regular beam waves, 
+without any mechanic connection to the fixed 
+world, i.e. with the ship free to move in all de-
+grees of freedom. 
+3.2.1 Model and installation 
+Refer to section 3.1.1. 
+If a (soft) restriction is used to restrain ex-
+cessive drifting, it should be properly explained 
+in the report document. The spring stiffness of 
+the restraint lines should be based on the natural 
+period consideration, i.e., the restraint system’s 
+natural period should be at least one order of 
+magnitude greater than the model natural period 
+or the lowest wave period, when external regular 
+waves are used. 
+3.2.2 Measurement systems 
+The following quantities are measured: 
+ Roll motion, and yaw and pitch if necessary 
+(simultaneously measured) 
+ Rotating frequency and/or mass displace-
+ment of the mechanical system that im-
+presses the transversal force (when applica-
+ble) 
+ Wave height (when applicable) 
+ Model speed (when considered) 
+ Water temperature (for calculation of vis-
+cosity and density) 
+3.2.3 Instrumentation 
+Apart from the information given in Section 
+3.1.3, the following instrumentation should be 
+installed: 
+Waves probes 
+If the excitation is given by regular beam 
+waves, wave height measurements should be 
+made for all tests with wave probes fixed in the 
+tank. 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 12 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+The wave probe position should be fixed to 
+a position where disturbances from the motion 
+of the model can be considered as negligible. 
+Roll moment generator (RMG) 
+If the excitation is given by internal devices, 
+such as roll moment generators of gyroscopic 
+type (the preferred way), contra-rotating masses 
+etc., the actual rotating frequency or mass dis-
+placement should be measured. 
+3.2.4 Calibration 
+Apart from the information given in Section 
+3.1.4, the following aspects should be consid-
+ered: 
+Wave calibration 
+When dealing with tests in bean regular 
+waves, the wave generation quality should be 
+assessed for the waves corresponding to the 
+minimum and the maximum frequency used in 
+the tests without the presence of the model, in 
+order not to disturb the  incident waves. When 
+the measured double amplitude of the wave’s el-
+evation converges to a certain value, this value 
+should be regarded as the wave height.  
+If tests are performed with forward speed, at 
+least three waves probes should be positioned 
+along the length of the bas in and the variations 
+in wave height and period should be within േ 
+5% among the different measured positions for 
+the same wave. 
+External moment generator calibration 
+The external moment ge nerators should be 
+calibrated before performing the experiments in 
+a range of rotating frequencies containing those 
+tested for the model, with the model outside wa-
+ter and fixed.  
+For roll moment generators of gyroscopic 
+types, the spin rate of ea ch gyro should be cali-
+brated, testing those spin rates that will be used 
+in the forced roll experiments. Instead, the rotat-
+ing frequency (tumbling frequency) to be 
+checked could be limited to the natural fre-
+quency of the model. 
+Time histories of the generated moment dur-
+ing the calibrations should be saved and com-
+pared with numerical/ana lytical prediction, in 
+order to disclose possible problems. 
+3.2.5 Pre-test considerations 
+Refer to Section 3.1.5. 
+3.2.6 Test procedure and data acquisition 
+The data acquisition for each run should start 
+from calm water and the model at rest (about 
+20s), allowing an additional check on the perfor-
+mance of instrumentation and allowing to en-
+sure that indication of zero drift is occurring. 
+The acquisition should end after a sufficiently 
+long steady state has been achieved, at least, if 
+possible, 30 roll periods. However, in case of 
+large interference due to reflected waves, re-
+cording of data could be stopped after about 15 
+roll periods after the first detection of disturb-
+ance. 
+The time windowing of the tests may be es-
+timated by calculating the time required for the 
+waves produced by the ship or the wave maker 
+to come back after reflection from the towing 
+tank side with an amplitude large enough to dis-
+turb the roll motion. As the wave front moves 
+with a speed equal to the group speed, the time 
+interval between the starting of the roll moment 
+generator or the wave maker and the arrival of 
+the direct wave front at the model position Δ𝑇௥௘௙ 
+[𝑠] can be estimated using the following formu-
+lation: 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 13 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+ቐ
+Δ𝑇௥௘௙ ൌ
+ଶ⋅௅ೝ೐೑
+௖೒
+𝑐௚ ൌ
+ଵ
+ଶ ⋅
+௚
+ଶ⋅గ⋅௙ಶ
+  (19) 
+where 𝐿௥௘௙ [𝑚] is the reference length and cor-
+responds to the distance between the model and 
+the reflecting wall under consideration, 𝑔 
+[𝑚𝑠 ଶ⁄ ] is the acceleration of gravity, 𝑓ா [𝐻𝑧] is 
+the frequency of motion or of the incident wave, 
+𝑐௚ [𝑚𝑠⁄ ] is the group speed according to a deep 
+water assumption.  
+At least 9 frequencies should be tested for 
+each loading condition and level of excitation 
+(wave steepness). Given the (undamped) natural 
+roll frequency 𝜔௫ , 7 standard frequencies 
+should be checked: 
+൤0.800, 0.900, 0.950, 0.975,
+1.000, 1.050, 1.200൨ ⋅𝜔 ௫ 
+Two additional frequencies should be tested 
+on the basis of a case-by-case analysis in order 
+to have a good description of the roll response 
+curve in the frequency region where the peak of 
+the response curve is expected. More frequen-
+cies should be tested when a satisfactory de-
+scription of the roll response curve cannot be 
+achieved only by 9 frequencies. 
+When large rolling motions are expected, for 
+ships with almost linear 𝐺𝑍  in the range of 
+tested roll angles, the peak should be found ap-
+proximately at the natural frequencies. How-
+ever, if this is not the case, care should be taken 
+of the generally nonlinear softening behaviour 
+of the restoring moment, as due to this behav-
+iour, the peak of the response is usually found at 
+a lower frequency than the natural frequency. 
+On the other hand, for ships with S-shaped 𝐺𝑍 
+curve, the peak could be found at a frequency 
+higher than the natural one. 
+The level of excitation or wave steepness 
+should be selected in order to meet from small 
+to medium or large rolling amplitudes. It is im-
+portant to define the small rolling amplitudes 
+range to properly determine the linear damping 
+coefficient 𝜇. The maximum rolling amplitude 
+determines the limit up to which the roll damp-
+ing coefficients estimations are valid. 
+The time between each test and the follow-
+ing should be long enough to let the waves gen-
+erated by the previous test dissipate. 
+For each test, the following data should be 
+recorded: 
+ Time history of the roll angle 
+ T i m e  h i s t o r y  o f  t h e  m o m e n t  b e t w e e n  t h e  
+ship and the roll moment generator 
+ When using RMG of gyroscopic type, the 
+time history of the rate of revolution of the 
+main engine and the tumbling/rotating fre-
+quency and the measured value of the spin 
+rates of the gyros 
+3.2.7 Data reduction and analysis 
+Equivalent linear roll damping coefficient 
+and nonlinear roll damping coefficients are cal-
+culated using the equations given in Section 2. 
+Analysis of free running forced roll tests 
+Different methods to determine roll damping 
+coefficients from free forced roll tests exist.  
+Most of them use the measured amplitude of 
+the time history of rolling motion, as well as the 
+instantaneous time where the amplitude occurs. 
+Commonly used methods to analyse forced roll 
+tests are (Haddara, 2005): 
+ Quasi-linear method or Blume’s method:  
+This method consists on determining the 
+equivalent linear roll damping coefficient by 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 14 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+assuming the linear differential equation de-
+fined by Eqs. (2) and (11), and then deter-
+mine the nonlinear roll damping coefficients 
+by least-squares fitting. In this method, the 
+equivalent linear roll damping coefficient is 
+determined from the ratio of the quasi-static 
+heel angle and the measured dynamic roll 
+amplitude, assuming that, at resonance, the 
+inertial part and the re storing part of the 
+equation of motion (approximately) cancel 
+out, directly relating the amplitude of the 
+forcing term at the peak response frequency 
+with the damping term, as follows: 
+⎩
+⎨
+⎧𝜑ሷ ൅2⋅𝜇 ௘௤ ⋅𝜑ሶ ൅𝜔 ௫
+ଶ ⋅
+ீ௓ሺఝሻ
+ீெ ൌ
+𝜔௫
+ଶ ⋅
+௄ೌ⋅ୱ୧୬ሺఠಶ⋅௧ሻ
+୼⋅ீெ
+𝜑ൌ𝜑 ௥௘௦ ⋅s i nሺ𝜔௥௘௦ ⋅𝑡 ሻ
+At resonance: 
+2⋅𝜇 ௘௤ ⋅𝜑 ௥௘௦ ⋅𝜔 ௥௘௦ ൎ𝜔 ௫
+ଶ ⋅
+௄ೌ
+୼⋅ீெ  ⇒
+⇒𝜇 ௘௤ሺ𝜑௥௘௦,𝜔 ௥௘௦ሻ ൎ
+ఠೣమ⋅௄ೌ
+ଶ⋅ఝೝ೐ೞ⋅ఠೝ೐ೞ⋅୼⋅ீெ
+ (20) 
+where 𝐾௔ [𝑁⋅𝑚 ] is the external transversal mo-
+ment amplitude and 𝜑௥௘௦  [ 𝑟𝑎𝑑 ] and 𝜔௥௘௦ 
+[𝑟𝑎𝑑 𝑠⁄ ] are the resonance peak amplitude and 
+frequency, respectively. 
+Limitations of this method are the sole validity 
+at the roll resonance frequency (Handschel et 
+al., 2014a). 
+For further information, refer to Blume (1979), 
+Wasserman et al. (2016a) and Oliva-Remola et 
+al. (2018). 
+ Energy method: This method is based on 
+equating the energy lost to damping in each 
+cycle to the work done by the exciting mo-
+ment. For further information, refer to Was-
+serman et al. (2016a). 
+ Least-squares iterative method: this method 
+constitutes a Parameter Identification Tech-
+nique and is based on the fitting of the nu-
+merical solution of the nonlinear differential 
+equation of roll to the time series, perform-
+ing an iterative fitting based on the least-
+squares method. When this methodology is 
+used, at least two response curves obtained 
+for two different wave steepness are strongly 
+recommended to be used. Further infor-
+mation may be found in Section 4.6.2 of 
+MSC. 1/Circ. 1200 (IMO, 2006)  
+3.3 (Semi-) Captive forced roll tests 
+Captive or semi-captive forced roll tests re-
+fer to ships being excit ed to continuously roll 
+through an externally applied roll moment from 
+an external oscillator b etween the towing car-
+riage and the model. In this test, typically, a 
+fixed roll axis is being prescribed during the 
+forced roll motion. This circumstance simplifies 
+the comparison of numerical simulations as it 
+guarantees a pure roll motion and hence simpli-
+fies the analysis. However, since there is no 
+“fixed roll axis” in a 6-DOF motion, this method 
+should be applied with caution as the chosen po-
+sition of the prescribed axis of rotation will in-
+fluence the roll damping coefficients. In fact, for 
+ensuring a correct roll motion at each time, es-
+pecially the sway, pitch and heave motions 
+shouldn’t be restrained during the forced roll 
+motion tests. This leads to a more complex 
+measuring/simulation and analysing technique, 
+due to coupling contributions of different de-
+grees of freedom. 
+As a result, it should be emphasized that the 
+roll damping obtained from this type of tests is 
+different from that of free running forced roll 
+tests. The actual position of the roll axis must be 
+included in the report. 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 15 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+3.3.1 Model and installation 
+Refer to section 3.1.1. 
+3.3.2 Measurement systems 
+The following quantities are measured: 
+ Model speed (when considered) 
+ Water temperature (for calculation of 
+viscosity and density) 
+ Roll motion, and motions in other DoFs 
+if necessary (simultaneously measured) 
+ Roll moment applied to the ship model 
+3.3.3 Instrumentation 
+Apart from the information given in Section 
+3.1.3, the following instrumentation should be 
+installed: 
+Mechanism to force the roll motion 
+A mechanism to produce the rolling ampli-
+tudes about a virtual centre of roll should be in-
+stalled. Preferably, the sway, pitch and heave 
+motions shouldn’t be restrained. 
+The choice for the position of the roll axis is 
+extremely important. However, if the purpose of 
+the tests is to validate CFD results, the position 
+only needs to be the same as in the CFD. 
+Strain gauges 
+Strain gauges may be used to measure the 
+roll moment experienced by the ship. Strain 
+gauges should be placed a t the locations where 
+roll motions are generated. 
+The roll motion and roll moment must be 
+measured simultaneously, because the phase an-
+gles are key elements to get the roll damping co-
+efficients. 
+For further information, for partly-captured 
+tests, refer to Hashimoto et al. (2009) and Grant 
+et al. (2010). For examples of fully-captured 
+tests, refer to Ikeda et al. (1976, 1977a, 1978a, 
+1990, 1994, 2000), Bassler et al. (2007), 
+Katayama et al. (2008, 2009) and Handschel et 
+al. (2014a). 
+3.3.4 Calibration 
+Apart from the information given in Section 
+3.1.4, the following aspects should be consid-
+ered: 
+Mechanism to force the roll motion 
+The mechanism to force the roll motion 
+should be calibrated before performing the ex-
+periments in a range of rotating frequencies con-
+taining those tested for the model. 
+Time histories of the generated motion dur-
+ing the calibrations should be saved and com-
+pared with numerical/ana lytical prediction, in 
+order to disclose possible problems. 
+Strain gauges 
+Strain gauges should be calibrated according 
+to the recommendations given by the manufac-
+turer and following ITTC Recommended Proce-
+dure 7.6-01-01. 
+3.3.5 Pre-test considerations 
+Refer to Section 3.1.5. 
+3.3.6 Test procedure and data acquisition 
+The data acquisition for each run should start 
+from calm water and the model at rest (about 
+20s), allowing an additional check on the perfor-
+mance of instrumentation and allowing to en-
+sure that indication of zero drift is occurring. 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 16 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+The acquisition should end after a sufficiently 
+long steady state has been achieved, at least, if 
+possible, 30 roll periods. However, in case of 
+large interference due to reflected waves, re-
+cording of data could be stopped after about 15 
+roll periods after the first detection of disturb-
+ance. 
+If forced roll mechanism to generate the roll, 
+the sampling rate needs to be high in order to 
+accurately obtain the phase angle between roll 
+motion and roll moment. The recommended 
+value is 200Hz. 
+If regular waves are used to generate the roll, 
+the time windowing of the tests may be esti-
+mated by calculating the time required for the 
+waves produced by the ship or the wavemaker 
+to come back after reflection from the towing 
+tank side with an amplitude large enough to dis-
+turb the roll motion. As the wave front moves 
+with a speed equal to the group speed, the time 
+interval between the starting of the roll moment 
+generator or the wavemaker and the arrival of 
+the direct wave front at the model position Δ𝑇௥௘௙ 
+[𝑠] can be estimated using the following formu-
+lation: 
+ቐ
+Δ𝑇௥௘௙ ൌ
+ଶ⋅௅ೝ೐೑
+௖೒
+𝑐௚ ൌ
+ଵ
+ଶ ⋅
+௚
+ଶ⋅గ⋅௙ಶ
+  (21) 
+where 𝐿௥௘௙ [𝑚] is the reference length and cor-
+responds to the distance between the model and 
+the reflecting wall under consideration, 𝑔 
+[𝑚𝑠 ଶ⁄ ] is the acceleration of gravity, 𝑓ா [𝐻𝑧] is 
+the group speed according to a deep water as-
+sumption.  
+At least 9 frequencies should be tested for 
+each loading condition and level of excitation 
+(wave steepness). Given the (undamped) natural 
+roll frequency 𝜔௫ , 7 standard frequencies 
+should be checked: 
+൤0.800,0.900,0.950,0.975,
+1.000,1.050,1.200൨ ⋅𝜔 ௫ 
+Two additional frequencies should be tested 
+on the basis of a case-by-case analysis in order 
+to have a good description of the roll response 
+curve in the frequency region where the peak of 
+the response curve is expected. More frequen-
+cies should be tested when a satisfactory de-
+scription of the roll response curve cannot be 
+achieved only by 9 frequencies. 
+When large rolling motions are expected, for 
+ships with almost linear 𝐺𝑍  in the range of 
+tested roll angles, the peak should be found ap-
+proximately at the natural frequencies. How-
+ever, if this is not the case, care should be taken 
+of the generally nonlinear softening behaviour 
+of the restoring moment, as due to this behav-
+iour, the peak of the response is usually found at 
+a lower frequency than the natural frequency. 
+On the other hand, for ships with S-shaped 𝐺𝑍 
+curve, the peak could be found at a frequency 
+higher than the natural one. 
+The rolling amplitudes tested should be se-
+lected in order to meet from small to medium or 
+large rolling amplitudes. It is important to define 
+the small rolling amplitudes range to properly 
+determine the linear damping coefficient 𝜇. The 
+maximum rolling amplitude determines the 
+limit up to which the roll damping coefficients 
+estimations are valid. 
+The time between each test and the follow-
+ing should be long enough to let the waves gen-
+erated by the previous test to dissipate. 
+For each test, the following data should be 
+recorded: 
+ Time history of the forced roll angle 
+ Time history of the roll moment measured 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 17 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+3.3.7 Data reduction and analysis 
+Equivalent linear roll damping coefficient 
+and nonlinear roll damping coefficients are cal-
+culated using the equations given in Section 2. 
+Analysis of (semi-) captive forced roll tests 
+Different methods to determine roll damping 
+coefficients from (semi-) captive forced roll 
+tests exist.  
+Most of them use the measured amplitude of 
+the time history of rolling motion, as well as the 
+instantaneous time where the amplitude occurs 
+and the measured roll moment. Commonly used 
+methods to analyse roll decay tests are (Hand-
+schel et al., 2014a): 
+ Energy method:  This method is based on 
+equating the energy lost to damping in each 
+cycle to the work done by the exciting mo-
+ment. For further information, refer to 
+Handshcel et al. (2014a). 
+ Fourier transformation method: this method 
+consists on using a Fourier analysis to deter-
+mine linear and non-linear components of 
+the roll moment which are in phase with the 
+roll velocity. For further information, refer 
+to Handshcel et al. (2014a). 
+3.4 General Comparison and Recommenda-
+tions 
+A general comparison of the fore-mentioned 
+test methods for roll damping measurement is 
+given in Table 1. 
+To summarize, it is impossible to realize 
+steady roll amplitude in free decay tests, while 
+the forced roll tests can. The (semi-) captive 
+forced roll tests can achieve the steadiest roll 
+amplitudes and large roll amplitudes can be eas-
+ily achieved, provided that the model is water-
+tight. The free-running forced roll tests can also 
+achieve steady roll amplitudes but the tested roll 
+amplitudes depend on the capacity of roll mo-
+tion generators (RMGs). It is possible to con-
+sider the forward speed effect on roll damping 
+using all of the fore-mentioned test methods. 
+However, it is difficult for free decay and free 
+running forced roll tests because the free run-
+ning setup are involved. For (semi-) captive 
+forced roll tests, this presents no major differ-
+ence compared with the zero speed tests. 
+Table 1 General Comparison 
+Item Free de-
+cay 
+Free run-
+ning 
+forced 
+roll 
+(Semi-) 
+Captive 
+forced roll 
+Steady 
+roll ampl.
+Impossi-
+ble 
+Steady Steadiest 
+Large 
+roll ampl.
+Tempo-
+rarily 
+Depends 
+on RMG 
+Easy to 
+achieve 
+Forward 
+speed ef-
+fect 
+Possible Possible 
+but diffi-
+cult 
+Possible 
+and easy 
+Memory 
+effect 
+Not fully 
+included 
+Included Included 
+CFD val-
+idation 
+Medium Hard Easy 
+(1DoF 
+Case) 
+Roll axis Real/Time 
+varying 
+Real/ 
+Time var-
+ying 
+Pre-
+scribed/ 
+Fixed 
+Time and 
+cost 
+Cheap Costly Costly 
+Thanks to the steady periodic roll excita-
+tions, the forced roll tests can also take into ac-
+count the memory effect of roll damping, which 
+cannot be fully included in the free decay tests. 
+In terms of CFD validation purposes, the 
+(semi-) captive forced roll tests are the easiest to 
+validate because the roll motions are controlled, 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 18 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+however, if motions in other DoFs are released, 
+the difficulty of CFD validation increase tre-
+mendously. The free running forced roll tests are 
+the hardest to validate, and free decay tests are 
+in between. 
+Regarding time and cost, forced roll tests are 
+costly because devoted test equipment or sys-
+tems need to be developed. The free roll decay 
+tests are cheap compared with forced roll tests. 
+4. PROCEDURE FOR ESTIMATING 
+ROLL DAMPING FROM EMPIRICAL 
+METHODS 
+This section describes the most used meth-
+ods for roll damping estimation, which can be 
+used in the absence of experimental data and can 
+be used for dynamic stability calculations, such 
+as the Ikeda’s Method (Himeno, 1981) and the 
+Simplified Ikeda’s Method (Kawahara et al. , 
+2009). 
+It is important to note that, when considering 
+the motion of a ship in waves, most of the hy-
+drodynamic forces acting on a hull can be calcu-
+lated using a potential theory. However, roll 
+damping is significantly affected by viscous ef-
+fects. Therefore, a result calculated using a po-
+tential theory overestimates the roll amplitude in 
+resonance and is not accurate. It is common 
+practice for the calculation of roll damping to 
+use semi-empirical methods in order to consider 
+the viscosity effects. 
+As stated in Section 2.4, when numerical 
+computations are carried out using potential 
+codes, caution should be taken not to double 
+count the wave making component of roll damp-
+ing. 
+4.1 Definition of Component Discrete Type 
+Method 
+Most empirical methods are based on discre-
+tizing the roll damping in components. In a com-
+ponent discrete type method, the roll damping 
+moment 𝐵ሺ𝜑ሶ ሻ[𝑁⋅𝑚 ] is predicted by summing 
+up the predicted values of a number of compo-
+nents 𝐵ఝ,௜  [𝑁⋅𝑚 ]. These components include 
+the wave, lift, frictional, eddy and the append-
+ages contributions (bilg e keel, skeg, rudder, 
+etc.): 
+𝐵ሺ𝜑ሶ ሻ ൌ𝐵 ఝ,ௐ ൅𝐵 ఝ,௅ ൅𝐵 ఝ,ி ൅𝐵 ఝ,ா ൅
+𝐵ఝ,஺௣௣  (22) 
+The wave and lift components ( 𝐵ఝ,ௐ  and 
+𝐵ఝ,௅) are linear components which are propor-
+tional to roll angular velocity 𝜑ሶ . The friction, 
+eddy and appendage components ( 𝐵ఝ,ி , 
+𝐵ఝ,ாand𝐵ఝ,஺௣௣) are nonlinear components. 
+If the nonlinear components are assumed to 
+be proportional to 𝜑ሶ ⋅ |𝜑ሶ |, thus, if the linear-
+quadratic damping model is assumed (Eq. (8) or 
+(9), fixing 𝐵ఝ,ଷ or 𝛿 to zero), then, the equiva-
+lent linear roll damping coefficient eqB  (from 
+now on called 𝐵ସସ  [ ሺ𝑁⋅𝑚 ሻ 𝑠⁄ ] )  c a n  b e  e x -
+pressed as follows: 
+𝐵ସସ ൌ𝐵 ସସ,ௐ ൅𝐵 ସସ,௅ ൅𝐵 ସସ,ி ൅𝐵 ସସ,ா ൅
+𝐵ସସ,஺௣௣  (23) 
+In the semi-empirical methods explained in 
+Sections 4.2 and 4.3, the equivalent liner coeffi-
+cient 𝐵ସସ  is obtained following a linearization 
+not explained in Section 2.4, due to its simplic-
+ity, which is based on equating the linearized 
+damping moment to the non-linear one at the in-
+stant where the roll angular velocity takes its 
+maximum value during steady oscillation. The 
+linearization is as follows: 
+𝐵ସସ ൌ𝐵 ଵ ൅𝜔 ா ⋅𝜑 ௔ ⋅𝐵 ଶ (24) 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 19 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+Comparing Eq. (15) and Eq. (24), it may be 
+seen that they differentiate by the term 
+8 ሺ3⋅𝜋 ሻ⁄ , which leads to a difference of approx-
+imately 15% between the second terms of the 
+right-hand sides of the equations. The latter 
+form corresponds to a collocation method in a 
+curve-fitting problem and it is not considered 
+nowadays as valid for the analysis of roll mo-
+tion. However, when the semi-empirical meth-
+ods were developed, it was an extended formu-
+lation. 
+T a k i n g  a s  a  b a s i s  t h e  l i n e a r i z a t i o n  o f  E q .  
+(24), the linearized roll damping moment is ob-
+tained by: 
+𝐵ସସ ൌ
+஻ሺఝሶ ሻ
+ఠಶ⋅ఝೌ
+  (25) 
+Then, following the approach followed by 
+the semi-empirical methods of Sections 4.2 and 
+4.3, nonlinear components (i.e. 𝐵ఝ,ி , 𝐵ఝ,ா  and 
+𝐵ఝ,஺௣௣) are linearized using the linear-quadratic 
+damping model of Eq. (15), as follows: 
+𝐵ସସ,ா ൌ
+଼
+ଷ⋅గ ⋅ ሺ𝜔ா ⋅𝜑 ௔ሻ ⋅𝐵 ఝ,ா (26) 
+It should be noted that all the coefficients in 
+Eq.(22) and (23) depend on the roll frequency 
+and the forward speed. The eddy and append-
+ages components sometimes also depend on 
+roll amplitude, because of the Keulegan-Car-
+penter number (𝐾௘) effect in the vortex shed-
+ding problem. 
+The roll damping coefficient B44 [ሺ𝑁𝑚ሻ 𝑠⁄ ] 
+is made non-dimensional as follows: 
+𝐵෠ସସ ൌ
+஻రర
+ఘ⋅∇⋅஻మ ⋅ ට
+஻
+ଶ⋅௚  (27) 
+And the circular frequency of roll motion is 
+also made non-dimensional as follows: 
+𝜔ෝா ൌ𝜔 ா ⋅ ට
+஻
+ଶ⋅௚  (28) 
+where 𝜌 [𝑘𝑔 𝑚ଷ⁄ ] is the mass density of water, 
+𝛻 [𝑚ଷ] is the ship displacement volume, 𝐵 [𝑚] 
+is the breadth of the ship’s hull and 𝑔 [𝑚𝑠 ଶ⁄ ] 
+is the gravity acceleration. 
+The roll damping coefficient 𝐵ସସ  can be 
+translated into Bertin’s N-coefficient 𝑁ሺ𝜑௔ሻ 
+(see Eq. (18)),assuming that the circular fre-
+quency of roll motion is equivalent to the (un-
+damped) ship roll natural frequency: 
+𝐵෠ସସ ൌ
+ଵ
+గ ⋅
+ீெ⋅ఝೌ
+஻⋅ఠෝ ಶ
+⋅𝑁 ሺ𝜑௔ሻ (29) 
+where 𝐺𝑀 [𝑚] is the metacentric height with re-
+spect to the ship center of gravity, 𝜑௔ [𝑟𝑎𝑑] is 
+the steady rolling amplitude and 𝐵 [𝑚]  i s   t h e  
+breadth of the ship’s hull. 
+4.2 Ikeda’s Method 
+In this section, the sectional roll damping 
+coefficient is sometimes referred to the sec-
+tional roll damping coefficients are expressed 
+with a prime on the right shoulder of a charac-
+ter (e.g. 𝐵ସସE
+ᇱ  [𝑁𝑠⁄ ]). For a 3-D ship hull form, 
+the 3-D roll damping coefficient can be ob-
+tained by integrating the sectional roll damping 
+coefficient over the ship length. Furthermore, a 
+roll damping coefficient with subscript 0 
+(e.g. 𝐵ସସE0
+ᇱ  [𝑁𝑠⁄ ]) indicates a value at zero for-
+ward speed. 
+4.2.1 Displacement type mono-hull 
+Wave making component 
+The wave making component accounts for 
+between 5% and 30% of the roll damping for a 
+general-cargo type shi p. However, the compo-
+n e n t m a y  h a v e  a  la rg e r  e f f e c t f o r s h ip s  w i th  a  
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 20 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+shallow draught and wide section (Ikeda et al., 
+1978a).  
+In the case of zero Froude number, the wave 
+damping can be easily obtained by using the 
+strip method. It is however possible to numeri-
+cally solve the exact wave problem for a 3-D 
+ship hull form. Using the strip method, the sec-
+tional wave damping is calculated from the so-
+lution of a sectional wave problem, taking the 
+form: 
+𝐵ସସW0
+ᇱ ൌ𝐵 ଶଶ
+ᇱ ൫𝑙୵ െ𝑂 𝐺൯
+ଶ
+ (30) 
+where B’22 and lw represent the sectional sway 
+damping coefficient and the moment lever 
+measured from the still water level due to the 
+sway damping force(for example, if the wave 
+damping component is calculated using a strip 
+method based on potential theory, B’22 and B’42, 
+which are sectional damping values caused by 
+sway, are obtained from the calculation, and lw 
+is obtained from B’42 divided by B’22.). 𝑂𝐺 rep-
+resents the distance from the still water level O 
+to the roll axis G with positive being downward. 
+With non-zero forward ship speed, it is dif-
+ficult to treat the wave roll damping theoreti-
+cal1y.However, there are methods that can be 
+used as approximate treatments for predicting 
+the wave damping at forward speed. The first is 
+the method in which the flow field due to roll 
+motion is expressed by os cillating dipoles with 
+horizontal lateral axes. The roll damping is then 
+obtained approximately from the wave-energy 
+loss in the far field. Ikeda et al., (1978a) calcu-
+lated the energy loss in the far field due to a pair 
+of horizontal doublets and compared the results 
+with experiments for models of combined flat 
+plates. From this elementary analysis, they pro-
+posed an empirical formula for roll damping of 
+typical ship forms (Ikeda et al., 1978a): 
+஻రరೈ
+஻రర౓బ
+ൌ0 . 5⋅
+⎣
+⎢
+⎢
+⎡ሺ𝐴ଶ ൅1 ሻ ൅
+ሺ𝐴ଶ െ1 ሻ ⋅t a n hሺ20 ⋅ Ω െ 0.3ሻ ൅
+ሺ2𝐴ଵ െ𝐴 ଶ െ1 ሻ ⋅
+        expሼെ150 ⋅ሺΩ െ 0.25ሻଶሽ ⎦
+⎥
+⎥
+⎤
+ (31) 
+where: 
+𝐴ଵ ൌ1൅𝜉 ୢ
+ିଵ.ଶ𝑒ିଶకౚ
+𝐴ଶ ൌ0 . 5൅𝜉ୢ
+ିଵ𝑒ିଶకౚ
+𝜉ୢ ൌ
+ఠుమௗ
+௚  ; Ω ൌ
+௏ఠు
+௚
+  (32) 
+𝐵ସସ୛଴ represents the wave damping at zero for-
+ward speed which can be obtained by a strip 
+method. V and d a r e  f o r w a r d  v e l o c i t y  a n d  
+draught of hull. However, it appears that there 
+are still some difficulties to be considered with 
+this method.  There is a limitation in application 
+to certain ship forms, particularly in the case of 
+small draught-beam ratios (Ikeda et al., 1978a). 
+Hull lift component 
+Since the lift force acts on the ship hull mov-
+ing forward with sway motion, it can therefore 
+be concluded that a lift effect occurs for ships 
+during roll motion as well. The prediction for-
+mula for this component is as follows (Ikeda et 
+al., 1978a, 1978b): 
+𝐵ସସ,୐ ൌ
+ఘ
+ଶ ⋅𝑉⋅𝐿⋅𝑑⋅𝑘 ୒ ⋅𝑙 ଴ ⋅𝑙 ୖ ⋅
+⋅ ൤1.0 െ 1.4 ⋅
+ைீ
+௟౎
+൅
+଴.଻⋅ைீ
+మ
+௟బ⋅௟౎
+൨
+ (33) 
+where 
+𝑙଴ ൌ 0.3 ⋅ 𝑑    ;    𝑙ୖ ൌ0 . 5⋅𝑑 (34) 
+𝑘୒ ൌ2⋅𝜋⋅
+ௗ
+௅ ൅𝜅⋅ሺ 4 . 1⋅
+஻
+௅ െ 0.045ሻ (35) 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 21 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+𝜅ൌ ቐ
+0.0 𝐶 ௠ ൑0 . 9 2
+0.1 𝑓𝑜𝑟 0.92 ൏ 𝐶௠ ൑0 . 9 7
+0.3 0.97 ൏ 𝐶 ௠
+ (36) 
+where CM = AM/( B d ) (CM: midship section co-
+efficients, AM: area of midship section). 
+In Eq.(33), kN represents the lift slope often 
+used in the field of ship manoeuvring. The lever 
+l0 is defined in such a way that the quantity
+0 /lV   corresponds to the angle of attack of 
+the lifting body. The other lever lR denotes the 
+distance from the point O (the still water level) 
+to the centre of lift force. 
+Frictional component 
+The frictional component accounts for be-
+tween 8% and 10% of the total roll damping for 
+a 2m long model ship (Ikeda et al., 1976, 1978a). 
+However, this component is influenced by 
+Reynolds number (scale effects), and so the pro-
+portion decreases in proportion to ship size and 
+only accounts for between 1% and 3% for full 
+scale ships. Other components of the roll damp-
+ing do not have such scale effects. Therefore, 
+even if the scale of a ship is varied, the same 
+non-dimensional damping coefficient can be 
+used for the other components excluding the 
+frictional component. 
+Kato (1957) deduced a semi-empirical for-
+mula for the frictional component of the roll 
+damping from experimental results on circular 
+cylinders completely immersed in water. It was 
+found that the frictional damping for rolling cyl-
+inders can be expressed in the same form as that 
+given by Blasius (1908, 1950) for laminar flow, 
+when the effective Reynolds number is defined 
+as: 
+𝑅𝑒 ൌ
+଴.ହଵଶ   ௥మ ఝ౗మ ఠు
+ఔ   (37) 
+where r is radius of cylinder,  is kinematic vis-
+cosity. The frictional coefficient Cf  is defined 
+(Hughes, 1954) as: 
+𝐶୤ ൌ 1.328 ቀ
+ଷ.ଶଶ  ௥౜
+మ ఝ౗మ
+்౎ఔ ቁ
+ି଴.ହ
+ (38) 
+The damping coefficient due to surface fric-
+tion for laminar flow in the case of zero ship 
+speed can be represented as: 
+𝐵ସସF଴
+ᇱ ൌ
+ସ
+ଷగ 𝜌 𝑆୤ 𝑟୤
+ଷ 𝜑ୟ 𝜔 ୉𝐶୤ (39) 
+where the value of Sf and rf for a 3-D ship hull 
+form can be estimated by following regression 
+formulas (Kato, 1957): 
+𝑆୤ ൌ𝐿 ௣௣ ሺ1.7𝑑 ൅ 𝐶୆𝐵ሻ  (40) 
+𝑟୤ ൌ
+ଵ
+గ ൜ ሺ0.887 ൅ 0.145 𝐶୆ሻ  ሺ1.7𝑑 ൅ 𝐶୆𝐵ሻ െ
+    2𝑂𝐺
+ൠ
+  (40.1) 
+This component increases slightly with for-
+ward speed, and so a semi-theoretical method to 
+modify the coefficient in order to account for the 
+effect of the forward speed on the friction com-
+ponent was proposed by Tamiya et al, (1972). 
+The combination of Kato and Tamiya’s formu-
+lae is found to be accurate for practical use and 
+is expressed as: 
+𝐵ସସ୊ ൌ𝐵 ସସ୊଴ ቀ1 ൅ 4.1
+௏
+ఠు ௅ቁ (41) 
+where B 44F0 is the 3-D damping coefficient 
+which can be obtained by integrating the sec-
+tional damping coefficient B’44F0 in Eq.(39) over 
+the ship length. 
+The applicability of this formula has also 
+been confirmed through Ikeda’s analysis (Ikeda 
+et al, 1976) on the 3-D turbulent boundary layer 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 22 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+over the hull of an oscillating ellipsoid in roll 
+motion. 
+Eddy making component 
+At zero forward speed, the eddy making 
+component for a naked hull is mainly due to the 
+sectional vortices. Fig. 1 schematically shows 
+the location of the eddies generated around the 
+ship hull during the roll motion (Ikeda et 
+al.,(1977a),(1978b)). The number of eddies gen-
+erated depends on two parameters relating to the 
+hull shape, which are the half breadth-draught 
+ratio H0 ( = B/2d) and the area coeffi-
+cient=Aj/Bd, Aj: the area of the cross section 
+under water). 
+Ikeda et al, (1978a) found from experiments 
+on a number of two-dimensional cylinders with 
+various sections that this component for a naked 
+hull is proportional to the square of both the roll 
+frequency and the roll amplitude. In other 
+words, the coefficient does not depend on Ke 
+number, but the hull form only: 
+𝐶ୖ ൌ
+ெഝ ు
+భ
+మఘ ௗర௅  ఝሶ   |ఝሶ  |  (42) 
+ 
+Fig. 1 Vortices shed from hull (Ikeda et al., 1977a). 
+A simple form for the pressure distribution 
+on the hull surface as shown inFig. 2can be used: 
+ 
+Fig. 2 Assumed profile of pressure distribu-
+tion(Ikeda et al., 1977a). 
+The magnitude of the pressure coefficient Cp 
+can be taken as a function of the ratio of the 
+maximum relative velocity to the mean velocity 
+on the hull surface =Vmax/Vmean. This can be 
+calculated approximately by using the potential 
+flow theory for a rotating Lewis-form cylinder 
+in an infinite fluid. The Cp- curve is thus ob-
+tained from the experimental results of the roll 
+damping for 2-D models. The eddy making 
+component at zero forward speed can be ex-
+pressed by fitting this pressure coefficient Cp 
+with an approximate function of , by the fol-
+lowing formula (Ikeda et al, 1977a, 1978a): 
+𝐵ସସE଴
+ᇱ ൌ
+ସ  ఘ ௗరఠుఝ౗
+ଷగ 𝐶ୖ  (43) 
+𝐶ோ ൌ
+⎩⎪⎨
+⎪⎧൬1െ𝑓 ଵ  𝑅
+𝑑൰  ቆ1 െ  𝑂𝐺
+𝑑 ቇ൅
+𝑓ଶ  ൬𝐻଴ െ𝑓ଵ  𝑅
+𝑑൰
+ଶ
+⎭⎪⎬
+⎪⎫
+  𝐶௣ ቀ𝑟௠௔௫
+𝑑 ቁ
+ଶ
+ 
+𝐶௣ ൌ0 . 5   ሺ0.87𝑒ିఊ െ4 𝑒ି଴.ଵ଼଻ఊ ൅3 ሻ 
+where: 
+𝑓ଵ ൌ0 . 5   ሾ1൅𝑡 𝑎 𝑛 ℎሼ 20  ሺ𝜎െ0 . 7ሻሽሿ 
+𝑓ଶ ൌ0 . 5   ሺ1െ𝑐 𝑜 𝑠 𝜋 𝜎ሻ െ1 . 5   ൛  1 െ 𝑒ିହ  ሺଵିఙሻൟ𝑠𝑖𝑛ଶ𝜋𝜎 
+and the value of  is obtained as follows: 
+
+H 0 ・・・・・・・・・ 1・・・・・ ・・・・・・・
+1
+・・・・・・・
+0.7
+・
+・・・・
+0.5
+・・・・・
+・・・
+2 points separation 
+1 point separation C = π/4
+0
+Pm
+PmPm
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 23 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+𝛾ൌ
+√గ௙యቀ௥ౣ౗౮ାమಾ
+ಹ ቁ  √஺మା஻మ
+ଶௗ  ൬ଵିೀಸ
+೏ ൰   ඥு′బఙ′
+ (44) 
+𝑀ൌ 𝐵
+2  ሺ1൅𝑎 ଵ ൅𝑎 ଷሻ     
+ 𝐻′଴ ൌ 𝐻଴
+1െ𝑂 𝐺𝑑⁄
+ 
+𝜎′ ൌ 𝜎െ𝑂 𝐺𝑑⁄
+1െ𝑂 𝐺𝑑⁄  
+𝐻ൌ1൅𝑎 ଵ
+ଶ ൅9   𝑎ଷ
+ଶ ൅2   𝑎ଵሺ1െ3 𝑎ଷሻ  𝑐𝑜𝑠2  𝜓 െ
+    6  𝑎ଷ𝑐𝑜𝑠4  𝜓  
+𝐴଴ ൌെ 2   𝑎ଷ  𝑐𝑜𝑠5  𝜓 ൅ 𝑎ଵሺ1െ𝑎 ଷሻ  𝑐𝑜𝑠3  𝜓 ൅
+    ሼ ሺ6െ3 𝑎ଵሻ  𝑎ଷ
+ଶ ൅ ሺ𝑎ଵ
+ଶ െ3 𝑎ଵሻ  𝑎ଷ ൅𝑎 ଵ
+ଶሽ𝑐𝑜𝑠  𝜓 
+𝐵଴ ൌ െ2  𝑎ଷ  𝑠𝑖𝑛5  𝜓 ൅ 𝑎ଵሺ1െ𝑎 ଷሻ  𝑠𝑖𝑛3  𝜓 ൅
+    ሼ ሺ6൅3 𝑎ଵሻ  𝑎ଷ
+ଶ ൅ ሺ3𝑎ଵ ൅𝑎 ଵ
+ଶሻ  𝑎ଷ ൅𝑎 ଵ
+ଶሽ𝑠𝑖𝑛  𝜓 
+𝑟௠௔௫ ൌ𝑀   ඨሼሺ1൅𝑎 ଵሻ  𝑠𝑖𝑛  𝜓 െ 𝑎ଷ𝑠𝑖𝑛3𝜓ሽଶ ൅
+    ሼሺ1െ𝑎 ଵሻ  𝑐𝑜𝑠  𝜓 ൅ 𝑎ଷ𝑐𝑜𝑠3𝜓ሽଶ 
+where a1a3 are the Lewis-form parameters.  
+represents the Lewis argument on the trans-
+formed unit circle.  and f3 are: 
+𝜓ൌ
+⎩
+⎨
+⎧0  ൌ 𝜓ଵ          ሺ𝑟௠௔௫ሺ𝜓ଵሻ൒𝑟 ௠௔௫ሺ𝜓ଶሻሻ
+1
+2 𝑐𝑜𝑠ିଵ 𝑎ଵሺ1൅𝑎 ଷሻ
+4𝑎ଷ
+ൌ𝜓 ଶ
+                ሺ𝑟௠௔௫ሺ𝜓ଵሻ൏𝑟 ௠௔௫ሺ𝜓ଶሻሻ
+ 
+𝑓ଷ ൌ1൅4 𝑒 𝑥 𝑝ሼെ1.65 ൈ 10ହሺ1െ𝜎 ሻଶሽ 
+For a 3-D ship hull form, the eddy making 
+component is given by integrating BE0 over the 
+ship length. 
+This component decreases rapidly with for-
+ward speed and reduces t o a non-linear correc-
+tion for the (linear) lift force on a ship, or wing, 
+with a small angle of attack. From experimental 
+results for ship models a formula for this com-
+ponent at forward speed can be determined em-
+pirically as follows (Ikeda et al, 1978a): 
+𝐵ସସ୉ ൌ𝐵 ସସ୉଴
+ሺ଴.଴ସ௄ሻమ
+ଵାሺ଴.଴ସ௄ሻమ  (45) 
+where K is the reduced frequency (=L/U). 
+The above-mentioned Eq.(43) applies to a 
+sharp-cornered box hull with normal breadth-
+draught ratio, but not to a very shallow draught. 
+Yamashita et al , (1980) confirmed that the 
+method gives a good result for a very flat ship 
+when the roll axis is located at the water surface. 
+Standing (1991), however, pointed out that 
+Eq.(43) underestimates the roll damping of a 
+barge model. To confirm the contradictions, 
+Ikeda et al, (1993) carried out an experimental 
+study on the roll damping of a very flat barge 
+model and proposed a simplified formula for 
+predicting the eddy component of the roll damp-
+ing of the barge as follows (Ikeda et al, 1993): 
+𝐵ସସE଴
+ᇱ ൌ
+ଶ
+గ 𝜌𝐿𝑑ସ ቀ𝐻଴
+ଶ ൅1െ
+ைீ
+ௗ ቁൈ
+    ൜𝐻଴
+ଶ ൅ቀ 1െ
+ைீ
+ௗ ቁ
+ଶ
+ൠ𝜑 ୟ𝜔୉
+ (46) 
+Appendages component 
+Bilge keel component 
+The bilge keel component B44BK is divided 
+into four components: 
+𝐵ସସ୆୏ ൌ𝐵 ସସ୆୏୒଴ ൅𝐵 ସସ୆୏ୌ଴ ൅𝐵 ସସ୆୏୐ ൅
+    𝐵ସସ୆୏୛
+ (47) 
+For the case of large amplitude roll motion, 
+where the bilge keel may be above water sur-
+face at the moment of maximum roll angle, 
+Bassler et al, (2010) proposed as a piecewise 
+function of roll angle for the 𝐵44𝐵𝐾 component. 
+The normal force component B44BKN0 can be 
+deduced from the experimental results of oscil-
+lating flat plates (Ikeda et al, 1978c, 1978d).The 
+drag coefficient CD of an oscillating flat plate 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 24 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+depends on the Ke number. From the measure-
+ment of the drag coefficient, CD, from free roll 
+tests of an ellipsoid with and without bilge keels, 
+the prediction formula for the drag coefficient of 
+the normal force of a pair of the bilge keels can 
+be expressed as follows: 
+𝐶஽ ൌ 22.5
+௕ాే
+గ  ௟ఝ౗௙ ൅2 . 4  (48) 
+where bBK is the breadth of the bilge keel and l 
+is the distance from the roll axis to the point on 
+hull with bilge keel attached. Wassermann et 
+al(2016b) extended the above equation for Ke 
+ranging from 0.3 <Ke< 20.  
+𝐶஽ ൌ0 . 7⋅l n ሺ 𝐾 𝑒 ሻଶ െ 4.94 ⋅ lnሺ𝐾𝑒ሻ ൅ 13.75
+  (49) 
+Further simulations for 20 < Ke< 100 where 
+performed which are taking into account by the 
+above equation as well but are not validated by 
+experiments.  
+The equivalent linear damping coefficient 
+B’44BKN0 is: 
+𝐵ସସBKN଴
+ᇱ ൌ
+଼
+ଷగ 𝜌  𝑙ଷ𝜔୉𝜑ୟ𝑏୆୏𝑓ଶ  𝐶஽ (50) 
+where f is a correction factor to take account of 
+the increment of flow velocity at the bilge, de-
+termined from the experiments: 
+𝑓 ൌ 1 ൅ 0.3𝑒ሼିଵ଺଴ሺଵିఙሻሽ (51) 
+From the measurement of the pressure on the 
+hull surface caused by the bilge keels, it was 
+found that the coefficient Cp+ of pressure on the 
+front face of the bilge keels does not depend on 
+the Ke number. However, the coefficient Cp of 
+the pressure on the back face of bilge keel and 
+the length of negative-pressure region do de-
+pend on the Ke number. From these results, the 
+length of the negative-pressure region can be 
+obtained as follows: 
+𝑆଴/𝑏୆୏ ൌ0 . 3
+గ ௟ఝ౗௙
+௕ాే
+൅1 . 9 5 (52) 
+assuming a pressure distribution on the hull as 
+shown in Fig. 3. 
+ 
+Fig. 3 Assumed pressure distribution on the hull 
+surface caused by bilge keels (Ikeda et al., 1976). 
+The roll damping coefficient B’BKH0 can be 
+expressed as follows (Ikeda et al , 1978c, 
+1978d): 
+𝐵ସସBKH଴
+ᇱ ൌ
+ସ
+ଷగ𝐶௣ ⋅𝑙  ୮ 𝑑  ீ 𝐺 (53) 
+where G is length along the girth and lp is the 
+moment lever. 
+The coefficient Cp+ can be taken approxi-
+mately as 1.2 empirically. From the relation of 
+𝐶஽ ൌ𝐶 ௣
+ା െ𝐶 ௣
+ି, the coefficient Cp- can be ob-
+tained as follows: 
+𝐶௣
+ି ൌ1 . 2െ𝐶஽ ൌ െ22.5
+௕ాే
+గ  ௟ఝ౗௙ െ1 . 2 (54) 
+The value of 𝐶௣ ⋅𝑙  ୮ 𝑑 ீ 𝐺 in Eq.(53) can 
+be obtained as follows: 
+𝐶௣ ⋅𝑙 ୮  𝑑 ீ 𝐺ൌ𝑑 ଶ൫െ𝐴଴𝐶௣
+ି ൅𝐵 ଴𝐶௣
+ା൯ (55) 
+where: 
+𝐴଴ ൌ ሺ𝑚ଷ ൅𝑚 ସሻ𝑚଼ െ𝑚 ଻
+ଶ 
+W.L
+Cp
++
+Cp
+–
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 25 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+𝐵଴ ൌ 𝑚ଶ
+ଶ
+3ሺ𝐻଴ െ 0.215𝑚ଵሻ ൅
+ሺ1 െ 𝑚ଵሻଶሺ2𝑚ଷ െ𝑚 ଶሻ
+6ሺ1 െ 0.215𝑚ଵሻ ൅𝑚 ଵሺ𝑚ଷ𝑚ହ ൅𝑚 ସ𝑚଺ሻ
+ 
+𝑚ଵ ൌ𝑅 / 𝑑
+𝑚ଶ ൌ𝑂 𝐺𝑑⁄
+𝑚ଷ ൌ1െ𝑚 ଵ െ𝑚 ଶ 
+𝑚ସ ൌ𝐻 ଴ െ𝑚 ଵ
+ 
+𝑚ହ ൌ
+൜0.414𝐻଴ ൅ 0.0651𝑚ଵ
+ଶ െ
+        ሺ0.382𝐻଴ ൅ 0.0106ሻ𝑚ଵ
+ൠ
+ሺ𝐻଴ െ 0.215𝑚ଵሻሺ1 െ 0.215𝑚ଵሻ 
+𝑚଺ ൌ
+൜0.414𝐻଴ ൅ 0.0651𝑚ଵ
+ଶ െ
+        ሺ0.382 ൅ 0.0106𝐻଴ሻ𝑚ଵ
+ൠ
+ሺ𝐻଴ െ 0.215𝑚ଵሻሺ1 െ 0.215𝑚ଵሻ 
+𝑚଻ ൌ൜   𝑆଴/𝑑 െ 0.25𝜋 𝑚ଵ,         𝑆଴ ൐ 0.25𝜋 𝑅
+  0                              ,          𝑆଴ ൑ 0.25𝜋𝑅 
+𝑚଼
+ൌ൝
+𝑚଻ ൅ 0.414𝑚ଵ                           ,   𝑆଴ ൐ 0.25𝜋𝑅
+𝑚଻ ൅ 1.414𝑚ଵሺ1 െ 𝑐𝑜𝑠ሺ𝑆଴
+𝑅 ሻሻ,   𝑆଴ ൑ 0.25𝜋𝑅 
+where l is distance from roll axis to the tip of 
+bilge keels and R is the bilge radius.  These are 
+calculated as follows: 
+𝑙ൌ𝑑 ඪ
+ቄ𝐻଴ െቀ 1െ√ଶ
+ଶ ቁ
+ோ
+ௗቅ
+ଶ
+൅
+        ቄ1 െ
+ைீ
+ௗ െቀ 1െ√ଶ
+ଶ ቁ
+ோ
+ௗቅ
+ଶ (56) 
+𝑅ൌ
+⎩
+⎪
+⎨
+⎪
+⎧2𝑑ටுబሺఙିଵሻ
+గିସ  , 𝑅 ൏ 𝑑     &   𝑅 ൏
+஻
+ଶ
+                𝑑     , 𝐻଴ ൒ 1   &   
+ோ
+ௗ ൐1
+                
+஻
+ଶ      , 𝐻଴ ൑ 𝑙   &    
+ோ
+ௗ ൐𝐻 ଴
+ (57) 
+To predict the bilge keel component, the pre-
+diction method assumes that a cross section con-
+sists of a vertical side wall, a horizontal bottom 
+and a bilge radius of a quarter circle for simplic-
+ity. The location and angle of the bilge keel are 
+taken to be the middle point of the arc of the 
+quarter circle and perpendicular to the hull sur-
+face. It may not be possible to satisfactorily ap-
+ply these assumptions to the real cross section if 
+it has large differences from a conventional hull 
+with small bilge radius as shown in  
+ Fig. 4for a high-speed slender vessel (Ikeda 
+et al, 1994). 
+These assumptions cause some element of 
+error in the calculation of the moment levers of 
+the normal force of the bilge keels and of the 
+pressure force distributed on the hull surface 
+caused by the bilge keel. In such a case, Eq.(55) 
+should be calculated directly. The pressure dis-
+tribution can be taken as shown in Fig. 3and the 
+length of negative pressure Cp-can be defined by 
+using parameter B in Eq.(55). 
+ 
+ Fig. 4 Comparison between cross section, fitting 
+position and the angle of bilge keel assumed in pre-
+diction method and those of high-speed slender ves-
+sels(Ikeda et al, 1994). 
+In the estimation method, it is assumed that 
+the effect of forward speed on the bilge keel 
+component is small and can be ignored. How-
+ever, it is hard to ignore the lift force acting on 
+the bilge keel if a vessel has high forward speed. 
+Since a bilge keel can be regarded as a small as-
+pect ratio wing, Jones’s theory can be applied to 
+it where the flow is composed of forward speed 
+𝑉ൌ𝐹 𝑟ඥ𝑔𝐿 and the tangential velocity caused 
+assumed cross section
+45deg
+real cross section
+ bilge keel
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 26 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+by roll motion 𝑢ൌ𝑙 ଵ𝜙ሶ ൌ𝑙 ଵ𝜙ୟ𝜔୉ (where l1 de-
+notes the distance between the centre of roll axis 
+and the centre of bilge keel)the attack angle and 
+the resultant flow velocity are obtained as 𝛼ൌ
+tanିଵሺ𝑢/𝑉ሻ  and 𝑉ோ ൌ √𝑉ଶ ൅𝑢 ଶ  respectively. 
+On the basis of Jones’s theory, the lift force act-
+ing on a bilge keel is expressed as (Ikeda et al, 
+1994): 
+𝐿୆୏ ൌ
+గఘఈ௏ೃమ௕ాేమ
+ଶ   (58) 
+where bBK is the maximum breadth of the bilge 
+keel. The roll damping coefficient due to a pair 
+of bilge keels B44BKL can be obtained as follows: 
+𝐵ସସ୆୏୐ ൌ
+ଶ  ௅ాే  ௟భ
+ఝ౗  ఠు
+  (59) 
+The wavemaking contribution from the bilge 
+keels at zero forward speedB44BKW0 is expressed 
+as (Bassler et al, 2009): 
+𝐵෠ସସ୆୏୛଴~𝐶୆୏ሺ𝑏୆୏ሻexp ቆെ
+ఠమ
+௚ 𝑑୆୏ሺ𝜑ሻቇ (60) 
+where the source strength CBK is a function of 
+the bilge keel breadth bBK. In this equation, the 
+bilge keel may be considered as a source, puls-
+ing at frequency e at a depth relative to the free 
+surface, dBK in Fig. 5 , based on the roll ampli-
+tude. For simplicity, CBK is assumed to be the 
+ratio of the bilge keel breadth to ship beam. The 
+damping is assumed to be zero for zero roll am-
+plitude. The distance from the free surface to the 
+bilge keel, dBK, is given by: 
+𝑑୆୏ሺ𝜑ሻ ൌ𝑙 ୆୏ ൦
+൬
+ሺଶௗ/஻ሻ
+ඥଵାሺଶௗ/஻ሻమ൰    cos𝜑 െ
+sin𝜑   ൬
+ଵ
+ඥଵାሺଶௗ/஻ሻమ൰
+൪ (61) 
+where d is the draught, B is the beam, and is the 
+roll angle, Fig. 5.  The effects of forward speed 
+are taken into account by Eq. 𝐵44𝑊𝐵44W0ൌ
+0.5 ⋅
+⎣
+⎢
+⎢
+⎡ ሺ𝐴ଶ ൅1 ሻ ൅
+ሺ𝐴ଶ െ1 ሻ ⋅t a n hሺ20 ⋅ Ω െ 0.3ሻ ൅
+ሺ2𝐴ଵ െ𝐴 ଶ െ1 ሻ ⋅
+        expሼെ150 ⋅ሺΩ െ 0.25ሻଶሽ ⎦
+⎥
+⎥
+⎤
+ (31). 
+ 
+Fig. 5 Illustration of the bilge keel depth, dBK, as a 
+function of roll angle, ; and distance from the roll 
+axis to the bilge keel, lBK, for the half-midship sec-
+tion of a conventional hull form.(Bassler et al, 
+2009) 
+Skeg component 
+The skeg component of the roll damping is 
+obtained by integrating the assumed pressure 
+caused by the skeg, as shown in Fig. 6 over the 
+skeg and the hull surface. 
+ 
+Fig. 6 Assumed pressure caused by a skeg(Ali et 
+al., 2004). 
+
+R
+l d
+dBKBK
+b
+a
+Cp
+/2
+/2
+G
+Cp
+l
+ll
+l
+l
+2 3
+1
+S
+S
+SK
+SK
+–
++
+Cp
++ Cp
+–
+：pressure
+：resultant
+    Force
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 27 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+The skeg component of the roll damping per 
+unit length can be expressed as follows (Ali et 
+al., 2004): 
+𝐵ସସSK଴
+ᇱ ൌ
+ସ
+ଷగ 𝜑ୟ𝑙ଶ𝜔୉𝜌 ൮
+𝐶஽𝑙ୗ୏𝑙ଵ െ
+0.5𝐶௣
+ା𝑎𝑙ଶ ൅
+ଷ
+ସ 𝐶௣
+ି𝑆𝑙ଷ
+൲ (62) 
+𝐶஽          ൌ ሺ𝐶௣ା െ𝐶 ௣ିሻൌ𝐶 ஽଴𝑒
+൬షబ.యఴ್ೄ಼
+೗ೄ಼
+൰
+ 
+𝐶௣ା ൌ1 . 2  
+𝐶஽଴       ൌ ൜2.425𝐾𝑒            ,        0 ൑ 𝐾𝑒 ൑ 2
+െ0.3𝐾𝑒 ൅ 5.45,        𝐾𝑒 ൐ 2 
+𝐾𝑒          ൌ 𝑈௠௔௫𝑇௘
+2𝑙ௌ௄
+ൌ 𝜋𝜑௔𝑙
+𝑙ௌ௄
+ 
+𝑆 ൌ 1.65𝐾𝑒ଶ/ଷ ⋅𝑙 ௌ௄ 
+where C p+, Cp-and l2, l 3 denote representative 
+p r e s s u r e  c o e f f i c i e n t s  a n d  t h e i r  m o m e n t  l e v e r s  
+obtained by integrating the pressure distribution 
+on the hull surface in front of and on the back 
+face of the skeg respectively. l is the distance 
+from the axis of roll rotation to the tip of the 
+skeg. lSK and bSK are the height and thickness of 
+skeg respectively, Ke is the Keulegan-Carpenter 
+number for the skeg, Umax is the maximum tan-
+gential speed of the edge of the skeg, Te is the 
+period of roll motion and S is the distribution 
+length of negative pre ssure on hull surface 
+caused by the skeg. 
+4.2.2 Hard chine type hull 
+Generally, the roll damping acting on a cross 
+section can be divided into a frictional compo-
+nent, a wave making component, an eddy mak-
+ing component, a bilge-keel component and a 
+skeg component. Bilge keel and skeg compo-
+nents are caused by separated vortices. How-
+ever, it is more convenient practically to treat 
+them as independent components, without in-
+cluding them in the eddy making component. 
+Although the friction component may be around 
+10% of the roll damping from measured model 
+data (model length under approximate 4m, refer 
+to IMO MSC.1/ Circ.1200 ANNEX, Page 7, 
+4.3.2), it is only up to approximately 3% for a 
+full-scale vessel. This means therefore, that the 
+friction component can be effectively ignored. 
+The wave making component can again be 
+treated using the theoretical calculation based on 
+potential theory as defined previously for dis-
+placement hulls. Therefore, it is recommended 
+to also apply these calculation methods to hard 
+chine type hulls. 
+Eddy making component 
+The eddy making component of a hard chine 
+type hull is mainly caused by the separated vor-
+tices from the chine. The sectional pressure dis-
+tribution on hull caused by this separated vortex 
+is approximated by a simple formulation and the 
+roll damping is calculated by integrating it along 
+the hull surface. 
+The length and the value of the pressure dis-
+tribution are decided upon based on the meas-
+ured pressure and the measured roll damping. 
+Initially, the estimation method is used for the 
+case where the rise of floor is 0. The pressure 
+distribution is assumed to like that shown in Fig. 
+7. 
+ 
+Fig. 7 Assumed pressure distribution caused by 
+separated flow from hard chine(Ikeda et al, 1990). 
+S Cp
+ld
+OG
+S
+B /
+l3
+2
+center of rolling
+roll motion
+Cp
+2
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 28 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+The sectional roll damping coefficient is cal-
+culated from the following: 
+𝐵ସସE଴
+ᇱ ൌ
+ସ
+ଷగ 𝜌𝜑ୟ𝜔୉𝐶௣  𝑆  ሺ𝑙ଶ ൅𝑙 ଷሻ𝑙ଶ (63) 
+where, l2 and l3 are the moment levers shown in 
+Fig. 7, and l is the distance from the axis of roll 
+rotation to the chine (Ikeda et al, 1990). 
+The length of the negative pressure S and its 
+pressure coefficient Cp are expressed as the 
+function H0* ቀൌ 𝐵/൫2𝑑 െ 2𝑂𝐺൯ቁ . These are 
+obtained from the following equations based on 
+measured data: 
+𝑆 ൌ ሺ0.3𝐻଴ ∗ െ0.1775 ൅
+଴.଴଻଻ହ
+ுబ∗మ ሻ𝑑 (64) 
+𝐶௣ ൌe x p ሺ 𝑘ଵ𝐻଴ ∗൅ 𝑘ଶሻ  (65) 
+where: 
+𝑘ଵ ൌെ e x p൬െ0.114𝐻଴
+ଶ ൅
+    0.584𝐻଴ െ 0.558൰
+𝑘ଶ ൌ െ0.38𝐻଴
+ଶ ൅ 2.264𝐻଴ ൅ 0.748
+ (66) 
+When there is a rise of floor, the moment 
+lever not only changes, but the length of the neg-
+ative pressure distribution and its pressure coef-
+ficient also change. However, the effect of the 
+rise of floor on the size of a separated vortex is 
+not well understood. Therefore, the effect of rise 
+of floor is taken into consideration by modifying 
+the coefficient as a function of the rise of floor. 
+S and Cp are multiplied by the following empir-
+ical modification coefficient (Ikeda et al, 1990): 
+𝑓ଵሺ𝛼ሻ ൌ expሺെ2.145𝛽ሻ (67) 
+𝑓ଶሺ𝛼ሻ ൌ expሺെ1.718𝛽ሻ (68) 
+Using the above method, the eddy making 
+component of a cross section can be estimated. 
+The depth of the chine dc, the half breadth to 
+draught ratio H0 ( =B/2d) of a cross section, 
+draught d, rise of floor , and vertical distance 
+from water surface to the centre of gravity (axis 
+of roll rotation) 𝑂𝐺 (downward positive) are re-
+quired for the estimation. 
+Skeg component 
+An estimation method for the skeg compo-
+nent has been proposed by Tanaka et al, (1985). 
+Using this method, the shape of the approxi-
+mated pressure distribution is shown in Fig. 8. 
+ 
+Fig. 8 Assumed pressure distribution caused by 
+skeg (Tanaka et al., 1985). 
+From the integration of the pressure distribu-
+tion, the roll damping coefficient for the cross 
+section is expressed by the following: 
+𝐵ସସSK଴
+ᇱ ൌ
+଼
+ଷగ 𝜌  𝜑ୟ𝑙ଶ𝜔୉ ൞
+𝐶஽𝑙ୗ୏𝑙ଵ െ
+0.5𝐶௣
+ା𝑎𝑙ଶ ൅
+ଷ
+ସ 𝐶௣
+ି𝑆𝑙ଷ
+ൢ (69) 
+𝐶஽ ൌ𝐶 ௣ା െ𝐶 ௣ି
+𝐶௣ି ൌെ 3 . 8
+ 𝐶௣ା ൌ1 . 2
+ 𝑆 ൌ 1.65𝐾𝑒
+మ
+య𝑙ௌ௄
+𝐾𝑒 ൌ 𝑈௠௔௫
+𝑇௘
+2𝑙ௌ௄
+ 
+Here, Umax is the maximum tangential speed 
+at the centre of skeg, Teis roll period, lSK, bSK 
+are the height and thickness of skeg, and l is the 
+G
+Cp
+a
+S /2
+l2
+l3
+l1l
+：pressure
+：resultant
+Force
+–
+lSK
+b SK Cp–
+Cp+
+Cp+ S/2
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 29 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+distance from the axis of roll rotation to the tip 
+of the skeg. In this estimation method, the skeg 
+is assumed to be a flat plate and the pressure co-
+efficient is assumed to be constant based on the 
+measured results from an oscillated flat plate 
+with a flat plate skeg (Tanaka et al, 1985). How-
+ever, an Asian coastal fishing boat may have a 
+wide breadth due to the stability requirements 
+for the boat and due to the strength of the skeg 
+required in service (Ikeda et al , 1990). In this 
+case, not only should the measured results from 
+a flat plate be considered, but also the measured 
+results of the drag coefficients from oscillating 
+square cylinders (Ikeda et al, 1990), in order to 
+decide upon a suitable drag coefficient. It is ex-
+pressed by the following (Ikeda et al, 1990): 
+𝐶஽൫ൌ 𝐶௣ା െ𝐶 ௣ି൯ൌ𝐶 ஽଴𝑒𝑥𝑝 ൬െ0.38 𝑏ௌ௄
+𝑙ௌ௄
+൰ 
+𝐶஽଴ ൌ൜ 2.425𝐾𝑒                        ሺ0൑𝐾 𝑒൑2 ሻ
+െ0.3𝐾𝑒 ൅ 5.45            ሺ2൏𝐾 𝑒ሻ  
+𝐶௣
+ା ൌ1 . 2  (70) 
+4.2.3 Multi-hull 
+Katayama et al . (2008) experimentally in-
+vestigated the characteristics of roll damping of 
+two types of multi-hull vessels: a high-speed 
+catamaran; and a trimaran.  They proposed a 
+method of estimating the roll damping for these 
+types of craft. 
+Wave making component 
+The wave making component B44W is gener-
+ated by the almost vertical motion of the demi-
+hull. For this component, the wave interaction 
+between the hulls is considered significant, as 
+also indicated by Ohkusu, (1970). However, for 
+simplicity, this component can be estimated by 
+using the heave potential damping of the demi-
+hull B33.  It should be noted however, that the 
+B33 term does not include the wave interaction 
+effects between the hulls.  A strip method, in-
+cluding the end term effects, is used for the cal-
+culation of B33 (Katayama et al. 2008): 
+𝐵ସସW
+ᇱ 𝜑ሶ ൌ𝐵 ସସW
+ᇱ 𝜔୉𝜑ୟ
+              ൌ 2𝑏ୢୣ୫୧  𝐵ଷଷ
+ᇱ   𝑏ୢୣ୫୧𝜔୉𝜑ୟ
+              ൌ 2𝑏ୢୣ୫୧
+ଶ  𝐵ଷଷ
+ᇱ 𝜑ሶ
+ (71) 
+where bdemi is the distance of the centre of demi-
+hull from the vessel’s centre line. 
+Lift component 
+A method for the estimation of the lift com-
+ponent of a multi-hull vessel can be constructed 
+based on Eq.(33). Based on the relative location 
+of each hull in the multi-hull craft, lR, l0 and 𝑂ᇱ𝐺 
+are defined as shown in Fig. 9. 
+This allows the lift component to be de-
+scribed as follows (Katayama et al. 2008): 
+𝐵ସସ୐ ൌ
+ଵ
+ଶ 𝜌𝐴ୌ୐𝑉𝑘୒𝑙଴
+′𝑙ୖ
+′ ൮
+1െ1 . 4
+ை′ீ
+௟′౎
+൅
+0.7
+ை′ீ
+మ
+௟′బ௟′౎
+൲ (72) 
+𝑘ே ൌ 2𝜋𝑑
+𝐿௉௉
+ 
+where AHLis the lateral area of the demi-hulls or 
+side hulls under water line and LPP isthe length 
+between perpendiculars. 
+ 
+Fig. 9 Coordinate system to calculate l’0 and l’R and 
+𝑂′𝐺 (Katayama et al., 2008). 
+0.3
+l l
+O'G
+G
+O'W.L
+Aft section of demihull
+d
+0.5 d
+R'
+0'
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 30 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+Frictional component 
+For multi-hull vessels, the frictional compo-
+nent is caused by the vertical motion of the 
+demi-hull or side hull. This component is as-
+sumed to be smaller than the other components. 
+Based on the estimation method proposed in the 
+previous chapters, the friction component for 
+the demi-hull or side hull can be estimated as 
+follows (Katayama et al. 2008): 
+𝐵ସସF
+ᇱ ൌ
+଼
+ଷగ 𝜌𝐴ୌ୐𝜑ୟ𝜔୉𝑏ୢୣ୫୧
+ଷ𝐶୤ ቀ1 ൅
+4.1
+௏
+ఠు௅ౌౌ
+ቁ  (73) 
+𝐶௙ ൌ 1.328
+√𝑅𝑒
+𝑅𝑒 ൌ4𝜑௔𝑏ௗ௘௠௜𝑑
+𝑇௘𝜈  
+where AHL is the lateral area of the demi-hulls or 
+side hulls under water line, and bdemiis the dis-
+tance of the centre of the demi-hull from the cen-
+tre line,  is kinematic viscosity. The effects of 
+forward speed can be taken into account with 
+Eq.(41). 
+Eddy making component 
+Significant vortex shedding has been ob-
+served from flow visualization around multi-
+hull vessels whilst rolling. It was observed that 
+one vortex was shed from each demi-hull of the 
+catamaran and from each side hull of the trima-
+ran. The location of the vortex shedding was 
+found to be at the keel or the outside bilge of 
+demi-hull/side hull. This is shown in Fig. 10 
+(Katayama et al. 2008). 
+ 
+Fig. 10 Assumed vortex shedding point and pres-
+sure distribution of aft section of catamaran 
+(Katayama et al., 2008). 
+The scale of the eddy may be similar to that 
+for barge vessels. Therefore, these damping 
+forces can be estimated by integrating the pres-
+sure caused by eddy-making phenomena over 
+the hull surface. The pressure coefficient at the 
+point of vortex shedding can be assumed to be 
+1.2 and the profile of pressure distribution is as-
+sumed as shown in Fig. 10. In addition, the ef-
+fects of forward speed are taken into account by 
+Eq. (45). 
+4.2.4 Additional damping for a planning hull 
+Typical planning craft have a shallow 
+draught compared to their breadth, with an im-
+mersed lateral area that is usually very small. 
+Even if the vessel runs at a very high speed, the 
+horizontal lift component is small. Conversely, 
+the water plane area is very large and the vertical 
+lift force acting on the bottom of the craft is also 
+large.  As a result, this may play an important 
+role in the roll damping. It is therefore necessary 
+to take into account the component due to this 
+e f f e c t .  A s s u m i n g  t h a t  a  c r a f t  h a s  s m a l l  a m p l i -
+tude periodic roll motion about the center of 
+gravity, a point y on a cross section shown in 
+Fig. 11, has a vertical velocity uz(y) [m/sec.] de-
+fined as: 
+𝑢௭ሺ𝑦ሻ ൌ 𝜑ሶ   𝑦  (74) 
+G
+W.L
+Aft section of catamaran
+out side bilge
+ of demihull
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 31 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+where 𝜑ሶ  [rad./sec.] denotes roll angular velocity 
+and y [m] is transverse distance between the cen-
+tre of gravity and point y. 
+ 
+Fig. 11 Cross section of a ship (Ikeda et al., 2000). 
+When the craft has forward speed V [m/sec.], 
+the buttock section including point y, experi-
+ences an angle of attack (y) [rad] for the rela-
+tive flow as shown in Fig. 12. 
+ 
+Fig. 12 Buttock section of a craft (Ikeda et al., 
+2000). 
+The angle (y) can be calculated as follows: 
+𝛼ሺ𝑦ሻ ൌ tanିଵ ௨೥ሺ௬ሻ
+௏ ൌt a nିଵ ఝሶ ௬
+௏ ≅
+ఝሶ ௬
+௏  (75) 
+Assuming that the running trim angle is 1
+[rad.], the vertical lift force acting on the craft is 
+expressed as the virtual trim angle )(y [rad.] 
+with the relative flow described as: 
+𝜃ሺ𝑦ሻ ൌ 𝜃ଵ ൅ 𝛼ሺ𝑦ሻ ≅ 𝜃ଵ ൅
+ఝሶ ௬
+௏  (76) 
+For planning craft, the magnitude of the hy-
+drodynamic lift force significantly depends on 
+the trim angle. The vertical lift force fz(y) 
+[kgf/m] (positive upwards) acting on the buttock 
+line including point y, with attack angle (y) 
+[rad.], is calculated as follows: 
+𝑓௭ሺ𝑦ሻ ൌ
+ଵ
+ଶ 𝜌𝐵୵.୪𝑉ଶ𝑘୐ሺ𝜃ଵሻ𝛼ሺ𝑦ሻ (77) 
+where  [kgf sec.2/m4] denotes the density of the 
+fluid, Bw.l denotes the water line breadth and 
+𝑘୐ሺ𝜃ଵሻ [1/rad.] is the lift slope. This is the non-
+dimensional vertical lift coefficient CL differen-
+tiated by trim angle as follows: 
+𝑘୐ሺ𝜃ଵሻ ൌ
+డ஼ಽ
+డఏ   (78) 
+On the basis of the quasi-steady assumption, 
+fz(y)[kgf/m] is assumed to be the mean value of 
+the hydrodynamic lift force L [kgf] acting on the 
+planning hull in steady running condition: 
+𝑓௭ሺ𝑦ሻ ൌ
+௅
+஻౭.ౢ
+ൌ
+ଵ
+ଶ 𝜌𝐵୵.୪𝑉ଶ𝐶௅ (79) 
+where the lever arm for the roll moment about 
+the center of gravity is y [m]. The roll moment 
+is then given by: 
+𝑓௭ሺ𝑦ሻ ⋅ 𝑦
+ಳ౭.ౢ
+మ
+ି
+ಳ౭.ౢ
+మ
+𝑑𝑦
+        ൌ
+ଵ
+ଶସ 𝜌𝐵୵.୪
+ସ𝑉𝑘୐ሺ𝜃ଵሻ𝜑ሶ ൌ𝐵 ୚୐𝜑ሶ
+ (80) 
+This method of predicting the vertical lift 
+component for planning craft is combined with 
+the prediction method for a hard chine hull as an 
+additional component B44VL (Ikeda et al, 2000). 
+4.2.5 Additional damping for flooded ship 
+Flood water dynamics is similar to the ef-
+fects of anti-rolling tank . The tank is classified 
+according to its shape, such as a U-tube type or 
+open-surface type. The ship motion including 
+the effects of the tank has been theoretically es-
+tablished for each type ( e.g. Watanabe, 1930, 
+1943; Tamiya, 1958; Lewison, 1976). However, 
+in order to calculate the resultant ship motion, 
+port
+y
+z
+G
+starboard
+uz()yfz()y
+φ
+uz(y)
+a(y)
+V
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 32 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+experiments such as forced oscillation tests are 
+required to obtain some characteristics of the 
+tank. 
+Based on experimental results by Katayama 
+et al, (2009), and Ikeda et al, (2008) a proposed 
+estimation formula for the roll damping compo-
+nent caused by flooded water was obtained. It 
+should be noted that the prediction formula only 
+applies to smaller roll angles but can be applied 
+to cases without a mean heel angle. 
+𝐵ସସ୍୛ ൌ𝐴 ሺ
+௛
+஻೎೚೘೛
+,𝜑 ௔,
+ைீ
+஻ ሻൈ
+    𝐶ሺ𝜔୉,
+௛
+஻೎೚೘೛
+ሻ
+஻ሺ ೓
+ಳ೎೚೘೛
+,ఝೌሻ
+ൈ
+    exp ቊെ𝐶ሺ𝜔୉,
+௛
+஻೎೚೘೛
+ሻ
+஻ሺ ೓
+ಳ೎೚೘೛
+,ఝೌሻ
+ቋൈ
+    𝑙ୡ୭୫୮.𝜌𝐵ୡ୭୫୮.
+ହ ට
+ଶ௚
+஻ౙ౥ౣ౦.
+ (81) 
+𝐴ሺ ℎ
+𝐵௖௢௠௣
+,𝜑 ௔, 𝑂𝐺
+𝐵 ሻ
+ൌ
+1.8
+௛
+஻೎೚೘೛
+െ 1.9882𝜑௔ ൅ 0.429
+1.2
+ைீ
+஻ ൅1
+ 
+𝐵ሺ ℎ
+𝐵௖௢௠௣
+,𝜑 ௔ሻ ൌ 40.842ℎ
+𝐵௖௢௠௣
+െ 10.502𝜑௔ ൅2 . 1  
+𝐶ሺ𝜔ா, ℎ
+𝐵௖௢௠௣
+ሻൌ 1
+𝜋 ඨ𝐵
+𝑔 ⋅ ቆ 𝜔ா
+ඥℎ/𝐵௖௢௠௣
+ቇൌ 𝜔ா
+𝜔ூௐ
+ 
+𝜔ூௐ ൌ 𝜋
+𝐵௖௢௠௣
+ඥ𝑔ℎ 
+where h is water depth. lcomp and Bcomp are the 
+length and the breadth of flooding compartment. 
+ and g are the density of fluid and acceleration 
+of gravity respectively. E is roll frequency, 
+ais roll amplitude, 𝜔୍୛  is the natural fre-
+quency of the water in a tank. 
+4.3 Simplified Ikeda’s Method 
+This method is a simplification of the 
+Ikeda’s Method for displacement-type mono-
+hulls, described in Section 4.2.1, which was de-
+ducted by using regression analysis and using 
+methodical series of ships (Kawahara et al., 
+2009). Validation of program of simplified 
+Ikeda’s method can be done using Taylor Stand-
+ard Series data. 
+In this section, a roll damping coefficient 
+with subscript 0 (e.g.𝐵44,E,0 [ሺ𝑁⋅𝑚 ሻ 𝑠⁄ ]) indi-
+cates a value at zero forward speed. 
+Formulas in Sections 4.3.1, 4.3.4 and 4.3.5 
+are applicable for the following range of hull 
+particulars: 
+൬0.50 ൑ 𝐶஻ ൑ 0.85;
+2.5 ൑ 𝐵 𝑑⁄ ൑4 . 5 ;
+0.90 ൑ 𝐶ெ ൑0 . 9 9
+െ1.5 ൑ 𝑂𝐺𝑑൑0 . 2⁄ ൰
+  (82) 
+where 𝐶஻ [𝑛𝑑] is the block coefficient, 𝐶ெ [𝑛𝑑] 
+is the midship section coefficient, 𝐵𝑑⁄  [𝑛𝑑] is 
+the ratio breadth to draught, 𝑂𝐺 𝑑⁄  [𝑛𝑑] is the 
+ratio of the 𝑂𝐺 [𝑚] to draft, being 𝑂𝐺 defined 
+by the difference between water surface and the 
+center of gravity (𝑂𝐺 ൌ𝑑െ𝐾 𝐺). 
+Moreover, formulas in Section 4.3.5 are only 
+applicable for the following range of bilge keel 
+main dimensions: 
+൬0.01 ൑ 𝑏஻௄ 𝐵⁄  ൑ 0.06
+0.05 ൑ 𝑙஻௄ 𝐿⁄ ൑0 . 4 0൰ (83) 
+where 𝑏஻௄ [𝑚] is the width of the bilge keel and 
+𝑙஻௄ [𝑚] is the length of the bilge keel. 
+4.3.1 Wave component 
+The wave component at zero forward speed 
+is given by the following equation: 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 33 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+𝐵෠ସସ,ௐ,଴ ൌ
+஺భ
+ఠෝ ಶ
+⋅
+⋅e x pሺെ0.6944 ⋅ 𝐴ଶ ⋅ ሺlogሺ𝜔ෝாሻെ𝐴 ଷሻ ଶሻ
+ (84) 
+where: 
+ 𝑥ଵ ൌ𝐵 𝑑⁄
+ 𝑥ଶ ൌ𝐶 ஻
+ 𝑥ଷ ൌ𝐶 ெ
+ 𝑥ସ ൌ1െ𝑂 𝐺 𝑑⁄
+  (85) 
+𝐴ଵ ൌ𝐴 𝐴ଵ ⋅
+∑∑∑ 𝑄1௝ାସ⋅ሺ௜ିଵሻ,௞ ⋅𝑥 ଵ
+ହି௞ ⋅𝑥 ଶ
+ସି௝ ⋅𝑥 ସ
+ଷି௜ହ
+௞ୀଵ
+ସ
+௝ୀଵ
+ଷ
+௜ୀଵ
+  (86) 
+𝐴𝐴ଵ ൌ1 . 0൅ሺ 1െ𝑥ସሻ⋅
+⋅ ∑∑∑ 𝑄1௝ାଷ⋅௜ାଽ,௞ ⋅𝑥 ଵ
+ହି௞ ⋅𝑥 ଶ
+ଷି௝ ⋅𝑥 ଷ
+ଶି௜ହ
+௞ୀଵ
+ଷ
+௝ୀଵ
+ଶ
+௜ୀଵ
+  (87) 
+𝐴ଶ ൌ ∑ 𝑄2௜ ⋅𝑥 ସ
+ହି௜ହ
+௜ୀଵ   (88) 
+𝐴ଷ ൌ𝐴 𝐴ଷ ൅ ∑∑ 𝑄3௜,௝ ⋅𝑥 ଶ
+଻ି௝଻
+௝ୀଵ
+଻
+௜ୀଵ ⋅𝑥 ସ
+଻ି௜ (89) 
+𝐴𝐴ଷ ൌ ∑ 𝑄4ଵ,௜ ⋅𝑥 ଵ
+ସି௜ସ
+௜ୀଵ ⋅ ∑∑ 𝑄4ସି௝,௞ ⋅𝑥 ଶ
+ସି௞ ⋅𝑥 ସ
+௝ିଵସ
+௞ୀଵ
+ଶ
+௝ୀଵ ⋅
+        ⋅ ൭∑ 𝑄5௜ ⋅൫ 𝑥ସ െ ∑ 𝑄4ସ,௝ ⋅𝑥 ଵ
+ସି௝ସ
+௝ୀଵ ൯
+ଵ଴ି௜
+൅ଵ଴
+௜ୀଵ
+൅ ∑ 𝑄5௜ାଽ ⋅𝑥 ଵ
+ଷି௜ଷ
+௜ୀଵ
+൱
+  (90) 
+Factors Q1 and Q2 are available in Table 1. 
+The first index of the factor Q1refers to the line 
+number in Table 1while the second index of the 
+factor Q1 (𝑘) refers to the column number in Ta-
+ble 1. 
+Factors Q3 are placed in Table 2. The first 
+index of the factor Q3 (i), refers to the line num-
+ber in Table 2, while the second index of the fac-
+tor Q3 (j), refers to the column number in Table 
+2. Factors Q4 and Q5 are available from Table 
+3.  The first index of the factor Q4 refers to the 
+line number in Table 3, while the second index 
+of the factor Q4 refers to the column number in 
+Table 3. The index for the factor Q5 is located 
+above the values in Table 3. 
+4.3.2 Lift component 
+The lift component is given by the following 
+formulation: 
+𝐵ସସ,୐ ൌ
+ఘ
+ଶ ⋅𝑉⋅𝐿⋅𝑑⋅𝑘 ୒ ⋅𝑙 ଴ ⋅𝑙 ୖ ⋅
+⋅ ൤1.0 െ 1.4 ⋅
+ைீ
+௟౎
+൅
+଴.଻⋅ைீ
+మ
+௟బ⋅௟౎
+൨
+ (91) 
+where 𝜌 [𝑘𝑔 𝑚ଷ⁄ ] is the density of the fluid and 
+𝑉 [𝑚𝑠⁄ ] is the ship’s velocity and where: 
+𝑙଴ ൌ 0.3 ⋅ 𝑑    ;    𝑙ୖ ൌ0 . 5⋅𝑑 (92) 
+𝑘୒ ൌ2⋅𝜋⋅
+ௗ
+௅ ൅𝜅⋅ሺ 4 . 1⋅
+஻
+௅ െ 0.045ሻ (93) 
+𝜅ൌ ቐ
+0.0 𝐶 ெ ൑0 . 9 2
+0.1 𝑓𝑜𝑟 0.92 ൏ 𝐶ெ ൑0 . 9 7
+0.3 0.97 ൏ 𝐶 ெ
+ (94) 
+4.3.3 Frictional component 
+The frictional component at zero forward 
+speed is given by the following formulation: 
+𝐵ସସ,୊,଴ ൌ
+ସ
+ଷ⋅గ ⋅𝜌  ⋅𝑠୤  ⋅ 𝑟୤
+ଷ ⋅ 𝜑 ୟ  ⋅ 𝜔 ୉ ⋅𝑐 ୤ (95) 
+where: 
+𝑐୤ ൌ 1.328 ⋅ ቀ
+ଷ.ଶଶ ⋅ ௥౜
+మ ⋅ఝ౗మ
+்ಶ⋅ఔ ቁ
+ି଴.ହ
+ (96) 
+𝑟୤ ൌ
+ଵ
+గ ⋅
+ቆሺ0.887 ൅ 0.145 ⋅  𝐶ெሻ  ⋅
+⋅ ሺ1.7 ⋅ 𝑑 ൅ 𝐶ெ ⋅𝐵 ሻ െ2⋅𝑂 𝐺ቇ (97) 
+𝑠୤ ൌ 𝐿 ⋅  ሺ1.75 ⋅ 𝑑 ൅ 𝐶ெ ⋅𝐵 ሻ (98) 
+where 𝑇ா  [𝑠] is the roll circular period and 𝜈 
+[𝑚ଶ 𝑠⁄ ] is the kinematic viscosity of water. 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 34 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+In Kawahara et al. (2009), there is an erratum 
+in Eq. (21) of the paper, the corrected Equation 
+is in this document, Eq. (96). 
+4.3.4 Eddy making component 
+The eddy component at zero forward speed 
+is given by the following equation: 
+𝐵෠ସସ,ா,଴ ൌ
+ସ⋅ ఠෝ ಶ ⋅ఝೌ
+ଷ ⋅గ ⋅௫మ⋅௫భయ ⋅𝐶 ோ  (99) 
+where: 
+𝑥ଵ ൌ𝐵 𝑑⁄ 𝑥ଶ ൌ𝐶 ெ
+𝑥ଷ ൌ𝐶 ெ 𝑥ସ ൌ
+ைீ
+ௗ
+  (100) 
+𝐶ோ ൌ𝐴 ா ⋅e x pሺ𝐵ாଵ ൅𝐵 ாଶ ⋅𝑥 ଷ
+஻ಶయ ሻ (101) 
+𝐴ா ൌ ሺെ0.0182 ⋅ 𝑥ଶ ൅ 0.0155ሻ ⋅ ሺ𝑥ଵ െ1 . 8 ሻଷ ൅
+൅ ∑ 𝑄6ଵ,௜ ⋅𝑥 ଶ
+ହି௜ହ
+௜ୀଵ
+  (102) 
+𝐵ாଵ ൌሺ െ 0 . 2⋅𝑥ଵ ൅ 1.6ሻ ⋅ ሺ3.98 ⋅ 𝑥ଶ െ 5.1525ሻ ⋅
+⋅𝑥 ସ ⋅ቆ 𝑥ସ ⋅ ∑ 𝑄6ଶ,௜ ⋅𝑥 ଶ
+ଷି௜ଷ
+௜ୀଵ ൅
+൅ ∑ 𝑄6ଶ,௜ାଷ ⋅𝑥 ଶ
+ଶି௜ଶ
+௜ୀଵ
+ቇ
+  (103) 
+𝐵ாଶ ൌ ሺ0.25 ⋅ 𝑥ସ ൅ 0.95ሻ ⋅ 𝑥ସ ൅ ∑ 𝑄6ଷ,௜ ⋅ହ
+௜ୀଵ
+𝑥ଶ
+ହି௜  (104) 
+𝐵ாଷ ൌ ሺ46.5 െ 15 ⋅ 𝑥ଵሻ⋅𝑥 ଶ ൅ 11.2 ⋅ 𝑥ଵ െ
+28.6  (105) 
+Factors Q6 are placed in Table 4. The first 
+index of the factor Q6 refers to the line number 
+in Table 4, while the second index of the factor 
+Q6 refers to the column number Table 4. 
+4.3.5 Bilge keel component 
+The bilge keel component at zero forward 
+speed is given by the following equation: 
+𝐵෠ସସ,஻௄,଴ ൌ𝐴 ஻௄ ⋅𝜔ෝா ⋅e x pሺ𝐵஻௄ଵ ൅𝐵 ஻௄ଶ ⋅
+𝑥ଷ
+஻ಳ಼య ሻ  (106) 
+where: 
+𝑥ଵ ൌ𝐵 𝑑⁄     ; 𝑥 ଶ ൌ𝐶 ஻            ; 𝑥ଷ ൌ𝐶 ெ;
+𝑥ସ ൌ
+ைீ
+ௗ         ; 𝑥 ଺ ൌ𝜑 ௔  ሾdegሿ;
+𝑥଻ ൌ𝑏 ஻௄ 𝐵⁄ ;𝑥 ଼ ൌ𝑙 ஻௄ 𝐿⁄
+  (107) 
+𝐴஻௄ ൌ𝑓ଵ ⋅𝑓ଶ ⋅𝑓ଷ  (108) 
+  𝑓ଵ ൌሺ 𝑥ଵ െ 2.83ሻଶ ⋅ ∑ 𝑄7ଵ,௜ ⋅𝑥 ଶ
+ଷି௜ଷ
+௜ୀଵ ൅
+൅ ∑ 𝑄7ଶ,௜ ⋅𝑥 ଶ
+ଷି௜ଷ
+௜ୀଵ
+ (109) 
+  𝑓ଶ ൌ ∑ 𝑄7ଷ,௜ ⋅𝑥 ଺
+ଷି௜ଷ
+௜ୀଵ   (110) 
+𝐵஻௄ଵ ൌ𝑥 ସ ⋅
+ቆ5⋅𝑥 ଻ ൅0 . 3⋅𝑥ଵ െ0 . 2⋅𝑥଼ ൅
+൅ ∑ 𝑄7଺,௜ ⋅𝑥 ଺
+ଷି௜ଷ
+௜ୀଵ
+ቇ
+  (111) 
+𝐵஻௄ଶ ൌ െ15 ⋅ 𝑥଻ ൅1 . 2  ⋅𝑥ଶ െ0 . 1⋅𝑥ଵ ൅
+൅ ∑ 𝑄7଻,௜ ⋅𝑥 ସ
+ଷି௜ଷ
+௜ୀଵ
+ (112) 
+𝐵஻௄ଷ ൌ2 . 5⋅𝑥ସ ൅ 15.75 (113) 
+Factors Q6 are placed in Table 5. The first 
+index of the factor Q7 refers to the line number 
+in Table 5while the second index of the factor 
+Q7 refers to the column number in Table 5. 
+5. VALIDATION 
+5.1 Uncertainty Analysis 
+Uncertainty analysis should be performed in 
+accordance with the ‘Guide to the Expression of 
+Uncertainty Analysis in Experimental Hydrody-
+namics’ 7.5-02-01-01. 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 35 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+5.2 Benchmark Model Test Data 
+Some benchmark data is available for the 
+empirical methods to estimate roll damping. In 
+the following, the model tests data is summa-
+rized: 
+ Wave making component and lift compo-
+nent: Ikeda et al., (1978a). 
+ Frictional component: no benchmark model 
+test data is available. 
+ Eddy making component: Ikeda et al., 
+(1977a) or (1978b). 
+ Appendages component: regarding bilge 
+keel component, refer to Ikeda et al., (1976, 
+1977b or 1978d); and regarding skeg com-
+ponent, refer to Ali et al., (2004). 
+ Hard chine hull: Ikeda et al.,(1990) or 
+Tanaka et al., (1985). 
+ Multi-hull: Katayama et al, (2008). 
+ Planning hull: Ikeda et al., (2000). 
+ Frigate: Etebari et al., (2008), Bassler et al., 
+(2007), Grant et al., (2007), Atsavapranee et 
+al., (2007) or (2008). 
+ Water on deck or water in tank: Katayama et 
+al, (2009). 
+For full-scale data, refer to Atsavapranee et 
+al., (2008), where flow visualization around 
+bilge keel and free decay test results are indi-
+cated. 
+6. DOCUMENTATION 
+The results from the tests or estimations 
+should be collated in a report, which should con-
+tain at least the following information: 
+ Model specifications: 
+o Identification 
+o Loading condition: weight or draught, 
+height of the centre of gravity KG , (un-
+damped) roll natural period T  or fre-
+quency x  
+o Model scale 
+o Main dimensions and hydrostatics of the 
+model, including the characteristics of 
+the appendages used (see recommenda-
+tions of ITTC Standard Procedure 7.5-
+01-01-01, Ship Models) 
+ Test date (if tests have been performed) 
+ Particulars of the towing tank, including 
+length, breadth and water depth (if tests have 
+been performed) 
+ Parametric data for the tests/estimations: 
+o Water temperature of tank water 
+o Density of tank water 
+o Kinematic viscosity of the water 
+ For each test/estimation: 
+o Rolling conditions: excitation period 𝑇ா 
+or frequency 𝜔ா, wave direction 𝜒, for-
+ward speed 𝑉 or Froude number 𝐹௥ and 
+roll amplitude 𝜑௔ 
+7. REFERENCES 
+Ali, B., Katayama, T., Ikeda, Y., 2004, “Roll 
+damping characteristics of fishing boats 
+with and without drift motion”, International 
+Shipbuilding Progress, Vol. 51 (2/3), 
+pp.237-250. 
+Atsavapranee, P., Carneal, J.B., Grant, D.J., Per-
+cival, S., 2007, “Experimental Investigation 
+of Viscous Roll Damping on the DTMB 
+Model 5617 Hull Form”, Proceedings of the 
+26th International Conference on Offshore 
+Mechanics and Arctic Engineering, 
+OMAE2007-29324 
+Atsavapranee, P., Grant, D.J., Carneal, J.B., Ete-
+bari, A., Percival, S., Beirne, T., 2008, “Full 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 36 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+Scale Investigation of Bilge Keel Effective-
+ness at Forward Speed”, NSWCCD-50-TR-
+2008 / 075. 
+Bassler, C.C., Carneal, J.B., Atsavapranee, P., 
+2007, “Experimental Investigation of Hy-
+drodynamic Coefficient of a Wave-piercing 
+Tumble Hull Form”, ASME 2007 26th Inter-
+national Conference on Offshore Mechanics 
+and Arctic Engineering, Vol. 4, Paper No. 
+OMAE2007-29310, pp. 537-548. 
+Bassler, C.C, Reed, A.M., 2009, “An Analysis 
+of the Bilge Keel Roll Damping Component 
+Model”, Proceedings of 10th International 
+Conference on Stability of Ships and Ocean 
+Vehicles, pp.369-385, St. Petersburg. 
+Bassler, C.C., Reed, A.M., 2010, “A Method to 
+Model Large Amplitude Ship Roll Damp-
+ing”, Proceedings of the 11th International 
+Ship Stability Workshop, pp.217-224. 
+Bertgalia, G., Scarpa, G., Serra, A., Frances-
+cutto, A., Bulian, G.., 2004, “Systematic Ex-
+perimental Tests for IMO Weather Criterion 
+Requirements and Further Development To-
+wards a Probabilistic Intact Stability Ap-
+proach”, Proceedings of the 7th Interna-
+tional Ship Stability Workshop, Shanghai, 
+China, pp. 63-74. 
+Bertin L.E., 1874a, “ Naval Science ”, Vol. III, 
+pp.198. 
+Bertin L.E., 1874b, “ Donnees théoriques Et 
+Expérimentales Sur Les Vagues Et Le Rou-
+lis”, Kessinger Legacy Reprints. 
+Blasius, H., 1908, “The Boundary Layers in Flu-
+ids with Little Friction”, Zeitschrift fuer 
+Mathematik und Physik, Band 56, Vol. 1, 
+pp.1-37 (in German). 
+Blasius, H., 1950, “The Boundary Layers in 
+Fluids with Little Friction” , National Advi-
+sory Committee For Aeronautics, Technical 
+Memorandum 1256, pp.1-58. 
+Blume, P., 1979, “(Determination of Coeffi-
+cients for the Effective Roll Damping by 
+Model Tests and their A pplication for Esti-
+mating Large Roll Angles” , Schiffstechnik 
+Bd. 26, pp. 3-23 (in German) 
+Bulian, G., 2004, “Estimation of Nonlinear Roll 
+Decay Parameters Using an Analytical Ap-
+proximate Solution of the Decay Time His-
+tory”, International Shipbuilding Progress, 
+51(1), pp. 5-32. 
+Bulian, G., Francescutto, A., Fucile, F., 2009, 
+“Project HYD-III-CEH-5: Determination of 
+Relevant Parameters for the Alternative As-
+sessment of Intact Stability Weather Crite-
+rion on Experimental Basis”,Project Report, 
+HYDROLAB Project. 
+Etebari, A., Atsavapranee, P., Bassler, C.C., 
+Carneal, J., 2008, “Experimental Analysis of 
+Rudder Contribution to Roll Damping” , 
+Proceedings of the ASME 27th International 
+Conference on Offshore Mechanics and Arc-
+tic Engineering, No. OMAE2008-57265, pp. 
+165-174. 
+Froude, W., Abell, W., Gawn, R., Duckworth, 
+A., Institution of Naval Architects, 1955, 
+“The Papers of William Froude, 1810-1879: 
+With a Memoir by Sir Westcott Abell and an 
+Evaluation of William Froude’s Work by 
+R.W.L. Gawn - On Resistance in Rolling of 
+Ships”,Institution of Naval Architecture. 
+Gawn, R.W.L., 1940, “Rolling Experiments 
+with Ships and Models in Still Water”,Trans 
+I.N.A., 82. 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 37 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+Grant, D.J, Etebari, A.,Atsavapranee, P., 2007, 
+“Experimental Investigation of Roll and 
+Heave Excitation Damping in Beam Wave 
+Fields”, Proceedings of the 26th Interna-
+tional Conference on Offshore Mechanics 
+and Arctic Engineering, No. OMAE2007-
+29318, pp. 549-559. 
+Grant, D., Bassler, C.C., Percival, S., Walker, 
+D., 2010, “Design and Use of a 3DoF Mo-
+tion Mechanism for Large Amplitude Forced 
+Oscillation Model Testing” , Proceedings of 
+the 29th American Towing Tank Conference, 
+pp. 199-206.  
+Handschel, S., Abdel-Maksoud, M., 2014a, 
+“Improvement of the harmonic excited roll 
+motion technique for estimating roll damp-
+ing”, Ship Technology Research, Vol. 61 
+(3), pp. 116-130. 
+Handschel, S., Abdel-Maksoud, M., Fröhlich, 
+M., 2014b, “Experimental and Numerical 
+Investigation of Ship Roll Damping by Ap-
+plying the Harmonic Forced Roll Motion 
+Technique”, Proceedings of the 30th Sympo-
+sium on Naval Hydrodynamics (SNH2014), 
+Hobart, Tasmania, Australia. 
+Haddara, M.R., 2005, “Roll damping: a re-
+view”, Oceanic Engineering International, 
+9(1), pp. 1-10. 
+Hashimoto, H., Sanya Y., 2009, “Research on 
+Quantitative Prediction of Parametric Roll 
+in Regular Waves”, Conference proceedings 
+of the Japan Society of Naval Architects and 
+Ocean Engineers, Vol.8, pp.361-364. 
+Himeno, Y., 1981, “Prediction of Ship Roll 
+Damping- State of the Art” , Technical Re-
+port 239, College of Engineering, The Uni-
+versity of Michigan, Michigan, USA. 
+Hughes, G., 1954, “Friction and Form Re-
+sistance in Turbulent Flow, and a Proposed 
+Formulation for use in model and Ship Cor-
+relation”, National Physical Laboratory, 
+NPL, Ship Division, Paper No. 7, London, 
+April, RINA Transactions 1954-16. 
+Idle, G., Baker, G.S., 1912, TINA, 54, pp.103.  
+Ikeda, Y., Himeno, Y., Tanaka, N., 1976, “On 
+Roll Damping Force of Ship: Effects of Fric-
+tion of Hull and Normal Force of Bilge 
+Keels”, Journal of the Kansai Society of Na-
+val Architects, Vol.161, pp.41-49 (in Japa-
+nese). 
+Ikeda, Y., Himeno, Y., Tanaka, N., 1977a, “On 
+Eddy Making Component of Roll Damping 
+Force on Naked Hull” , Journal of the Soci-
+ety of Naval Architects of Japan, Vol.142, 
+pp.54-64 (in Japanese). 
+Ikeda, Y., Komatsu, K., Himeno, Y., Tanaka, 
+N., 1977b, “On Roll Damping Force of Ship 
+-Effects of Hull Surface Pressure Created by 
+Bilge Keels”, Journal of the Kansai Society 
+of Naval Architects, Vol. 165, pp.31-40 (in 
+Japanese). 
+Ikeda, Y., Himeno, Y., Tanaka, N., 1978a, 
+“Components of Roll Damping of Ship at 
+Forward Speed” , Journal of the Society of 
+Naval Architects of Japan, Vol.143, pp.113-
+125 (in Japanese) 
+Ikeda Y., Himeno Y., Tanaka N., 1978b, “On 
+Eddy Making Component of Roll Damping 
+Force on Naked Hull” , Journal of the Soci-
+ety of Naval Architects of Japan, Vol. 142, 
+pp. 54-64 (in Japanese). 
+Ikeda, Y., Himeno, Y., Tanaka, N., 1978c, “A 
+Prediction Method for Ship Roll Damping”, 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 38 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+Report No. 00405, Department of Naval Ar-
+chitec-ture University of Osaka Prefecture, 
+pp. 1-23. 
+Ikeda, Y., Himeno, Y., Tanaka, N., 1978d, “On 
+Roll Damping Force of Ship -Effects of Hull 
+Surface Pressure Created by Bilge Keels” , 
+Report of Department of Naval Architecture 
+University of Osaka Prefecture, No. 00402. 
+Ikeda, Y., Umeda, N., 1990, “A Prediction 
+Method of Roll Damping of a Hard-chine 
+Boat at Zero Forward Speed”, Journal of the 
+Kansai Society of Naval Architects, 
+Vol.213, pp.57-62 (in Japanese). 
+Ikeda Y., Fujiwara T., Katayama T., 1993, “Roll 
+damping of a sharp cornered barge and roll 
+control by a new-type stabilizer” , Proceed-
+ings of the 3rd International Society of Off-
+shore and Polar Engineers Conference, Vol. 
+3, pp. 634-639, Singapore. 
+Ikeda, Y., Katayama, T., Hasegawa, Y., Seg-
+awa, M., 1994, “Roll Damping of High 
+Speed Slender Vessels”, Journal of the Kan-
+sai Society of Naval Architects, Vol. 222, 
+pp.73-81 (in Japanese). 
+Ikeda, Y., Katayama, T., 2000, “Roll Damping 
+Prediction Method for a High-Speed Plan-
+ning Craft”, Proceedings of the 7th Interna-
+tional Conference on Stability of Ship and 
+Ocean Vehicles, B, pp.532-541. 
+Ikeda, Y., Kawahara, Y., 2008, “A Proposal of 
+Guidance to the Master of a Damaged Pas-
+senger Ship for Deciding to Return to Port”, 
+Journal of the Japan Society of Naval Archi-
+tects and Ocean Engineers, Vol.7, pp.115-
+122 (in Japanese). 
+IMO, 2004, “SLF 47/6/8. Review of the Intact 
+Stability Code: Guidelines for model testing 
+of Intact Stability. Experimental approach to 
+evaluate the relevant factores for the calcu-
+lation of the roll angle 1 ”, Report submit-
+ted by Italy, June 11, London, UK. 
+IMO, 2006, “MSC.1/Circ. 1200. Interim Guide-
+lines for Alternative Assessment of the 
+Weather Criterion”, May 24, London, UK. 
+JSRA (Japan Shipbuilding Research Associa-
+tion), 1977,“Reports of Committee SR 161. 
+no 27” (in Japanese). 
+Kaplan, P., 1966, “ Nonlinear Theory of Ship 
+Roll Motion in a Random Seaway”,Webb in-
+stitute of Naval Architects, Lecture Notes. 
+Katayama, T., Taniguchi, T., 2008, “A Study on 
+Viscous Effects of Roll Damping for Multi-
+Hull High-Speed Craft” , Journal of the Ja-
+pan Society of Naval Architects and Ocean 
+Engineers, Vol.8, pp.147-154 (in Japanese). 
+Katayama, T., Kotaki, M., Katsui, T., Matsuda 
+A., 2009, “A Study on Roll Motion Estima-
+tion of Fishing Vessels with Water on Deck”, 
+Journal of the Japan Society of Naval Archi-
+tects and Ocean Engineers, Vol.9, pp.115-
+125 (in Japanese). 
+Kato, H., 1957, “On the Frictional Resistance 
+to the Rolling of Ships” ,Journal of Zosen 
+Kyokai, Vol.102, pp.115-122 (in Japanese). 
+Kawahara, Y., Maekawa, K., Ikeda, Y., 2009, 
+“A Simple Prediction Formula of Roll 
+Damping of Conventional Cargo Ships on 
+the Basis of Ikeda’s Method and Its Limita-
+tions”, Proceedings of the 10th International 
+Conference on Stability of Ships and Ocean 
+Vehicles, pp. 387-398. 
+Kuroda, T., Hara, S., Houtani, H., Ota, D. “ Di-
+rect Stability Assessment for Excessive Ac-
+celeration Failure M ode and Validation by 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 39 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+Model Tests”, Proceedings of the 13 th Inter-
+national Conference on Stability of Ships 
+and Ocean Vehicles (STAB2018), Septem-
+ber 16-21, Kobe, Japan, pp. 291-300.) 
+Lewison, G.R.G., 1976, “Optimum Design of 
+Passive Roll Stabilizer Tanks” ,Royal Insti-
+tution of Naval Architects, Naval Architect, 
+Vol. 1, pp. 31-45. 
+Ohkusu, M., 1970, “On the Motion of Multihull 
+Ship in Wave”, Transactions of the West-Ja-
+pan Society of Naval Architects, Vol.40, 
+pp.19-47 (in Japanese). 
+Oliva-Remola, A., Bulian, G., Pérez-Rojas, L., 
+2018, “Estimation of damping through in-
+ternally excited roll tests”, Ocean Engineer-
+ing, 160, pp. 490-506. 
+Oliveira, M., Santis,R. Alexis, C., Castillo, R., 
+Almeida, M., and Neves, S., 2018, “Empiri-
+cal and experimental roll damping estimates 
+for an oil tanker in the context of the 2nd gen-
+eration intact stability criteria ”, Proceed-
+ings of the 13 th International Conference on 
+Stability of Ships and Ocean Vehicles 
+(STAB2018), September 16-21, Kobe, Ja-
+pan, pp. 179-191. 
+Roberts, J., 1985, “Estimation of Nonlinear Ship 
+Roll Damping from Free-Decay Data”, Ship 
+Research, 29(2), pp. 127-138. 
+Standing, R.G., 1991, “Prediction of viscous 
+roll damping and response of transportation 
+barges in waves”, Proceedings of the 1st In-
+ternational Society of Offshore and Polar 
+Engineers Conference, Vol.3, August, Edin-
+burgh. 
+Söder, C.-J., Rosén, A., Werner, S., Huss, M., 
+Kuttenkeuler, J., 2012, “Assessment of Ship 
+Roll Damping through Full-Scale and 
+Model-Scale Experiments and Semi-Empiri-
+cal Methods”, Proceedings of the 11th Inter-
+national Conference on Stability of Ships 
+and Ocean Vehicles, Athens, Greece, pp. 
+877-886. 
+Takaki M., Tasai F., 1973, “On the Hydrody-
+namic Derivative Coefficients of the Equa-
+tions for Lateral Motions of Ships” ,Trans-
+actions of the west-Japan Society of Naval 
+Architects, Vol. 46 (in Japanese). 
+Tamiya, S., 1958, “On the Dynamical Effect of 
+Free Water Surface”, Journal of Zosen 
+Kyokai, Vol.103, pp.59-67 (in Japanese). 
+Tamiya, S., Komura, T., 1972, “Topics on Ship 
+RollingCharacteristics with Advance 
+Speed”,Journal of the Society of Naval Ar-
+chitects of Japan, Vol.132, pp.159-168 (in 
+Japanese). 
+Tanaka, N., Ikeda, Y., 1985, “Study on Roll 
+Characteristics of Small Fishing Vessel: 
+Part 4 Effect of Skeg and Hard-chine on Roll 
+Damping”, Journal of the Kansai Society of 
+Naval Architects, Vol.196, pp.31-37 (in Jap-
+anese). 
+Tasai, F., 1965, “Equation of Ship Roll Motion”, 
+Research Institute for Applied Mechanics, 
+Kyushu University, Report No.25 (in Japa-
+nese). 
+Motora, S., 1964, “Theory of Ship Motion”, 
+Kyoritsu Shuppan Book Co. (in Japanese). 
+Wu, X., Tao, L., Li, Y., 2005, “ Nonlinear Roll 
+Damping of Ship Motions in Waves”, Journal 
+of Offshore Mechanics and Arctic Engineer-
+ing, 127(3), pp.205-211. 
+Yamashita, S., Katagiri, T., 1980, “The results 
+of a systematic series of tests on rolling mo-
+tion of a box-shaped floating structure of 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 40 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+shallow draught”, Transactions of West Ja-
+pan Society of Naval Architects, Vol.60, 
+pp.77-86. 
+Vassilopoulos, L., 1971 “Ship Rolling at Zero 
+Speed in Random Beam Seas with Nonlin-
+ear Damping and Restoration” , Journal of 
+Ship Research, 15(4), pp. 289-294. 
+Wassermann, S., Feder, D., Abdel-Maksoud, 
+M., 2016a, “Estimation of ship roll damping 
+– A comparison of the decay and the har-
+monic excited roll motion technique for a 
+post panamax containership” , Ocean Engi-
+neering, 120, pp. 371-382. 
+Wassermann, S. Krambs, G., Abdel-Maksoud, 
+M., 2016b, “Estimation of force coefficients 
+for normal forces on bilge keels and skin 
+friction roll damping of ships by CFD simu-
+lations”, Proceedings of the 15 th Interna-
+tional Ship Stability Workshop, Sweden. 
+Watanabe, Y, 1930, “On the Design of Anti-
+rolling Tanks”, Journal of Zosen Kiokai, the 
+Society of Naval Architects of Japan, 
+Vol.46, pp. 125-153 (in Japanese). 
+Watanabe, Y, 1943, “On the Design of frahm 
+type Anti rolling Tank” , Bulletin of Zosen 
+Kiokai, the Society of Naval Architects of 
+Japan, Vol.258, pp. 251-255(in Japanese). 
+  
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 41 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+  SIMPLIFIED IKEDA’S METHOD FACTORS 
+Table 1  Factors Q1 and Q2 
+Factor Q1 
+ 1  2  3  4  5  
+1 0.00000 0.00000 0.00000 0.00000 0.00000 
+2 0.00000 -0.002222 0.040871 -0.286866 0.599424 
+3 0.00000 0.010185 -0.161176 0.904989 -1.641389 
+4 0.00000 -0.015422 0.220371 -1.084987 1.834167 
+5 -0.0628667 0.4989259 0.52735 -10.7918672 16.616327 
+6 0.1140667 -0.8108963 -2.2186833 25.1269741 -37.7729778 
+7 -0.0589333 0.2639704 3.1949667 -21.8126569 31.41135 
+8 0.0107667 0.0018704 -1.2494083 6.9427931 -10.2018992 
+9 0.00000 0.192207 -2.787462 12.507855 -14.764856 
+10 0.00000 -0.350563 5.222348 -23.974852 29.007851 
+11 0.00000 0.237096 -3.535062 16.368376 -20.539908 
+12 0.00000 -0.067119 0.966362 -4.407535 5.894703 
+13 0.00000 17.945 -166.294 489.799 -493.142 
+14 0.00000 -25.507 236.275 -698.683 701.494 
+15 0.00000 9.077 -84.332 249.983 -250.787 
+16 0.00000 -16.872 156.399 -460.689 463.848 
+17 0.00000 24.015 -222.507 658.027 -660.665 
+18 0.00000 -8.56 79.549 -235.827 236.579 
+Factor Q2 
+ 0.00000 -1.402 7.189 -10.993 9.45 
+ 
+Table 2  Factor Q3 
+Factor Q3 
+ 1  2  3  4  
+1 -7686.0287 30131.5678 -49048.9664 42480.7709 
+2 61639.9103 -241201.0598 392579.5937 -340629.4699 
+3 -130677.4903 507996.2604 -826728.7127 722677.104 
+4 -110034.6584 446051.22 -724186.4643 599411.9264 
+5 709672.0656 -2803850.2395 4553780.5017 -3888378.9905 
+6 -822735.9289 3238899.7308 -5256636.5472 4500543.147 
+7 299122.8727 -1175773.1606 1907356.1357 -1634256.8172 
+Factor Q3  
+ 5  6  7   
+1 -20665.147 5355.2035 -577.8827  
+2 166348.6917 -43358.7938 4714.7918  
+3 -358360.7392 95501.4948 -10682.8619  
+4 -264294.7189 58039.7328 -4774.6414  
+5 1839829.259 -457313.6939 46600.823  
+6 -2143487.3508 538548.1194 -55751.1528  
+7 780020.9393 -196679.7143 20467.0904  
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 42 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+ 
+Table 3  Factors Q4 and Q5 
+Factor Q4 
+ 1  2  3  4  
+1 -0.3767 3.39 -10.356 11.588 
+2 -17.109 41.495 -33.234 8.8007 
+3 36.566 -89.203 71.8 -18.108 
+4 0 -0.0727 0.7 -1.2818 
+Factor Q5 
+Index 1 2 3 4 
+Q5 -1.05584 12.688 -63.70534 172.84571 
+Index 5 6 7 8 
+Q5 -274.05701 257.68705 -141.40915 44.13177 
+Index 9 10 11 12 
+Q5 -7.1654 -0.0495 0.4518 -0.61655 
+ 
+Table 4  Factor Q6 
+Factor Q6 
+ 1  2  3  4  5  
+1 -79.414 215.695 -215.883 93.894 -14.848 
+2 0.9717 -1.55 0.723 0.04567 0.9408 
+3 0 -219.2 443.7 -283.3 59.6 
+ 
+Table 5  Factor Q7 
+Factor Q7 
+ 1  2  3  
+1 0 -0.3651 0.3907 
+2 0 -2.21 2.632 
+3 0.00255 0.122 0.4794 
+4 -0.8913 -0.0733 0 
+5 5.2857 -0.01185 0.00189 
+6 0.00125 -0.0425 -1.86 
+7 -0.0657 0.0586 1.6164 
+ 
+  
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 43 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+  NOMENCLATURE
+ 
+Symbol Explanation 
+AM midship section area  
+AHL lateral area of the demihulls or side hulls under water line 
+Aj area of cross section under water line 
+a length acting on Cfp 
+sectional girth length from keel to hard chine or water line 
+a1, a3 Lewis-form parameter 
+B breadth of the ship 
+B33 linear coefficient of heave damping 
+B44 equivalent linear damping component 
+𝑩෡𝟒𝟒 non-dimensional equivalent linear damping component 
+B44BKL equivalent linear coefficient of bilge-keel lift component of roll damping 
+B44BKW equivalent linear coefficient of bilge-keel wave making component of roll damping 
+B44VL equivalent linear coefficient of vertical lift component of roll damping 
+B44,W equivalent linear wave roll damping 
+B44,L equivalent linear wave roll damping 
+B44,F equivalent linear friction roll damping 
+B44,E equivalent linear eddy roll damping 
+B44,App equivalent linear appendages roll damping 
+B44,BK equivalent linear bilge keel roll damping 
+B44,E,0 equivalent linear eddy roll damping at zero forward speed 
+B’22 [prime ’] indicates sectional value 
+sectional equivalent linear coefficient of sway damping 
+B’33 sectional linear coefficient of heave damping 
+B’42 sectional equivalent linear coupling coefficient of roll damping by swaying 
+B’44 sectional linear coefficient of total roll damping 
+B’44F sectional equivalent linear coefficient of frictional component of roll damping 
+B’44W sectional equivalent linear coefficient of wave making component of roll damping 
+B’44BKH0 sectional equivalent linear coefficient of bilge-keel’s hull pressure component of roll 
+damping without forward speed 
+B’44BKN0 sectional equivalent linear coefficient of bilge-keel’s normal force component of roll 
+damping without forward speed 
+B’44E0 sectional equivalent linear co efficient of eddy making componen t of roll damping 
+without forward speed  
+B’44F0 sectional equivalent linear coefficient of frictional component of roll damping with-
+out forward speed 
+B’44SK0 sectional equivalent linear coe fficient of skeg component of ro ll damping without 
+forward speed 
+B’44W0 sectional equivalent linear coefficient of wave making componen t of roll damping 
+without forward speed 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 44 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+bBK width of the bilge keel 
+Bcomp breadth of flooding component 
+Beq equivalent linear damping component 
+Bw.l water line breadth 
+bSK thickness of skeg 
+bdemi distance from the centre line to the centre of demihull 
+𝑩ሺ𝝋ሶ ሻ damping moment function, assumed to be de-pendent only on the instantaneous roll 
+velocity 
+𝑩𝝋,𝒏 nonlinear damping components 
+𝑩𝝋,𝑾 wave component of roll damping 
+𝑩𝝋,𝑳 lift component of roll damping 
+𝑩𝝋,𝑭 friction component of roll damping 
+𝑩𝝋,𝑬 eddy component of roll damping 
+𝑩𝝋,𝑨𝒑𝒑 appendages component of roll damping 
+𝑩𝝋,𝑩𝑲 bilge keel component of roll damping 
+C44 restoring moment 
+c44 normalized restoring moment 
+CB block coefficient 
+CBK(bBK) source strength CBK(a function of bBK) 
+CD drag coefficient of something 
+CD0 drag coefficient of skeg or flat plate without thickness 
+Cf frictional resistance coefficient 
+cg
+ group speed 
+CL vertical lift coefficient 
+CM midship section coefficient 
+Cp  pressure coefficient 
+Cp- negative pressure coefficient behind of bilge keel 
+Cp- pressure coefficient behind skeg 
+Cp+ positive pressure coefficient front of bilge keel 
+Cp+ pressure coefficient front of the skeg 
+CR drag coefficient proportional to velocity on surface of rotating cylinder 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 45 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+d draught of the ship 
+dBK( depth of the position attached bilge-keel on hull 
+dc depth of chine 
+𝒅ሺ𝝋ሶ ሻ normalized damping moment function dependent on the instantaneous roll velocity 
+E expectation value 
+f correction factor to take account of the increment of flow velocity at bilge 
+f1() modification coefficient as a function of the rise of floor (S) 
+f2() modification coefficient as a function of the rise of floor (Cp) 
+fE frequency of motion or of the incident wave 
+fz(y) vertical lift force acting on the buttock line including point A(y),with attack angle 
+(y) [rad.] 
+g acceleration of gravity 
+G the center of gravity 
+G girth length 
+GM metacentric height with respect to the ship centre of gravity 
+GZ hydrostatic roll righting lever with respect to the centre of gravity of the ship 
+H0 half breath draught ratio  H0 = B / (2d) 
+ሺ𝑰𝟒𝟒
+൅𝝏 𝑰𝟒𝟒ሻ 
+total roll moment of inertia, including the hydrodynamic added inertia along a lon-
+gitudinal axis through the centre of gravity 
+h Water depth 
+K reduced frequency  K = L / U 
+Ka external transversal moment amplitude in forced roll tests 
+Ke Keulegan-Carpenter number 
+kL, kL(1) lift slope of vertical lift (for planing hull) 
+kN lift slope of horizontal lift (ship in maneuvering) 
+L hydrodynamic lift force acting on planing hull 
+LBK lift force acting on a bilge keel 
+l distance from the centre of gravity or roll to the tip of skeg or the tip of bilge-keel or 
+chine 
+l0 lever defined that the quantity 𝒍𝟎𝝋ሶ 𝑼⁄  corresponds to the angle of attack of the lifting 
+body 
+l0’ distance from the center of gravity to the point of 0.5d on center line of demihull 
+l1 distance from the centre of gravity or roll to the centre of skeg or bilge-keel 
+l2 moment lever integrated pressure along hull surface front of skeg or baseline 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 46 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+l3 moment lever integrated pressure along hull surface behind  skeg or baseline 
+lcomp length of flooding component 
+lp moment lever betweenn the centre of gravity or roll and the centre of integrated pres-
+sure along hull 
+lBK distance from the centre of gravity or roll to the position attached bilge-keel on hull 
+lR distance from still water level to the centre of lift 
+lR’ distance between the center of gravity and the cross point of 0.7d water line and the 
+center line of a demihull 
+lSK height of skeg 
+lw moment lever measured from the still water level due to the sway damping force 
+MAPP appendage component of roll damping 
+ME eddy making component of roll damping 
+MF frictional component of roll damping 
+ML lift component of roll damping 
+MW wave making component of roll damping 
+𝑵ሺ𝝋𝒂ሻ Bertin’s roll damping coefficient 
+O origin of the fixed coordinate system on ship (the point on still water level) 
+O’ origin of the fixed coordinate system on demihull (the point on still water level) 
+𝑶ᇱ𝑮 distance from O’ to G 
+Pm pressure on hull caused by vortex shedding 
+R bilge radius 
+Re Reynolds number 
+RMG roll moment generator 
+r radius of cylinder 
+𝒓ሺ𝝋ሻ ratio between the hydrostatic roll righting lever  and the metacentric height  
+S length of pressure distribution on cross section 
+S0 length of negative-pressure region 
+𝑻𝝋 (undamped) ship roll natural period 
+TE roll circular period of a steady periodic oscillation (steady roll frequency) 
+Umax amplitude of motion velocity or maximum speed of something 
+u maximum speed of the tip of bilge-keel 
+uz(y) vertical velocity at a point A(y) 
+V ship speed 
+VR relative flow velocity  VR2 = U2 + u2 
+Vmax maximum relative velocity on the hull surface 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-07-04.5 
+Page 47 of 47 
+Estimation of Roll Damping 
+Effective Date 
+2021 
+Revision
+01 
+ 
+Vmean mean velocity on the hull surface 
+y transverse distance between the centre of gravity and point A(y) 
+y lever arm for the roll moment 
+ Attack angle 𝜶ൌ𝐭 𝐚 𝐧ି𝟏൫𝒖 𝑼ൗ ൯  
+ rise of floor (deadrise angle) 
+(y) experiences an angle of attack 
+ discrepancy 
+ ratio of maximum velocity to mean velocity on hull surface Vmax / Vmean 
+𝜸𝒏 nonlinear restoring coefficients 
+ modification factor of midship section coefficient 
+(y) virtual trim angle 
+1 running trim angle 
+ area coefficient  AjBd) 
+𝝋 roll angle 
+𝝋𝒂 roll amplitude of a steady periodic oscillation (steady roll amplitude) 
+𝝋𝒓𝒆𝒔 resonance peak amplitude 
+ Lewis argument on the transformed unit circle 
+𝝋 equivalent linear damping coefficient 
+𝝋𝒂 kinematic viscosity of water 
+IW natural circular frequency of water in a tank 𝝎𝐈𝐖 ൌ
+𝝅
+𝑩𝒄𝒐𝒎𝒑
+ඥ𝒈𝒉 
+𝝎𝑬 roll circular frequency of a steady periodic oscillation (steady roll frequency) 
+𝝎ෝ𝑬 non-dimensional roll circular frequency of a steady periodic os cillation (steady roll 
+frequency) 
+𝝎𝒓𝒆𝒔 resonance peak frequency 
+𝝎𝒙 (undamped) ship roll natural frequency 
+𝝎𝒙,𝒆𝒒 equivalent undamped ship’s roll natural frequency 
+𝝆 mass density of water 
+𝝈𝒙ሶ standard deviation of the roll velocity 
+𝜟 ship displacement 
+𝚫𝑻𝒓𝒆𝒇 estimated time windowing of forced roll tests 
+𝜵 ship displacement volume 
+ 
+=== page break ===

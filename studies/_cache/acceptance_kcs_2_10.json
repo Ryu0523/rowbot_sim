@@ -1,0 +1,174 @@
+{
+ "A": {
+  "title": "integrity",
+  "ok": true,
+  "info": {
+   "placeholders": [
+    "x_cog",
+    "k_roll",
+    "k_pitch",
+    "k_yaw",
+    "x_rud",
+    "z_rud",
+    "rudder_area",
+    "rudder_span",
+    "x_prop",
+    "z_prop",
+    "d_prop",
+    "prop_series",
+    "t_max",
+    "rudder_max_deg",
+    "rudder_rate_deg",
+    "visc",
+    "roll_damping",
+    "Yv_prime",
+    "Nr_prime",
+    "wind_areas"
+   ]
+  },
+  "seconds": 4.6
+ },
+ "B": {
+  "title": "calm float",
+  "ok": true,
+  "info": {
+   "sinkage_over_T": 7.895997702164278e-05,
+   "trim_deg": -0.0050786483183238584,
+   "heave_ptp_over_T": 3.4020033593059787e-12,
+   "pitch_ptp_deg": 2.275181270444143e-10,
+   "roll_max_deg": 0.0
+  },
+  "seconds": 2.7
+ },
+ "C": {
+  "title": "linear limit vs frequency domain",
+  "ok": true,
+  "info": {
+   "worst_heave": 0.0014771722090036875,
+   "worst_pitch": 0.0014494885657423406,
+   "rows": [
+    {
+     "omega": 0.7548765997096261,
+     "lam_over_L": 17.81943580734047,
+     "heave_fd": 0.9964775650600483,
+     "heave_td": 0.996844413911959,
+     "pitch_fd": 0.05797110633269937,
+     "pitch_td": 0.05802823526381264,
+     "err_heave": 0.0003681456209088188,
+     "err_pitch": 0.0009854725004799331
+    },
+    {
+     "omega": 1.381402423099748,
+     "lam_over_L": 5.321149348691322,
+     "heave_fd": 0.9605403877487723,
+     "heave_td": 0.9618509622727959,
+     "pitch_fd": 0.18970734940447795,
+     "pitch_td": 0.1894867185257705,
+     "err_heave": 0.001364413762023289,
+     "err_pitch": 0.0011630064907871814
+    },
+    {
+     "omega": 1.694665334794809,
+     "lam_over_L": 3.535720965007404,
+     "heave_fd": 0.9109229396173536,
+     "heave_td": 0.9122685296683003,
+     "pitch_fd": 0.27635783645050804,
+     "pitch_td": 0.2761062366340687,
+     "err_heave": 0.0014771722090036875,
+     "err_pitch": 0.000910413179053853
+    },
+    {
+     "omega": 2.321191158184931,
+     "lam_over_L": 1.884621147965468,
+     "heave_fd": 0.697820364680275,
+     "heave_td": 0.6975484887212022,
+     "pitch_fd": 0.44498321108754885,
+     "pitch_td": 0.44562820916396756,
+     "err_heave": 0.00038960737294806505,
+     "err_pitch": 0.0014494885657423406
+    }
+   ]
+  },
+  "seconds": 49.4
+ },
+ "D": {
+  "title": "heading invariance",
+  "ok": true,
+  "info": {
+   "waves_turned": {
+    "heave": 0.030093776051208932,
+    "roll_deg": 2.147103514067285,
+    "pitch_deg": 0.1512280665088059
+   },
+   "vessel_turned": {
+    "heave": 0.030093776051208932,
+    "roll_deg": 2.147103514067285,
+    "pitch_deg": 0.1512280665088059
+   },
+   "worst_rel": 0.0
+  },
+  "seconds": 10.2
+ },
+ "E": {
+  "title": "propulsion reaches design speed",
+  "ok": true,
+  "info": {
+   "u_full": 2.776713694018082,
+   "u_design": 2.017,
+   "Fn_full": 0.3598281187262716,
+   "t_max": 888.3293590786581
+  },
+  "seconds": 7.8
+ },
+ "F": {
+  "title": "manoeuvring",
+  "ok": true,
+  "info": {
+   "rudder_deg": 35.0,
+   "radius_over_L": 1.7249281609994094,
+   "tactical_diameter_over_L": 3.7948419541987013,
+   "drift_deg": 11.986755795837528,
+   "speed_in_turn": 1.9975619170830825,
+   "r_kick": 0.06729259830506176,
+   "r_after": 0.00019009284026540556
+  },
+  "seconds": 7.5
+ },
+ "G": {
+  "title": "mission sea, Froude-scaled SS5",
+  "ok": true,
+  "info": {
+   "hs": 1.972815,
+   "tp": 7.557414359422142,
+   "finite": true,
+   "u_calm": 2.200122597191823,
+   "u_waves": 2.070034570890332,
+   "speed_loss_pct": 5.912762610025996,
+   "roll_max_deg": 45.704649020977,
+   "pitch_max_deg": 12.250363761658821,
+   "heave_max_over_T": 5.0587980537197135,
+   "slams": 7
+  },
+  "seconds": 14.3
+ },
+ "H": {
+  "title": "control chain",
+  "ok": true,
+  "info": {
+   "u_ss_over_u_design": 1.1544694257496277,
+   "tau_u": 3.3891497385037446,
+   "wn_heave": 4.722464979804244,
+   "wn_pitch": 4.634779953654034,
+   "k_nomoto": -0.35922918275037674,
+   "tau_r": 3.2722825061415466,
+   "episode_finite": true,
+   "u_mean_over_u_ref": 0.9781846739214269,
+   "heading_rms_deg": 1.840006003470063,
+   "cross_rms_over_L": 0.045837399855938626,
+   "acc_p99_g": 0.3840541514075819,
+   "rl_env_finite": true,
+   "rl_obs_max": 1.791048526763916
+  },
+  "seconds": 15.9
+ }
+}

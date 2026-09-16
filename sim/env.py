@@ -14,12 +14,15 @@ The same interface therefore serves simulation and the real vessel.
 
 Gymnasium is optional -- the harness runs without it, so nothing in the physics
 pipeline depends on an RL package being installed.
+
+Every vessel-dependent number comes from the vessel (`hull=`, sim/config.py):
+time steps, speed, rudder limit, autopilot bandwidth, slamming and deck-wetness
+thresholds, and the length the cross-track error is measured in. For the 10 m
+USV each is exactly its old constant.
 """
 import numpy as np
 
-from hydro import bem
-from . import seakeeping
-from .vessel import NonlinearVessel
+from . import config, seakeeping
 from .wavefield import SeaState
 from control.reduced import ReducedModel
 from control.mpc import (MPPIController, PreviewProvider,
@@ -36,18 +39,27 @@ G = 9.81
 
 
 class Episode:
-    """One closed-loop run: nonlinear plant + reduced-model MPC."""
+    """One closed-loop run: nonlinear plant + reduced-model MPC.
+
+    `hull` (a Hull or a registered name) is the vessel; None = the one the
+    database was computed for. dt, dt_ctrl, u_ref None = the vessel's own
+    (Hull.scales: 0.05 s, 0.5 s and 4.5 m/s for the USV, Froude-scaled for
+    any other). u_ref used to default to 4.0 m/s for every vessel.
+    """
 
     def __init__(self, db, reduced, hs=3.25, tp=9.7, seed=0, t_preview=0.0,
-                 preview_noise=0.0, weights=None, u_ref=4.0, dt=0.05,
-                 dt_ctrl=0.5, theta0=np.pi, n_freq=32, n_dir=6,
+                 preview_noise=0.0, weights=None, u_ref=None, dt=None,
+                 dt_ctrl=None, theta0=np.pi, n_freq=32, n_dir=6,
                  n_samples=192, use_rudder=True, autopilot=False,
-                 heading_ref=0.0):
+                 heading_ref=0.0, hull=None):
+        hull = config.resolve(db, hull)
+        sc = config.scales_for(db, hull)
+        dt = sc["dt"] if dt is None else dt
+        dt_ctrl = sc["dt_ctrl"] if dt_ctrl is None else dt_ctrl
+        u_ref = sc["u_design"] if u_ref is None else u_ref
         self.sea = SeaState(hs, tp, theta0=theta0, n_freq=n_freq,
                             n_dir=n_dir, seed=seed)
-        self.plant = NonlinearVessel(db, self.sea, L=db.L,
-                                     B=float(db.attrs.get("B", 2.5)),
-                                     T=float(db.attrs.get("T", 0.8)), dt=dt)
+        self.plant = config.plant_for(db, self.sea, hull, dt=dt)
         self.pv = PreviewProvider(self.sea, t_preview, preview_noise, seed)
         self.ctrl = MPPIController(reduced, self.pv, weights=weights,
                                    dt_ctrl=dt_ctrl, u_ref=u_ref, seed=seed,
@@ -68,7 +80,7 @@ class Episode:
         self.heading_ref = heading_ref
         self._psi_i = 0.0
 
-    def _steer(self, s, wn=0.30, zeta=1.0, lim=np.radians(35.0)):
+    def _steer(self, s, wn=None, zeta=1.0, lim=None):
         """Heading hold, gains placed on the IDENTIFIED Nomoto model.
 
         For  r' = (K delta - r)/T  and  delta = -(a psi_err + b r),
@@ -82,20 +94,27 @@ class Episode:
 
         wn is deliberately well below the encounter frequency (~0.9 rad/s) so
         the autopilot holds the mean heading instead of fighting each wave.
+        It is the USV's 0.30 rad/s Froude-scaled -- a frequency goes as
+        1/sqrt(L), so a 0.30 rad/s autopilot on a 300 m ship would fight
+        every wave -- and the integral's time constants likewise. The limit
+        is the plant's own rudder, not 35 deg.
 
         Integration is CONDITIONAL: winding up while the rudder is already hard
         over cannot help and guarantees an overshoot when authority returns.
         """
+        rs = np.sqrt(self.plant.L / 10.0)
+        wn = 0.30 / rs if wn is None else wn
+        lim = self.plant.rudder.max if lim is None else lim
         p = self.reduced.p
         K = p.get("k_nomoto", -1.0)
-        T = max(p.get("tau_r", 3.0), 0.5)
+        T = max(p.get("tau_r", 3.0), 0.5 * rs)
         a = wn ** 2 * T / K
         b = (2 * zeta * wn * T - 1.0) / K
         err = _wrap(s[5] - self.heading_ref)
-        raw = -(a * err + b * s[11] + 0.12 * a * self._psi_i)
+        raw = -(a * err + b * s[11] + (0.12 / rs) * a * self._psi_i)
         if abs(raw) < lim:
             self._psi_i = float(np.clip(self._psi_i + err * self.dt_ctrl,
-                                        -6.0, 6.0))
+                                        -6.0 * rs, 6.0 * rs))
         return float(np.clip(raw, -lim, lim))
 
     def run(self, t_end=200.0, trace=False):
@@ -134,8 +153,11 @@ class Episode:
         # Analytic criteria from the continuous relative motion. The counted
         # slam rate is kept alongside as `slam_per_min` so the two can be
         # compared -- they must agree, and only one of them converges.
-        sk = seakeeping.summarise(relb, acc / G, self.dt, self.plant.T,
-                                  FREEBOARD, self.plant.v_slam)
+        # Thresholds are the BOW's: its own keel depth and freeboard (they
+        # were the USV's 0.8 m draught and 0.55 m for every vessel).
+        sk = seakeeping.summarise(relb, acc / G, self.dt,
+                                  self.plant.draft_bow, self.plant.freeboard,
+                                  self.plant.v_slam)
         out = dict(
             slam_p99=float(np.percentile(sf, 99) / 1e3) if sf.size else 0.0,
             slam_peak=float(sf.max() / 1e3) if sf.size else 0.0,
@@ -151,13 +173,16 @@ class Episode:
             heading_rms=float(np.sqrt(np.mean(np.square(yaw)))),
             finite=bool(np.all(np.isfinite(s))),
             t_end=float(t),
+            L=float(self.plant.L),
             **sk)
         if trace:
             out["trace"] = np.asarray(tr)
         return out
 
 
-FREEBOARD = 0.55        # topside height above the design waterline, m
+# The 10 m USV's topside height above the design waterline, m. Kept for the
+# Wigley studies that import it; a plant carries its own as plant.freeboard.
+FREEBOARD = 0.55
 
 
 def _wrap(a):
@@ -171,6 +196,9 @@ def score(m, u_ref=4.0, w=(1.0, 0.6, 1.0, 0.4)):
     objective only teaches it to agree with itself. This is the operator's
     objective -- keep the speed up, keep the motion and slamming down, stay on
     track -- and the weights are free to trade against it however they like.
+
+    Cross-track is measured in hull lengths (m["L"], from Episode.run); it was
+    divided by 10 m, the USV's length, whatever the vessel.
     """
     if not m["finite"]:
         return 1e6
@@ -181,7 +209,7 @@ def score(m, u_ref=4.0, w=(1.0, 0.6, 1.0, 0.4)):
     return (w[0] * (m["acc_p99"]) ** 2
             + w[1] * m["slam_rate_ochi"]
             + w[2] * ((u_ref - m["u_mean"]) / u_ref) ** 2
-            + w[3] * (m["cross_rms"] / 10.0) ** 2)
+            + w[3] * (m["cross_rms"] / m.get("L", 10.0)) ** 2)
 
 
 if HAVE_GYM:
@@ -191,16 +219,21 @@ if HAVE_GYM:
         Framed as a bandit over weights rather than a per-timestep control
         problem, because that is the formulation that transfers: the same
         seven numbers can be tuned on the real vessel in a few hundred runs.
+
+        `hull`: a registered name or a Hull. t_end and u_ref None = the
+        vessel's own (150 s Froude-scaled, the design speed).
         """
 
         metadata = {"render_modes": []}
 
-        def __init__(self, db_path="hydro_wigley_10m.npz", t_end=150.0,
-                     sea_states=((3.25, 9.7), (1.88, 8.0)), u_ref=4.0,
+        def __init__(self, hull="wigley10", t_end=None,
+                     sea_states=((3.25, 9.7), (1.88, 8.0)), u_ref=None,
                      t_preview=0.0, n_seeds=2):
-            self.db = bem.load(db_path)
+            self.hull, self.db = config.load(hull)
+            sc = self.hull.scales()
             self.reduced = None
-            self.t_end, self.u_ref = t_end, u_ref
+            self.t_end = 150.0 * np.sqrt(sc["lam"]) if t_end is None else t_end
+            self.u_ref = sc["u_design"] if u_ref is None else u_ref
             self.sea_states, self.n_seeds = sea_states, n_seeds
             self.t_preview = t_preview
             self.action_space = spaces.Box(-1.0, 1.0, (len(WEIGHT_NAMES),),
@@ -211,11 +244,8 @@ if HAVE_GYM:
 
         def _ensure_model(self):
             if self.reduced is None:
-                from .vessel import NonlinearVessel
-                from .test_vessel import Monochromatic
-                plant = NonlinearVessel(self.db, Monochromatic(1.0, 0.0),
-                                        L=self.db.L)
-                self.reduced = ReducedModel.identify(plant, self.db)
+                plant, _ = config.calm_plant(self.hull, db=self.db)
+                self.reduced = ReducedModel.identify(plant)
 
         def _weights(self, action):
             a = np.clip(action, -1, 1)
@@ -236,7 +266,7 @@ if HAVE_GYM:
                 for sd in range(self.n_seeds):
                     ep = Episode(self.db, self.reduced, hs=hs, tp=tp, seed=sd,
                                  t_preview=self.t_preview, weights=w,
-                                 u_ref=self.u_ref)
+                                 u_ref=self.u_ref, hull=self.hull)
                     vals.append(score(ep.run(self.t_end), self.u_ref))
             r = -float(np.mean(vals))
             hs, tp = self.sea_states[0]

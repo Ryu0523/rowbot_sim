@@ -1,0 +1,1262 @@
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-06-06 
+Page 1 of 12 
+Benchmark Data for Validation of Manoeu-
+vring Predictions 
+Effective Date 
+2021 
+Revision 
+00 
+ 
+Prepared by  Approved  
+Manoeuvring Committee of the 29th ITTC 
+ 
+29th ITTC 2021 
+ 
+Date 02/2020 Date 06/2021 
+ 
+ 
+ITTC Quality System Manual 
+ 
+Recommended Procedures and Guidelines 
+ 
+ 
+Guideline 
+ 
+Benchmark Data for Validation of Manoeuvring Predictions 
+ 
+7.5 Process Control 
+7.5-02 Testing and Extrapolation Methods 
+7.5-02-06 Manoeuvrability 
+7.5-02-06-06 Benchmark Data for Validation of Manoeuvring Predictions 
+ 
+ 
+ 
+ 
+Disclaimer 
+All the information in ITTC Recommended Procedures and Guidelines is published in good faith.   Neither ITTC 
+nor committee members provide any warranties about the completeness, reliability, accuracy or otherwise of this 
+information.  Given the technical evolution, the ITTC Recommended Procedures and Guidelines are checked reg-
+ularly by the relevant committee and updated when necessary.   It is therefore important to always use the latest 
+version. 
+Any action you take upon the information you find in the ITTC Recommended Procedures and Guidelines is 
+strictly at your own responsibility.  Neither ITTC nor  committee members shall be liable for any losses and/or 
+damages whatsoever in connection with the use of information available in the ITTC Recommended Procedures 
+and Guidelines. 
+ 
+  
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-06-06 
+Page 2 of 12 
+Benchmark Data for Validation of Manoeu-
+vring Predictions 
+Effective Date 
+2021 
+Revision 
+00 
+ 
+ 
+Table of Contents 
+ 
+1. PURPOSE OF GUIDELINE ................ 3 
+2. INTRODUCTION ................................. 3 
+3. PROCEDURE OF BENCHMARKING
+ ................................................................. 3 
+3.1 General information .......................... 3 
+3.2 Data Collection................................... 3 
+3.3 Uncertainty Assessment .................... 4 
+3.4 Analysis ............................................... 4 
+3.5 Publication of data ............................. 4 
+4. BENCHMARK DATABASE ............... 5 
+4.1 SIMMAN ............................................ 5 
+4.2 Tanker ................................................ 6 
+4.3 Container vessel ................................. 6 
+4.4 Combatant .......................................... 6 
+4.5 Bulk Carrier ....................................... 7 
+4.6 Underwater Vehicle ........................... 7 
+4.7 Manoeuvring in Restricted Water ... 7 
+5. REFERENCES .................................... 11 
+  
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-06-06 
+Page 3 of 12 
+Benchmark Data for Validation of Manoeu-
+vring Predictions 
+Effective Date 
+2021 
+Revision 
+00 
+ 
+Benchmark Data for Validation of Manoeuvring Predictions 
+ 
+1. PURPOSE OF GUIDELINE 
+The purpose of this document  is to give 
+guidelines for the Benchmark Data for  Valida-
+tion of Manoeuvring Predictions.  
+2. INTRODUCTION 
+The guideline 4.0- 01 is a  general guideline 
+illustrating the basic understanding of bench-
+marking activity, explain ing the overall pro-
+cesses of benchmarking and listing common 
+rules to be kept by participating organisations 
+during benchmarking activity. 
+The p resent guideline highlights the pro-
+cesses relevant for benchmarking within the 
+field of manoeuvrability. The last section of the 
+guideline provides a list of the benchmark data-
+base available and may serve as an aid in selec-
+tion of benchmark cases. 
+3. PROCEDURE OF BENCHMARKING 
+3.1 General information 
+The model tests should generally be carried 
+out according to the Recommended Procedures 
+given by the latest ITTC Manoeuvring Commit-
+tee: 
+Captive model tests: 7.5-02-06-02 
+Free running model tests: 7.5-02-06-01  
+The following sections summarizes steps, 
+additional requirements and possible pitfalls, 
+which require high attention when doing bench-
+mark tests. Data collection, analysis and sharing 
+information are all elements of the benchmark-
+ing process. 
+The objective of the benchmark tests must 
+be clearly defined from the start. Careful plan-
+ning is required to ensure the requested results 
+are accurately recorded and with  sufficient de-
+tails. Right from the start the test cases/test pro-
+gramme should be defined and documented to 
+make sure the test set is clearly defined, and that 
+focus is kept on the essentials . It must be care-
+fully considered what data are needed and if 
+necessary, the test program should be narrowed 
+to ensure the work required is carried out. 
+Once started, the pr ocess must be docu-
+mented. With detailed process documentation it 
+is possible to analyse deviations and capture 
+outliers. It is recommended to carry o ut uncer-
+tainty assessment according to the latest Recom-
+mended Procedures by the ITTC (see 3.3) to as-
+sure the quality/repeatability of the tests and that 
+the data set can be used for CFD validation.  
+3.2 Data Collection 
+Before starting the data collection, key 
+measures and definitions must be established 
+and clearly documented. Furthermore, it must be 
+decided: 
+What kind of data is needed? 
+How are the data collected?  
+How will they be evaluated? 
+A possible pitfall during the planning pro-
+cess is too many parameters or irrelevant param-
+eters. 
+Key measures and definitions which should 
+be considered and documented are as follows: 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-06-06 
+Page 4 of 12 
+Benchmark Data for Validation of Manoeu-
+vring Predictions 
+Effective Date 
+2021 
+Revision 
+00 
+ 
+All applied coordinate systems, e.g. ship, rud-
+der, global etc. 
+Applied units. It is recommended to keep all var-
+iables in SI units. 
+Main particulars of both hull, propeller and rud-
+der if present. 
+Loading condition. 
+Turbulence stimulation, preferably photo docu-
+mentation of all applied stimulation. 
+Rudder rate. 
+Self-propulsion point. 
+Initial conditions. 
+Tank conditions i.e. water temperature,  water 
+viscosity, size of tank, bottom type (in case 
+of shallow water). 
+Equipment descriptions , e.g. type, setup, posi-
+tions etc. 
+Selected set of channels/signals. 
+Applied filters. 
+Logging frequency. 
+Autopilot if present. 
+Procedure of carriage speed.  Is the speed con-
+stant or is the carriage following the model? 
+Above list is a minimum list of high atten-
+tion areas.  
+3.3 Uncertainty Assessment 
+As stated earlier, it is highly recommended 
+to carry out uncertainty assessment.  
+Uncertainty assessment will assure the 
+quality and repeatability of the tests and will 
+qualify them to be used for the purpose of veri-
+fication. 
+If a full uncertainty study is too comprehen-
+sive, it is recommended to reduce the UA scope 
+and focus on single representative data points 
+rather than neglecting it. Presence of uncertainty 
+estimates is a great enhancement of the data set. 
+When carrying out the uncertainty assess-
+ment, please refer to the recommended p roce-
+dures: 7.5-02-06-04 and 7.5-02-06-05. 
+3.4 Analysis 
+Besides the planning and the data collection, 
+the analysis phase is possibly the most important 
+and difficult one. 
+It is necessary to carry out a thorough analy-
+sis of the data, identifying all discrepancies, out-
+liers and errors  and moreover identifying the 
+root cause to these. Make sure that the data col-
+lected is only and precisely what is required. It 
+is highly recommended to apply quality control 
+to data and information.  
+Important areas, whic h must be included in 
+the analysis documentation are as follows: 
+Post processing actions (applied filtering, sub-
+traction of centrifugal force etc.). 
+Detailed process description. Describe the back-
+ground from raw measured data to delivered 
+data. A process documentation with detailed 
+process descriptions will also make it possi-
+ble to analyse deviations and outliers. 
+Format of delivered data. Is it e.g. raw measured 
+data, Fourier coefficients, mean data or are 
+the given data the out of phase  or the in -
+phase values? Any applied data reduction 
+equation and fairing must be documented. 
+Please refer to the recommended procedures 
+7.5-02-06-01 and 7.5- 02-06-02 for further de-
+tails regarding data analysis of free running 
+model tests and captive models tests respec-
+tively. 
+3.5 Publication of data 
+Sharing the data is the final step of the 
+benchmarking process. When sharing the data, 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-06-06 
+Page 5 of 12 
+Benchmark Data for Validation of Manoeu-
+vring Predictions 
+Effective Date 
+2021 
+Revision 
+00 
+ 
+all data and information requested for a com-
+plete dataset must be provided. Be honest and 
+complete.   
+All g eometries used (hull, appendages and 
+propeller) must be well defined with clear defi-
+nitions of scales and units.  
+The final documentation should be summa-
+rized in a public report or adequate article. Data, 
+including the documentation, must be available 
+via workshops or a publicly accessible location 
+on the institute’s own website. 
+4. BENCHMARK DATABASE 
+Advancements in the development of CFD 
+and EFD provide the necessary tools for realisa-
+tion of simulation -based design. To be able to 
+predict manoeuvring behaviour, reliable predic-
+tions or simulation methods are required. There-
+fore, it is important to make a dedicated verifi-
+cation and validation effort related to the simu-
+lation methods and hereby asses the accuracy of 
+the methods. 
+The 24th and 25th ITTC Manoeuvring Com-
+mittee identified this need and initiated the SIM-
+MAN workshops, which have focus on verifica-
+tion and validation of ship manoeuvring simula-
+tion methods. The benchmark data collected for 
+the SIMMAN workshops and other similar 
+workshop (e.g. MASHCON) creates the need to 
+maintain a current evaluation of databases for 
+validation with regards to status and future uses 
+and requirements. This effort will ease the effort 
+of upcoming workshops and provide a listing of 
+present available benchmark data for validation 
+of manoeuvring predictions. 
+The present database will be updated contin-
+uously. Present benchmark sets may be ex-
+cluded in the future if they proof to be irrelevant, 
+whereas new data can be included. Elimination 
+or inclusion of data will be based on recommen-
+dations from the steering committees of the 
+workshops, who will also be responsible for the 
+QA and availability of the data. 
+Section 4.2 to 4.6 will provide an overview 
+of the available benchmark hull forms covering 
+tankers, container vessels, surface combatant 
+hull forms, bulk carriers and underwater vehi-
+cles (UV) and section 4.7 summarize available 
+restricted water cases. A summary table listing 
+all available data including references to the 
+data are also provided.  
+4.1 SIMMAN 
+The purpose of the SIMMAN workshops is 
+to benchmark the capabilities of manoeuvring 
+prediction methods through comparisons with 
+towing tank results for different hull form test 
+cases.  
+The 24th ITTC Manoeuvring Committee rec-
+ommended to adopt a new set of benchmark 
+data, where f our different ship hulls were se-
+lected: two versions of a full-form tanker named 
+KVLCC1 and KVLCC2, a container ship named 
+KCS and a naval combatant named 5415. 
+Though none of these ships exist in full -scale, 
+they all represent modern hull forms of the re-
+spective types and full geometrical data for hull, 
+propeller, rudder and other appendages is pub-
+licly available. In connection with the first 
+Workshop on Verification and Validation of 
+Ship Manoeuvring Simulation Models in 2008 
+(SIMMAN 2008), a la rge model test campaign 
+was performed, comprising PMM, CMT (circu-
+lar motion tests) and free model tests for each of 
+the four hulls.  
+At the second workshop, SIMMAN 2014, 
+the benchmark data sets were updated, and shal-
+low water test cases included. Due to only minor 
+differences in the manoeuvring characteristics 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-06-06 
+Page 6 of 12 
+Benchmark Data for Validation of Manoeu-
+vring Predictions 
+Effective Date 
+2021 
+Revision 
+00 
+ 
+between KVLCC1 and KVLCC2, the KVLCC1 
+was removed from the list of applied hulls nar-
+rowing down the amount of test cases.  
+The total amount of test cases comprised free 
+running manoeuvres (turning circles and zig-zag 
+manoeuvres) and captive PMM type tests in 
+deep and shallow water for all hulls except 5415 
+which only covered deep water.  
+At the workshop, for each test case, the pre-
+dicted forces/moments and trajector ies from a 
+variety of manoeuvring prediction methods 
+were compared and validated against the model 
+test results. For the KCS it was clear, that the 
+3DOF methods are not adequate  for manoeu-
+vring predictions. For ships with low GM inclu-
+sion of heel seems to be important, i.e. methods 
+with minimum 4DOF are necessary in order to 
+predict the manoeuvres correctly.  
+Only very few submissions were available 
+for the shallow water cases and they showed a 
+larger variation than the deep water cases indi-
+cating that shallow water is not an easy test case 
+and that more effort within this area is required. 
+Data from all SIMMAN workshops are open 
+and available, but it is recommended to use the 
+benchmark data from SIMMAN 2014 and SIM-
+MAN 2020 listed in the summary table. 
+4.2 Tanker 
+KVLCC2: 
+The MOERI KVLCC2 was conceived to 
+provide data for both explication of flow physics 
+and CFD validation for a modern 300 K tanker 
+hull form with bulbous bow and transom stern 
+(ca. 1997). No full-scale ship exists. 
+4.3 Container vessel 
+KCS: 
+The KCS was conceived to provide data for 
+both explication of flow physics and CFD vali-
+dation for a modern container ship with bulb 
+bow and stern (ca. 1997). The conditions in-
+clude bare hull and fixed model. No full -scale 
+ship exists. 
+DTC: 
+The Duisburg Test Case (DTC) is a hull de-
+sign of a typical modern P ost-Panamax con-
+tainer vessel, developed at ISMT at the Univer-
+sity of Duisburg-Essen (el Moctar et. al, 2012). 
+The ship is a single screw vessel with a bulbous 
+bow and a large bow flare. It is equipped with a 
+fixed-pitch five-bladed propeller with right rota-
+tion and a twisted rudder with a Costa bulb. No 
+full-scale ship exists. 
+HTC: 
+The Hamburg Test Case (HTC) is a model of 
+the 153.7 m container ship built by Bremer Vul-
+kan in 1986 as Ville de Mercure  (IMO 
+8513792). The full-scale ship is appended with 
+bilge keels and bow thruster , but please note 
+model tests have been carried out both with and 
+without these appendages. 
+4.4 Combatant 
+5415: 
+Model 5415 was conceived as a preliminary 
+design for a Navy surface combatant (ca. 1980). 
+The hull geometry includes both a sonar dome 
+and transom stern. Propulsion is provided 
+through twin open- water propellers driven by 
+shafts supported by struts. No full-scale ship ex-
+ists. 
+ONRT: 
+The ONR Tumblehome (ONRT)  model 
+5613 is a preliminary design of a modern surface 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-06-06 
+Page 7 of 12 
+Benchmark Data for Validation of Manoeu-
+vring Predictions 
+Effective Date 
+2021 
+Revision 
+00 
+ 
+combatant, which is publicly accessible for fun-
+damental research. The ship model is appended 
+with skeg and bilge keels. The model has a wave 
+piercing hull design with 10° tumblehome sides 
+and transom stern. No full-scale ship exists. 
+4.5 Bulk Carrier 
+JBC: 
+The Japan Bulk Carrier (JBC) is a cape size 
+bulk carrier equipped with a stern duct as an en-
+ergy saving device. The National Maritime Re-
+search Institute (NMRI), Yokohama National 
+University and the Ship Building Research Cen-
+tre of Japan (SRC) are jointly involved in the de-
+sign of a ship hull, a duct and a rudder. No full-
+scale ship exists. 
+4.6 Underwater Vehicle 
+DARPA: 
+The DARPA (Defence Advanced Research 
+Projects Agency) Suboff is a recommended sub-
+marine hull form for benchmark tests. It is an 
+axisymmetric body with fairwater, symmetric 
+stern appendages, two ring wings and ring wing 
+support struts originally designed for the 
+DARPA Suboff Project. The overall model ge-
+ometry for the two Suboff models, DTRC model 
+nos. 5470 and 5471 are identical. The two mod-
+els differ only in the location of the surface pres-
+sure taps. 
+4.7 Manoeuvring in Restricted Water 
+Bank effects: 
+Two sets of benchmark data covering vari-
+ous bank effects are available from the MASH-
+CON conferences. 
+The first set covers both surface piercing 
+banks and banks with platform submergence 
+composed of a sloped part from the bottom to 
+the platform. The tests are carried out in a cap-
+tive setup using a single screw 800 TEU con-
+tainer carrier. 
+The second set covers data for two ships ap-
+proaching and leaving locks. The free sailing 
+data is carried out with a 12000 TEU container 
+vessel at a scale of 1:80. For the captive data set 
+a 1:75 scale bulk carrier has been used.  
+Ship-to-ship interaction: 
+A limited set of results from captive ship-to-
+ship interaction tests is available from the 2nd  
+MASHCON conference. The set covers five 
+static tests and one dynamic rudder test carried 
+out with an Aframax tanker as the service ship 
+and the KVLCC2 as the ship to be lightered. 
+ 
+  
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-06-06 
+Page 8 of 12 
+Benchmark Data for Validation of Manoeu-
+vring Predictions 
+Effective Date 
+2021 
+Revision 
+00 
+ 
+ 
+Scale 
+Environment 
+Appendages 
+PMM 
+CMT 
+FRMT 
+Tanker 
+KRISO 300K VLCC2 (KVLCC2) 
+1.1 HMRI (2013) 
+SIMMAN 2014 + 2020 
+Sung et. al (2014) 
+1.2 MARIN (2007) 
+SIMMAN 2014 + 2020 
+Quadvlieg and Brouwer (2011) 
+1.3 HSVA (2006) 
+SIMMAN 2014 
+1.4 CTO (2007) 
+SIMMAN 2014 
+1.5 NMRI (2006) 
+SIMMAN 2014 
+1.6 BSHC (2013) 
+SIMMAN 2014 +2020 
+1.7 MARIN (2013) 
+SIMMAN 2014 + 2020 
+Eloot et. al (2015) 
+Tonelli and Quadvlieg (2015) 
+1.8 FHR (2010) 
+SIMMAN 2014 + 2020 
+Eloot et. al (2015) 
+ 
+ 
+46.426 
+ 
+ 
+45.714 
+ 
+ 
+45.714 
+ 
+45.714 
+ 
+110.000 
+ 
+45.714 
+ 
+75.000 
+ 
+ 
+ 
+75.000 
+ 
+ 
+∞ 
+ 
+ 
+∞ 
+ 
+ 
+∞ 
+ 
+∞ 
+ 
+∞ 
+ 
+1.2, 1.5, 1.8 
+ 
+1.2 
+ 
+ 
+ 
+1.2, 1.5, 1.8 
+ 
+ 
+app 
+ 
+ 
+app 
+ 
+ 
+app 
+ 
+app 
+ 
+app 
+ 
+app, bh 
+ 
+app 
+ 
+ 
+ 
+app, bh 
+ 
+ 
+ 
+ 
+√ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+√ 
+ 
+ 
+ 
+ 
+ 
+√ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+√ 
+ 
+ 
+ 
+ 
+ 
+√ 
+ 
+ 
+√ 
+ 
+√ 
+ 
+ 
+ 
+ 
+ 
+√ 
+ 
+ 
+ 
+√ 
+ 
+ 
+ 
+Container Vessel 
+KRISO 3600 TEU (KCS) 
+2.1 JMU (2012) (wo. propeller) 
+SIMMAN 2020 
+Yoshimura et. al (2013) 
+2.2 MARIN (2009) 
+SIMMAN 2014 + 2020 
+2.3 FORCE (2009)  
+SIMMAN 2014 
+2.4 NMRI (2005) (3DOF) 
+SIMMAN 2014 
+2.5 KRISO (2014) 
+SIMMAN 2020 
+ 
+ 
+105.000 
+ 
+ 
+37.890 
+ 
+52.667 
+ 
+75.500 
+ 
+31.600 
+ 
+ 
+∞ 
+ 
+ 
+∞ 
+ 
+∞ 
+ 
+∞ 
+ 
+1.2 
+ 
+ 
+app-wop 
+ 
+ 
+app 
+ 
+app 
+ 
+app 
+ 
+app 
+ 
+ 
+√ 
+ 
+ 
+ 
+ 
+√ 
+ 
+ 
+ 
+√ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+√ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+√ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-06-06 
+Page 9 of 12 
+Benchmark Data for Validation of Manoeu-
+vring Predictions 
+Effective Date 
+2021 
+Revision 
+00 
+ 
+ 
+Scale 
+Environment 
+Appendages 
+PMM 
+CMT 
+FRMT 
+KRISO 3600 TEU (KCS) cont. 
+2.6 MARIN (2019) 
+SIMMAN 2020 
+2.7 FHR (2010) 
+SIMMAN 2014 
+2.8 BSCH (2008 + 2011) 
+SIMMAN 2014 
+2.9 Hiroshima University (2018) 
+SIMMAN 2020 
+2.10 IIHR (2017) 
+SIMMAN 2020 
+ 
+ 
+37.890 
+ 
+52.667 
+ 
+52.667 
+ 
+75.240 
+ 
+75.240 
+ 
+1.2 
+ 
+1.2, 1.5, 2.0 
+ 
+1.2, 2.0, 2.5 
+ 
+wave(∞) 
+ 
+wave(∞) 
+ 
+ 
+ 
+app 
+ 
+app 
+ 
+app 
+ 
+app 
+ 
+app 
+ 
+ 
+ 
+√ 
+ 
+ 
+  
+√ 
+ 
+ 
+ 
+√ 
+ 
+√ 
+ 
+√ 
+ 
+Duisburg Test Case (DTC) 
+3.1 FHR (2015)  
+5th MASHCON 
+Van Zwijnsvoorde et. al (2019) 
+ 
+ 
+89.110 
+ 
+1.2, 2.0, 
+wave(1.2), 
+wave(2.0) 
+ 
+app, bh 
+ 
+√ 
+ 
+  
+√ 
+ 
+Hamburg Test Case (HTC) 
+4.1 HSVA (2007)  
+VIRTUE 
+Vogt et al. (2007) 
+4.2 MARIN (2011) 
+Toxopeus (2011) 
+ 
+ 
+24.000 
+ 
+∞ 
+ 
+app, bh 
+ 
+√*P 
+ 
+ 
+√* 
+ 
+ 
+ 
+ 
+ 
+√ 
+ 
+Combatant 
+DTMB model 5415 (5415) 
+5.1 MARIN (2007) (5415M)  
+SIMMAN 2014 
+Toxopeus et. al (2011) 
+5.2 FORCE (2004) 
+SIMMAN 2014 
+Simonsen (2004) 
+5.3 IIHR (2005) 
+SIMMAN 2014 
+Yoon et. al (2015a) 
+Yoon et. al (2015b) 
+ 
+ 
+ 
+35.480 
+ 
+ 
+35.480 
+ 
+ 
+46.588 
+ 
+ 
+ 
+ 
+ 
+∞ 
+ 
+ 
+∞ 
+ 
+ 
+∞ 
+ 
+ 
+ 
+ 
+ 
+app 
+ 
+ 
+bh 
+ 
+ 
+bh 
+ 
+ 
+ 
+ 
+ 
+√ 
+ 
+ 
+√ 
+ 
+ 
+√P 
+ 
+ 
+ 
+ 
+ 
+√ 
+ 
+ 
+√ 
+ 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-06-06 
+Page 10 of 12 
+Benchmark Data for Validation of Manoeu-
+vring Predictions 
+Effective Date 
+2021 
+Revision 
+00 
+ 
+ 
+Scale 
+Environment 
+Appendages 
+PMM 
+CMT 
+FRMT 
+DTMB model 5415 (5415) cont. 
+5.4 INSEAN (2005) 
+SIMMAN 2014 
+Benedetti et. al (2006)  
+ 
+ 
+24.830 
+ 
+∞ 
+ 
+ 
+bh 
+ 
+√ 
+ 
+  
+ONR Tumblehome model 5613 (ONRT) 
+6.1 Seoul National University (2018) 
+SIMMAN 2020 
+Seo et.al (2018) 
+6.2 IIHR (2013) 
+SIMMAN 2020 
+Sanada et. al (2018) 
+ 
+ 
+48.936 
+ 
+ 
+48.936 
+ 
+∞ 
+ 
+ 
+∞, wave(∞) 
+ 
+ 
+app 
+ 
+ 
+app 
+ 
+ 
+√ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+√ 
+ 
+Bulk Carrier 
+Japan Bulk Carrier (JBC) 
+7.1 Akishima Laboratories (2015)  
+Tokyo 2015 
+Kishimoto et. al (2016) 
+ 
+ 
+101.818 
+ 
+∞ 
+ 
+ 
+app 
+ 
+√ 
+ 
+  
+√ 
+ 
+Underwater Vehicles 
+DARPA Suboff (DARPA) 
+8.1 David Taylor Research Center (1990) 
+Roddy (1990)  
+Groves et. al (1989) 
+ 
+ 
+1.000 
+ 
+∞ 
+ 
+ 
+bh,  
+app-wop 
+ 
+√ 
+ 
+  
+Manoeuvring in Restricted Water 
+Bank Effects 
+9.1 FHR (2006)  
+Lataire et. al (2009b)  
+9.2 FHR (2008) (Locks)  
+Vantorre et. al (2012)  
+ 
+ 
+NA 
+ 
+80.000 
+75.000 
+ 
+1.1, 1.35, 
+2.0 
+1.1, 1.2 
+ 
+app 
+ 
+app 
+ 
+√ 
+ 
+√ 
+ 
+  
+ 
+ 
+√ 
+ 
+ 
+  
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-06-06 
+Page 11 of 12 
+Benchmark Data for Validation of Manoeu-
+vring Predictions 
+Effective Date 
+2021 
+Revision 
+00 
+ 
+Nomenclature/Abbreviations: 
+∞:  Deep water 
+1.2:  E.g. 1.2. Shallow water (T/h) 
+wave: Waves 
+app:  Appended hull 
+app-wop: Appended hull without propeller 
+bh:  Bare hull 
+√:  Data available 
+√:  Data under procurement 
+*:  Limited test program 
+P:   Including PIV measurements 
+5. REFERENCES 
+Benedetti, L., Bouscasse, B., Broglia, R., 
+Fabbri, L., La Gala, F. and Lugni, C., 2006, 
+“PMM Model Test with DDG51 Including 
+Uncertainty Assessment”, INSEAN Report 
+No. 14. 
+El Moctar, O., Shigunov, V. Zorn, T, 2012, 
+“Duisburg Test Case: Post -Panamax  
+Container Ship for Benchmarking”, Journal 
+of Ship Technology Research, Vol. 59, No. 
+3, pp. 50-64. 
+Eloot, K., Delefortrie, G., Vantorre, M., 
+Quadvlieg, F., 2015, “ Validation of Ship 
+Manoeuvring in Shallow Water through 
+Free-running Tests”, OMAE 2015, St. 
+John’s, Newfoundland, Canada.  
+Eloot, K., Vantorre, M., Delefortrie, G. and 
+Lataire, E., 2016, “Running Sinkage and 
+Trim of the DTC Container Carrier in  
+Harmonic Sway and Yaw Motion: Open 
+Model Test Data for Validation Purposes ”, 
+4th MASHCON, Hamburg, Germany.  
+Groves, N., Huang, T. and Chang, M., 1989, 
+“Geometric Characteristics of DARPA 
+SUBOFF Models (DTRC Model Nos. 5470 
+and 5471)”, Report No. DTRC/SHD- 1298-
+01 
+Kishimoto, T., Ikeda, T., Sawata, T. and 
+Matsumura, N., 201 6, “Maneuvering 
+Characteristics of a Bulk Carrier with an 
+Energy Saving Device”, Asia Navigation 
+Conference 2016, Yeosu, Korea. 
+Lataire, E., Vantorre, M. and Delefortrie, G.,  
+2009a, “Captive Model Testing for Ship-To-
+Ship Operations”, MARSIM 2009, Panama 
+City, Panama. 
+Lataire, E., Vantorre, M. and E loot, K., 2009b, 
+“Systematic Model Tests on Ship -Bank 
+Interaction Effects”, 1st MASHCON, 
+Antwerp, Belgium. 
+Quadvlieg, F.H.H.A., Brouwer, J., 2011, 
+“KVLCC2 Benchmark Data Including 
+Uncertainty Analysis to Support 
+Manoeuvring Predictions”, International 
+Conference on Computational Methods in 
+Marine Engineering, Lisbon, Portugal. 
+Roddy, R.F., 1990, “Investigation of Stability 
+and Control Characteristics of Several 
+Configurations of the DARPA SUBOFF 
+Model (DTRC Model 5470) from Captive -
+Model Experiments”, Report No. 
+DTRC/SHD-1298-08. 
+SIMMAN 2014: www.simman2014.dk 
+SIMMAN 2020: www.simman2019.kr 
+Sanada, Y., Elshiekh, H., Toda., Y and Stern, F., 
+2018, “ONR Tumblehome C ourse Keeping 
+and Maneuvering in Calm Water and 
+Waves”, Journal of Marine Science and 
+Technology. 
+Seo, J., Kim, D.H., Ha, J.S., Rhee, S.H.,  Yoon, 
+H.K.,  Park, J.Y.,  Seok, W. and Rhee, K.P., 
+2018, “Captive Model Tests for Assessing 
+Maneuverability of a Damaged Surface 
+Combatant with Initial Heel Angle ”, 32nd 
+=== page break ===
+ 
+ITTC – Recommended 
+Procedures and Guidelines 
+7.5-02 
+-06-06 
+Page 12 of 12 
+Benchmark Data for Validation of Manoeu-
+vring Predictions 
+Effective Date 
+2021 
+Revision 
+00 
+ 
+Symposium on Naval Hydrodynamics , 
+Hamburg, Germany. 
+Simonsen, C.D., 2004, “PMM Model Test with 
+DDG51 Including Uncertainty Assessment”, 
+FORCE Technology Report No. ONRII187 
+01. 
+Stern, F., Agdrup, K., Kim, S., Cura Hochbaum, 
+A., Rhee, K., Quadvlieg, F., … Gorski, J., 
+2011, "Experience from SIM MAN 2008 —  
+The First Workshop on Ve rification and 
+Validation of Ship Maneuvering Simulation 
+Methods", Journal of Ship Research, Vol. 
+55, No.2, pp. 135–147. 
+Sung, Y.J., Park, S-H., Ahn, K-S., Chung, S-H., 
+Shin, S.S. and Jay -Hyoung, J., 2014, 
+“Evaluation on Deep Water Manoeuvring 
+Performances of KVLCC2 Based on PMM 
+Test and RANS Simulation”, SIMMAN 
+2014, Copenhagen, Denmark. 
+Tokyo 2015 – A Workshop on CFD in Ship 
+Hydrodynamics, www.t2015.nmri.go.jp 
+Tonelli, R. and Quadvlieg, F., 2015, “New 
+Benchmark Data for Manoeuvring in 
+Shallow Water Based on Free Running 
+Manoeuvring Tests Including Uncertainty of 
+the Results”, OMAE 2015, St. John’s, 
+Newfoundland, Canada. 
+Toxopeus, S.L., 2011, “Practical Application of 
+Viscous-Flow Calculation for the 
+Simulation of Manouevring Ships”, Delft 
+University of Technology. 
+Toxopeus, S., van Walree, F. and Hallmann, R., 
+2011, “Manoeuvring and Seakeeping Tests 
+for 5415M”, Technical report, NATO,  
+RTO-MP-AVT-189. 
+Van Zwijnsvoorde, T., Ruiz, M. T., Delefortrie, 
+G., Lataire, E., 2019 ”Sailing in Shallow 
+Water Waves with the DTC Container 
+Carrier: Open Model Test Data for 
+Validation Purposes”, 5th MASHCON, 
+Ostend, Belgium. 
+Vantorre, M., Delefortrie, G. and Mostaert, F., 
+2012, “Behaviour of ships approaching and 
+leaving locks: Open model test data for 
+validation purposes ”, Flanders Hydraulics 
+Research and Ghent University - Division of 
+Maritime Technology Report No. 
+WL2012R815_08e, Ver. 3.0. 
+Vogt, M., Cura Hochbaum, A., Schneider, M., 
+Duatel, J., 2007, “Report on Model Tests. 
+Virtue Deliverable D3.1.3”, Hamburg, 
+Germany 
+Yoon, H., Longo, J., Toda, T. and S tern, F., 
+2015a, “Benchmark CFD Validation Data 
+for Surface Combatant 5415 in PMM 
+Maneuvers – Part II: Phase -averaged 
+stereoscopic PIV flow field measurements”, 
+Ocean Engineering, Vol. 109, pp. 735-750. 
+Yoon, H. , Simonsen, C.D., Benedetti, L., 
+Longo, J., Toda, Y . and Stern, F., 2015b, 
+“Benchmark CFD Validation Data for 
+Surface Combatant 5415 in PMM 
+Maneuvers – Part I: Force/moment/motion 
+Measurements”, Ocean Engineering , Vol. 
+109, pp. 705-734. 
+Yoshimura, Y., Kukui, H., Yokota, H. and 
+Yano, H., 2013, “Mathematical Model for 
+Manoeuvring Simulation including Roll 
+Motion”, Journal of the Japan Society of 
+Naval Architects and Ocean Engineers, Vol. 
+16, pp. 17-20. 
+=== page break ===

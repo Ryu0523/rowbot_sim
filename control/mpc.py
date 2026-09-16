@@ -72,24 +72,37 @@ class PreviewProvider:
 
 
 class MPPIController:
+    """dt_ctrl, u_ref None = the identified vessel's own (ReducedModel.p).
+
+    The actuator scales come from the model too: commands are fractions of
+    the plant's thrust limit and rudder travel, where they used to be
+    fractions of 12 kN and 35 deg whatever vessel was being driven."""
+
     def __init__(self, model, preview, weights=None, horizon=24,
-                 dt_ctrl=0.5, n_knots=7, n_samples=192, sigma=(0.25, 0.25),
-                 lam=0.6, u_ref=4.0, seed=0, n_stations=5,
+                 dt_ctrl=None, n_knots=7, n_samples=192, sigma=(0.25, 0.25),
+                 lam=0.6, u_ref=None, seed=0, n_stations=5,
                  use_rudder=True):
+        p = model.p
         self.m = model
         self.pv = preview
         self.w = np.array(DEFAULT_WEIGHTS if weights is None else weights,
                           float)
-        self.H, self.dt = horizon, dt_ctrl
+        self.H = horizon
+        self.dt = p.get("dt_ctrl", 0.5) if dt_ctrl is None else dt_ctrl
         self.n_knots, self.K = n_knots, n_samples
         self.sigma = np.array(sigma, float)
-        self.lam, self.u_ref = lam, u_ref
+        self.lam = lam
+        self.u_ref = p.get("u_design", 4.0) if u_ref is None else u_ref
+        self.t_max = p.get("t_max", 12000.0)
+        self.rud_max = p.get("rud_max", np.radians(35.0))
         self.rng = np.random.default_rng(seed)
         self.knot_t = np.linspace(0, horizon - 1, n_knots)
         self.nominal = np.zeros((2, n_knots))
         self.nominal[0] = 0.5                      # mid throttle
-        self.x_st = np.linspace(-model.p["L"] / 2, model.p["L"] / 2,
-                                n_stations)
+        # stern to bow of THIS hull, about its CG. Was -L/2..+L/2, which is
+        # the hull only when the CG is midships and the ends are square
+        self.x_st = np.linspace(p.get("x_stern", -p["L"] / 2),
+                                p.get("x_bow", p["L"] / 2), n_stations)
         # port / centre / starboard, for the transverse slope
         b = 0.5 * model.p.get("B", 2.5)
         self.y_off = np.array([-b, 0.0, b])
@@ -130,11 +143,13 @@ class MPPIController:
             xs = s[:, 0:1, None] + xb * ch[..., None] - yb * sh[..., None]
             ys = s[:, 1:2, None] + xb * sh[..., None] + yb * ch[..., None]
             eta = self.pv.at(xs, ys, t, h * self.dt)
-            thrust = np.clip(seq[:, 0, h], 0.0, 1.0) * 12000.0
-            rudder = np.clip(seq[:, 1, h], -1.0, 1.0) * np.radians(35.0)
+            thrust = np.clip(seq[:, 0, h], 0.0, 1.0) * self.t_max
+            rudder = np.clip(seq[:, 1, h], -1.0, 1.0) * self.rud_max
             s, a_bow, rel = self.m.step(s, thrust, rudder, eta, self.x_st,
                                         self.dt)
-            out = rel > p["draft"]
+            # the keel AT THE BOW leaves the water, which on a raked stem is
+            # well above the midship draught
+            out = rel > p.get("draft_bow", p["draft"])
             slam = (emerged & ~out & (s[:, 4] < -p["v_slam"])).astype(float)
             emerged = out
             cost += (self.w[0] * (a_bow / 9.81) ** 2
@@ -182,4 +197,4 @@ class MPPIController:
         return out
 
     def to_actuator(self, cmd):
-        return float(cmd[0]) * 12000.0, float(cmd[1]) * np.radians(35.0)
+        return float(cmd[0]) * self.t_max, float(cmd[1]) * self.rud_max

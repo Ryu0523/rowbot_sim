@@ -34,7 +34,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 from hydro import bem
-from sim.env import FREEBOARD, score
+from sim.env import score
 from sim.rl_env import USVControlEnv
 from sim.vessel import NonlinearVessel
 from sim.test_vessel import Monochromatic
@@ -50,10 +50,12 @@ KEYS = ("acc_rms", "acc_p99", "fatigue", "rvm_rms", "rvv_rms",
         "slam_impulse", "slam_rate_ochi", "wet_rate")
 
 
-def rollout(policy, seed, t_end=T_END, t_preview=T_PREVIEW, reset=None):
-    """One episode, one policy, one set of measurements."""
-    env = USVControlEnv(seeds=(seed,), t_end=t_end, t_preview=t_preview,
-                        n_freq=16, n_dir=4)
+def rollout(policy, seed, t_end=T_END, t_preview=T_PREVIEW, reset=None,
+            hull=None):
+    """One episode, one policy, one set of measurements. `hull`: a name
+    from hydro/hulls.py; None = the 10 m USV."""
+    env = USVControlEnv(hull=hull, seeds=(seed,), t_end=t_end,
+                        t_preview=t_preview, n_freq=16, n_dir=4)
     obs, _ = env.reset(seed=0)
     if reset is not None:
         reset(env)
@@ -68,8 +70,8 @@ def rollout(policy, seed, t_end=T_END, t_preview=T_PREVIEW, reset=None):
         if term or trunc:
             break
     dt = env.dt_ctrl
-    m = seakeeping.summarise(rel, acc, dt, env._plant.T, FREEBOARD,
-                             env._plant.v_slam)
+    m = seakeeping.summarise(rel, acc, dt, env._plant.draft_bow,
+                             env._plant.freeboard, env._plant.v_slam)
     m.update(u_mean=float(np.mean(spd)),
              slam_impulse=float(np.sum(sf) * dt / (t_end / 60.0) / 1e3),
              heading_rms=float(np.degrees(np.sqrt(np.mean(np.square(yaw))))),
@@ -100,7 +102,8 @@ def mpc_policy(db, red, seed):
 
     def setup(env):
         pv = PreviewProvider(env.sea, T_PREVIEW, 0.0, seed)
-        ctrl["c"] = MPPIController(red, pv, dt_ctrl=env.dt_ctrl, u_ref=4.5,
+        ctrl["c"] = MPPIController(red, pv, dt_ctrl=env.dt_ctrl,
+                                   u_ref=red.p.get("u_design", 4.5),
                                    seed=seed, n_samples=192, use_rudder=True)
         ctrl["t"] = 0.0
 

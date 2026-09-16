@@ -1,0 +1,15 @@
+  controller             J    +-     u  acc_p99    rvm  slamImp    wet   cross    hdg
+  MPC u_ref=4.5      0.354 0.016  4.21    0.555  0.250    119.9   2.19   0.85m   2.4d
+  MPC u_ref=3.4      0.300 0.015  3.37    0.473  0.218     68.8   1.01   0.90m   3.1d
+  BC clone           0.346 0.021  4.16    0.547  0.247    116.5   2.03   1.18m   3.8d
+  BC + PPO           0.352 0.021  4.13    0.554  0.249    119.1   2.12   0.53m   2.6d
+
+  BC+PPO vs the MPC it was cloned from (u_ref=4.5):
+    speed               -1.9% +-  0.7   RESOLVED
+    bow accel p99       -0.2% +-  3.3   not resolved
+    rel motion          -0.4% +-  3.0   not resolved
+    slam impulse        -0.7% +-  7.8   not resolved
+    deck wetness        -2.9% +- 13.3   not resolved
+    cross-track        -37.9% +-  9.0   RESOLVED
+    heading rms         +8.1% +-  7.6   not resolved
+    objective J         -0.7% +-  7.3   not resolved

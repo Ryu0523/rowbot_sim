@@ -92,7 +92,20 @@ def build(omega_max=15.0, d_omega=0.1, nx=NX, nz=NZ,
     ds = bem.compute_database(body, omegas, directions=DIRECTIONS,
                               progress=True)
     ds.attrs.update(hull="wigley", L=L, B=B, T=T, nx=nx, nz=nz)
-    db = bem.save(ds, path)
+    db = bem.to_db(ds)
+    # Capytaine's rotational inertia is wrong for this hull by 17-23%
+    # (DEFECTS A30: it averages three divergence-theorem forms and the n_z one
+    # is ill-conditioned on a wall-sided hull). Replace it with the closed form
+    # -- verified against exact hemisphere and box solutions in
+    # hydro/inertia.py -- BEFORE anything is written, so a rebuild cannot
+    # quietly put the bug back. Same operation as hydro/fix_inertia_db.py: the
+    # translational block keeps the mesh's own mass, only the rotational
+    # diagonal changes.
+    from hydro.inertia import wigley_inertia
+    Ma, _ = wigley_inertia(L, B, T, -T / 3)
+    for i in (3, 4, 5):
+        db.M[i, i] = Ma[i, i]
+    bem.save(db, path)
 
     # reciprocity: A and B must be symmetric. Asymmetry is pure discretisation
     # error, so it is a free measure of whether the mesh is fine enough.

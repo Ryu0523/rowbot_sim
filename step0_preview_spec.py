@@ -61,7 +61,11 @@ class WaveField:
         wp = 2.0 * np.pi / tp
         self.wmin, self.wmax = band[0] * wp, band[1] * wp
         w = np.linspace(self.wmin, self.wmax, n_freq)
-        dw = w[1] - w[0]
+        # n_freq = 1 is a legitimate degenerate case -- a single component
+        # standing in for the whole band -- and it used to raise IndexError
+        # here. Give it the full band width so the energy still comes out
+        # right, the same way n_dir = 1 is handled explicitly below.
+        dw = (w[1] - w[0]) if n_freq > 1 else (self.wmax - self.wmin)
         if n_dir == 1:
             # long-crested: all energy on one heading. Not a degenerate case of
             # the spread formula -- the normalisation integral collapses -- so
@@ -70,7 +74,7 @@ class WaveField:
             amp = np.sqrt(2.0 * jonswap(w, hs, tp, gamma)[:, None] * dw)
         else:
             th = np.linspace(theta0 - np.pi / 2, theta0 + np.pi / 2, n_dir)
-            dth = th[1] - th[0]
+            dth = th[1] - th[0] if n_dir > 1 else np.pi
             amp = np.sqrt(2.0 * np.outer(jonswap(w, hs, tp, gamma),
                                          spreading(th, theta0, spread_s))
                           * dw * dth)

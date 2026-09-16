@@ -1,0 +1,1824 @@
+10th International Conference 
+on Stability of Ships and Ocean Vehicles 
+ 
+ 
+387
+A SIMPLE PREDICTION FORMULA OF ROLL DAMPING OF CONVENTIONAL 
+CARGO SHIPS ON THE BASIS OF IKEDA’S METHOD AND ITS LIMITATION 
+Yuki KAWAHARA, Kazuya MAEKAWA, Yoshiho IKEDA 
+Department of Marine System Engineering, 
+Osaka Prefecture University Sakai, Japan 
+ikeda@marine.osakafu-u.ac.jp 
+ 
+ABSTRACT  
+Since the roll damping of ships has significant effects of viscosity, it is difficult to calculate it 
+theoretically. Therefore e xperimental results or some predicti on methods are used to get the roll 
+damping in design stage of ships. Among some pred iction methods, Ikeda’s one is widely used in 
+many ship motion computer programs. 
+Using the method, the roll damping of various ship  hulls with various bilge keels are calculated 
+to investigate its characteristics. Ship hull forms are systematically changed by changing length, 
+beam, draft, midship sectional coefficient and prismatic coefficient. 
+On the basis of these predicted roll damping of various ships, a very simple prediction formula 
+of the roll damping of ships is deduced. It is found, howev er, that this formula cannot be used for 
+ships that have high position of the center of gr avity. A modified method to improve accuracy for 
+such ships is proposed. 
+ 
+Keywords: Roll Damping, Simple Prediction Formula, Wave component, Eddy component, Bilge keel component 
+ 
+1. INTRODUCTION 
+In 1970’s, strip methods for predicting ship 
+motions in 5-degree of freedoms in waves have 
+been established. The methods are based on 
+potential flow theories  (Ursell-Tasai method, 
+source distribution method and etc), and can 
+predict pitch, heave, sway and yaw motions of 
+ships in waves in fairly good accuracy. In roll 
+motion, however, the strip methods do not 
+work well because of significant viscous 
+effects on the roll damping. Therefore, some 
+empirical formulas or experimental data are 
+used to predict the roll damping in the strip 
+methods. 
+To improve the prediction of roll motions 
+by these strip methods, one of the authors 
+carried out a research pr oject to develop a roll 
+damping prediction method which has the same 
+concept and the same order of accuracy as the 
+strip methods which are based on 
+hydrodynamic forces acting on strips, or cross 
+sections of a ship [Ikeda  et al. (1976), Ikeda et 
+al. (1977a), Ikeda et al. (1977b), Ikeda et al. 
+(1978): All papers in English versions were 
+published as Reports of Dept. of Naval 
+Architecture, Univ. of Osaka Pref.]. The review 
+of the prediction method was made by Himeno 
+(1981) and Ikeda (1982) with the computer 
+program.  
+The prediction method, which is now called 
+Ikeda’s method, divides the roll damping into 
+the frictional (BF), the wave ( BW), the eddy 
+(BE) and the bilge keel ( BBK) components at 
+zero forward speed, and at forward speed, the 
+lift ( BL) is added. Increases of wave and 
+=== page break ===
+10th International Conference 
+on Stability of Ships and Ocean Vehicles 
+ 
+ 
+388 
+friction components due to advance speed are 
+also corrected on the ba sis of experimental 
+results. Then the roll damping coefficient B44 
+(=Roll damping moment (kgfm) / Roll angular 
+velocity (rad/sec) ) can be expressed as follows. 
+ (1)
+At zero forward speed, each component 
+except the friction component is predicted for 
+each cross section with unit length and the 
+predicted values are summed up along the ship 
+length. The friction component is predicted by 
+Kato’s formula for a three-dimensional ship 
+shape. Modification functions for predicting 
+the forward speed effects on the roll damping 
+components are developed for the friction, 
+wave and eddy components. The computer 
+program of the method was published, and the 
+method has been widely used. 
+For these thirty years, the original Ikeda’s 
+method developed for conventional cargo ships 
+has been improved to apply many kinds of 
+ships, for examples, more slender and round 
+ships, fishing boats, barges, ships with skegs 
+and so on. The original method is also widely 
+used. However, sometimes, different 
+conclusions of roll motions were derived even 
+though the same Ikeda’s method was used in 
+the calculations. Then, to check the accuracy of 
+the computer programs of the same Ikeda’s 
+method, a more simple prediction method with 
+the almost same accuracy as the Ikeda’s 
+original one has been expected to be developed. 
+It is said that in design stages of ships, Ikeda’s 
+method is too complicated to use. To meet 
+these needs, a simple roll damping prediction 
+method was deduced by using regression 
+analysis [Kawahara et al. (2008)]. 
+2. PREVIOUS PREDICTION FORMULA 
+The simple prediction formula proposed in 
+previous paper cannot be used for modern 
+ships that have high position of center of 
+gravity or long natural ro ll period such as large 
+passenger ships with relatively flat hull shape. 
+In order to investigate its limitation, the authors 
+compared with the result of this prediction 
+method and original Ikeda’s one out of its 
+calculating limitation. Figure 1 shows the result 
+of the comparison with their method of roll 
+damping. The upper one is on the condition 
+that the center of gravity is low and the lower 
+one on the condition that the center of gravity 
+is high. 
+BK L E W FB B B B B B++ + + =44
+(a) OG/d = -0.2 
+0
+0.005
+0.01
+0.015
+0.02
+0.2 0.4 0.6 0.8 1
+ω
+B 44
+Prediction Method. Total
+Prediction Method. Eddy Component
+Prediction Method. Wave Component
+Prediction Method. Bilge Keel Component
+Ikeda's Method. Total
+Ikeda's Method. Eddy Component
+Potential Theory. Wave Component
+Ikeda's Method. Bilge Keel Component
+(b) OG/d = -1.5 
+0
+0.02
+0.04
+0.06
+0.2 0.4 0.6 0.8 1
+ω
+B 44
+Prediction Method. Total
+Prediction Method. Eddy Component
+Prediction Method. Wave Component
+Prediction Method. Bilge Keel Component
+Ikeda's Method. Total
+Ikeda's Method. Eddy Component
+Potential Theory. Wave Component
+Ikeda's Method. Bilge Keel Component
+Figure 1. Comparison between Ikeda’s method 
+and proposed one of roll damping at L/B=6.0 
+B/d=4.0, Cb=0.65, Cm=0.98, φa=10°, 
+bBK/B=0.025 and l BK/Lpp=0.2. ( OG denotes the 
+distance between water surface and center of 
+gravity, and defined plus when the center of 
+gravity is below water surface.) 
+From this figure, the roll damping estimated 
+by this prediction formula are in good 
+agreement with the roll damping calculated by 
+the Ikeda’s method for low position of center 
+of gravity, but the erro r margin grows for the 
+high position of center of  gravity. The results 
+suggest that the previous prediction formula is 
+necessary to be revised. 
+=== page break ===
+10th International Conference 
+on Stability of Ships and Ocean Vehicles 
+ 
+ 
+389
+3. METHODICAL SERIES SHIPS 
+Modified prediction formula will be 
+developed on the basis of the predicted results 
+by Ikeda’s method using the methodical series 
+ships. This series ships are constructed based 
+on the Taylor Standard Series and its hull 
+shapes are methodically changed by changing 
+length, beam, draft, midship sectional 
+coefficient and longitudinal prismatic 
+coefficient. The geometries of the series ships 
+are given by the following equations. 
+(2)
+(3)
+where 
+(4)
+(5)
+(6)
+(7)
+(8)
+(9)
+(at stern side and CP<0.73)
+(10)
+(at stern side and CP ≥0.73)
+ 
+ 
+(11)
+(at bow side and CP <0.72)
+(12)
+(at bow side and CP ≥0.72)
+(13)
+(at stern side and CP <0.74)
+(14)
+(at stern side and CP ≥0.74)
+(15)
+(at bow side and CP <0.73)
+(16)
+(at bow side and CP ≥0.73)
+where  
+y1 is the non-dimensional value obtained by 
+ sectional-immersed-area divided by maximum-
+ immersed-area, 
+y2 is the non-dimensional value obtained by 
+ sectional-water-line-breadth divided by 
+ maximum-water-line-breadth, 
+x is the non-dimensional value of longitudinal 
+ position when x is measured from the extremity 
+ of either the bow or stern, 
+CP is the longitudinal prismatic coefficient, 
+CW is the water-plane coefficient, 
+f11 is constant and equal to 0.6 for the stern and 1.0 
+ for the bow, 
+f12 is constant and equal to 0.05, 
+f21 is constant and equal to 2.0 for the stern and 1.0 
+ for the bow,  
+f22 is constant and equal to 0.15 for the stern and 0.1 
+ for the bow. 
+However, occasionally, corrections of the 
+results obtained from the Eqs.2, 3 are required. 
+For example, if maximum of y1 exceeds 1.0, it 
+is adjusted to 1.0. 
+Figures 2 and 3 show the sectional area 
+curves obtained from Eq.2 and a body plan of a 
+ship with Cb=0.84 (Cb : block coefficient) and 
+Cm=0.98 (Cm : midship section coefficient), 
+respectively. Since the hull shapes used here 
+are conventional ones as shown in Figure 3, an 
+application of the de duced prediction method 
+to modern unconventional hull shapes, for 
+example buttock-flow hull, should be careful. 
+ 
+0
+0.1
+0.2
+0.3
+0.4
+0.5
+0.6
+0.7
+0.8
+0.9
+1
+0123456789 1 0
+Ratio to
+) ( ) ( ) ( ) ( ) (12111 x F f x nN x tT f x P C x Q yP + + + + =
+5x
+5x
+43 2 5 . 2 2 5 . 0 ) (x x x x x N+ − + − =
+221 . 50 68 . 149 64 . 1132 +−= PP CC t
+686 . 10 123 . 54 4 . 113
+75 . 159 59 . 173339 . 96
+2
+345
+−+ −
++−=
+P
+PPP
+CC
+CCC t
+667 . 41= C t
+067035 . 5= C n
+P
+4312 . 0 625 . 0+= PCn
+CP=0.55 
+CP=0.70 
+CP=0.75 
+CP=0.80 
+CP=0.85 
+) ( ) ( ) ( ) ( ) (22212 x F f x nN x tT f x P C x Q yW + + + + =
+5432 36 105100 30 ) ( x x x x x Q+ − + − =
+432 60 180180 60 ) ( x x x x P− + − =
+432 3 10 12 6 ) (x x x x x T+ − + − =
+5
+7923 . 0 6998 . 0 532 . 34 58 . 116
+71 . 162 74 . 105 562 . 26 ) (
+23
+456
++ +−+
+−+− =
+xxx
+xxxx F
+67 . 335 7 . 31471220524951
+282306 . 166647 . 3969
+23
+456
+−+−+
+−+− =
+PPP
+PPP
+CCC
+CCCt
+Stations
+Figure 2. Sectional-area cu rves of series model 
+used in calculation. 
+ maxi CP=0.60 
+CP=0.60 
+mum area
+ 
+ 
+P
+9 . 14 167 . 492 +− PP C
+10 471 . 33 16 . 3023 −+ − PPP CC 6 .
+305 . 4 458 . 13 417 . 102 −+− = CCn P
+79 . 186 3 . 1525 6 . 4815
+2 . 7413 7 . 5596 6 . 1664
+2
+45
++−+
+−+− =
+P
+PP
+CC
+CCCn 3
+P
+P
+CP=0.50 
+=== page break ===
+10th International Conference 
+on Stability of Ships and Ocean Vehicles 
+ 
+ 
+390 
+Figure 3. An example of body plan of ship with 
+Cb=0.84 and Cm=0.98. 
+4. PROPOSAL OF NEW PREDICTION 
+METHOD OF ROLL DAMPING 
+In this chapter, the characteristics of each 
+component of the roll damping, the frictional, 
+the wave, the eddy and the bilge keel 
+components at zero advanced speed, are 
+discussed, and a simple prediction formula of 
+each component is developed. 
+The roll damping coefficient ( B44) and 
+circular frequency (ω =2π/Tw) are defined as 
+follows, 
+ (17)
+ (18)
+where ρ denotes water density,    
+displacement volume, B  beam and g is gravity 
+acceleration, respectively. 
+The relationship between B44 and N 
+coefficient (Bertin) is as follows. 
+(19)
+4.1 Frictional Component (BF) 
+In Ikeda’s method, the friction damping at 
+Fn=0 is given by Kato’s formula as follows,  
+ 
+ 
+large. Usually, conventional ships have such H0 
+(20)
+where cf is frictional coefficient, r f is average 
+radius from the axis of rolling and sf is wetted 
+surface area. These parame ters in the equation 
+are given by the following equations, 
+2
+1
+2 222 . 3
+328 . 1 ⎟
+⎟
+⎠
+⎞
+⎜
+⎜
+⎝
+⎛
+= ν
+ϕ
+T
+r
+c
+a f
+f
+ 
+(21)
+(22)
+(23)
+( )( )
+where φa denotes roll amplitude, T roll period, 
+ν  dynamic coefficient of viscosity, OG  
+distance from calm water surface to the axis of 
+rolling (downward direction is positive) and d 
+draft, respectively. 
+In the present study, since the frictional 
+component of roll damping is already given for 
+a whole ship as Eqs.20-23, the formula is used 
+without any modification in the simple 
+prediction method developed in the present 
+study. It should be noted, however, the 
+frictional component is negligible for a full-
+scale ship although it take s about 5-10% of the 
+total roll damping for a small scale model. 
+4.2 Wave Component (BW) 
+As well known, the wave component of the 
+roll damping for a two-dimensional cross 
+section can be calculated by potential flow 
+theories in fairly good accuracy. In Ikeda’s 
+method, the wave damping of a strip section is 
+not calculated and the ca lculated values by any 
+potential flow theories are used as the wave 
+damping. 
+4.2.1 Characteristics of the Wave 
+Component 
+The reason why viscous effects are 
+significant in only roll damping can be 
+explained as follows. Figure 4 shows the wave 
+component of the roll damping for 2-D sections 
+calculated by a potential flow theory. We can 
+see that the component is very small for 
+sections with half breadth / draft ratio, H0=05-
+1.5, particularly when area coefficient, σ is 
+g
+B
+B
+BB 2ЃЮ
+€
+2
+44
+44
+ρ=
+g
+B
+2
+€ ω ω=
+.) deg 19 . (€€
+44 in is Eq inGM
+BB N a
+a
+ϕϕ
+ωπ=
+f a f fF c r s Bω ϕ ρπ
+3
+3
+4=
+π
+OG B C d Cr bb
+f
+27 . 1 145 . 0 887 . 0− ++=
+( )B C d L sbPP f 75 . 1= +
+=== page break ===
+10th International Conference 
+on Stability of Ships and Ocean Vehicles 
+ 
+ 
+391
+at parallel middle body part. Then ships have 
+relatively small wave roll damping, and 
+viscous effects play an important role in the 
+roll damping. 
+In Figures 5 and 6, calculated distributions 
+of 
+Dependencies of the wave component on 
+loc
+the wave component of the roll damping are 
+shown. The results for a full ship (Cb=0.8) 
+shown in Figure 5 demonstrate that the 
+damping created by the mid-ship body is very 
+small, and that created by the stern body is 
+large. The results for a slender ship (Cb=0.5) 
+shows two peaks at the cross sections of SS=3 
+and SS=7. The reason why the peaks appear on 
+bow and stern parts can be easily understood 
+from the calculated results shown in Figure 4. 
+ation of roll axis or center of gravity are 
+shown in Figure 7. 
+0
+0.1
+0.2
+0.3
+0.4
+0.5
+0 0.5 1 1.5 2 2.5 3
+H 0
+B W
+  σ = 0.9
+  σ = 0.7
+  σ = 0.5
+  σ = 0.3
+ 
+Figure 4. Characteristics of roll damp g in
+coefficient of wave component for two-
+dimensional section at OG/d=0 and ω€ =1.25. 
+ 
+0
+0.5
+1
+1.5
+2
+0123456789 1
+Stations
+0
+σ
+H0
+0
+0.1
+0.2
+0.3
+0.4
+0123456789 1
+Stations
+B W
+0
+(×10-3)
+ 
+Figure 5   Longitudinal distribution of σ, 0 H
+and roll damping coefficient of wave 
+component for a ship with L/B=5, B/d=3.5, 
+Cm=0.94, Cb=0.8, OG/d=0 and ω€=1.25. 
+ 
+0
+0.5
+1
+1.5
+2
+0123456789 1
+Stations
+0
+σ
+H0
+0
+0.1
+0.2
+0.3
+0.4
+0123456789 1
+Stations
+B W
+(×10-3)
+0
+ 
+Figure 6. Longitudinal distribution of σ, H0 and 
+roll damping coefficient of wave component 
+for a ship with L/B=5, B/d=3.5, Cm=0.94, 
+Cb=0.5, OG/d=0 and ω€ =1.25.  
+0
+0.005
+0.01
+0.015
+0123456
+ω
+B W
+ OG/d = 0.2
+ OG/d = 0.0
+ OG/d = -0.2
+ OG/d = -0.4
+7
+ 
+Figure 7. Characteristics of roll damp g 
+4.2.2 Proposed Formula of the Wave Roll 
+By fitting these predicted wave components 
+a 
+in
+coefficient of wave component for a whole ship 
+at L/B=5, B/d=3.5, Cm=0.94, Cb=0.8. 
+Damping 
+simple prediction formula is deduced as 
+follows. 
+=== page break ===
+10th International Conference 
+on Stability of Ships and Ocean Vehicles 
+ 
+ 
+392 
+1528 557511194538548
+350821434871474500543
+54725256636730832388999289822735
+823 466006939457313
+259183982999053888378
+50174553780239528038500656709672
+6414 47747328 58039
+71892642949264599411
+464372418622 4460516584110034
+8619 106824948 95501
+7392358360104 722677
+712782672826045079964903130677
+7918 47147938 4335869171663484699340629
+593739257905982412019103 61639
+8827 577 2035 5355147 206657709 42480
+9664 490485678 301310287 7686
+108 18 8 71 203 89 566 36
+8007 8 234 33 495 41 102 17
+28181 7 0 0727 0
+588 11 356 10 39 3 3767 0
+61655 0 4518 0 0495 0 1654 7 13177 44
+40915 14168705 25705701 27484571 172
+70534 63 688 1205584 1
+0 . 1 ) 1 ( )(
+45 9 993 10 189 7 402 1
+44 1exp€
+€1
+2
+2
+2
+3
+2
+4
+2
+5
+2
+6
+236
+2
+2
+2
+3
+2
+4
+2
+5
+2
+6
+235
+2
+2
+2
+3
+2
+4
+2
+5
+2
+6
+234
+2
+2
+2
+3
+2
+4
+2
+5
+2
+6
+233
+2
+2
+2
+3
+2
+4
+2
+5
+2
+6
+232
+2
+2
+2
+3
+2
+4
+2
+5
+2
+6
+231
+2
+2
+2
+3
+2
+42
+2
+2
+3
+2311
+1
+2
+132
+3111
+2
+1
+3
+131
+1
+2
+16
+2
+6
+3
+6
+4
+6
+5
+6
+6
+6
+7
+6
+8
+6
+9
+631 3
+4123 111
+32 4 6
+3 37
+4
+36
+2
+4 35
+3
+4 34
+4
+4 33
+5
+4 32
+6
+4 31 3
+4
+2
+4
+3
+42
+1 13 4 12
+2
+411 1
+2
+3 525 1
+54321
+. x . +
+x .x .
+x . - x . + x . =- A
+. + x .
+x . + x .
+x . + x .x . = A
+. - x . +
+x . - x .
+x . - x . + x . =- A
+. - x . +
+x . - x .
+x . - x . + x . =- A
+. + x . - x . + x .
+x . + x . - x . = A
+. - x . +x . - x .
+x . - x . + x . =- A
+. - x . + x . - x .
++ x ) . + x . - x . + x . =(- AA
+. - x . + x . =- AA
+AA ) . + x . - x . + x . =(- AA
+) . - x . + x . - x . - x . +
+x . - x . + x . - x .
++ x . - x . + x . (- =AA AA
+xAA x AA AA
+-AA =x x
++AA +A x +A x +A x +A x +A x +A x =A A
+. + x . - x . + x . =- A
+)AA +A x +A x =(A A
+) . / ) )-A (LOG(x (-A x A B
+щx , d OG x , C x , C x , d B x
+W
+mb
+−
+−+
+−
+−
+−
++
++
+−
++
+⋅
+⋅
++ − × + =
+⋅ =
+=−== = =
+894703 5 407535 4966362 0067119 0
+539908 20368376 16535062 3237096 0
+007851 29974852 23222348 5350563 0
+764856 14507855 12787462 2192207 0
+2018992 109427931 6
+2494083 10018704 00107667 0
+4113508 318126569 21
+1949667 32639704 00589333 0
+7729778 371269741 25
+2186833 28108963 01140667 0
+616327 167918672 10
+52735 04989259 00628667 0
+834167 1 084987 1 220371 0015422 0
+641389 1 904989 0161176 0010185 0
+599424 0 286866 0040871 0002222 0
+579 236 827 235 549 79 56 8
+665 660 027 658 507 222 015 24
+848 463 689 460 399 156 872 16
+787 250 983 249 332 84 077 9
+494 701 683 698 275 236 507 25
+142 493 799 489 294 166 945 17
+0904 204677143196679
+939378002081721634256
+13571907356160611757738727299122
+1
+2
+1
+3
+1134
+1
+2
+1
+3
+1133
+1
+2
+1
+3
+1132
+1
+2
+1
+3
+1131
+1
+2
+1
+3
+1
+4
+1124
+1
+2
+1
+3
+1
+4
+1123
+1
+2
+1
+3
+1
+4
+1122
+1
+2
+1
+3
+1
+4
+1121
+1
+2
+1
+3
+1113
+1
+2
+1
+3
+1112
+1
+2
+1
+3
+1111
+134 2 133
+2
+2 132
+3
+2 131 13
+124 2 123
+2
+2 122
+3
+2 121 12
+113 2 112
+2
+2 111 11
+1
+2
+1
+3
+1123
+1
+2
+1
+3
+1122
+1
+2
+1
+3
+1121
+1
+2
+1
+3
+1113
+1
+2
+1
+3
+1112
+1
+2
+1
+3
+1111
+1232 122
+2
+2 12112
+1132 112
+2
+2 11111
+2
+2
+2
+3
+2
+4
+2
+5
+2
+6
+237
+. + x . - x . + x . =- A
+. - x . + x . - x . = A
+. + x . - x . + x . =- A
+. - x . + x . - x . = A
+. - x . +
+x . - x . + x . = A
+. + x . -
+x . + x . + x . =- A
+. - x . +
+x . - x . - x . = A
+. + x . -
+x . + x . + x . =- A
+. + x . - x . + x . =- A
+. - x . + x . - x . = A
+. + x . - x . + x . =- A
++A x +A x +A x =A A
++A x +A x +A x =A A
++A x +A x =A A
+. + x . - x . + x . =- AA
+. - x . + x . - x . = AA
+. + x . - x . + x . =- AA
+. - x . + x . - x . = AA
+. + x . - x . + x . =- AA
+. - x . + x . - x . = AA
++AA x +AA x =AA AA
++AA x +AA x =AA AA
+. + x .
+x . + x .
+x . + x . - x . = A
+−
+−
+(24)
+⎟⎟
+⎠
+⎞
+⎜⎜
+⎝
+⎛
+≤ ≤≤ ≤ −
+≤ ≤ ≤≤ ≤
+99 . 0 9 . 0 , 2 . 0 / 5 . 1
+0 . 1€, 5 . 4 / 5 . 2 , 85 . 0 5 . 0
+m
+b
+Cd OG
+d BC ω
+4.3 Eddy Component (BE) 
+The eddy component of the roll damping is 
+created by small separation bubbles or small 
+shedding vortices generated at the bilge part of 
+midship section and large vortices generated at 
+the relatively sharp bottom of bow and stern 
+sections. Although vortex shedding flow from 
+oscillating bluff bodies is usually govern by 
+Keulegan-Carpenter number, Kc, it was found 
+by Ikeda et al.(1978b) that  the viscous forces 
+created by such small separation bubbles or 
+small shedding vortices do not significantly 
+=== page break ===
+10th International Conference 
+on Stability of Ships and Ocean Vehicles 
+ 
+ 
+393
+depend on Kc. In Ikeda’ s prediction method, 
+the distribution of the pressure created on a hull 
+surface by such separation bubble is assumed 
+as a simple shape for each shape of cross 
+sections on the basis of experimental results of 
+pressure distribution on hull surfaces. The 
+pressure value was determined as the 
+calculated eddy components of the roll 
+damping for various cross sections are in good 
+agreement with measured ones. Then, the eddy 
+damping of a strip section is calculated by 
+following formulas. 
+(25)
+ (26)
+(27)
+ (28)
+ (29)
+ (30)
+where, r max is maximum distance from center 
+of gravity (roll ax is) to hull surface, R is bilge 
+radius and σ  is sectional area coefficient. 
+The eddy roll damping of a whole ship is 
+calculated by integrating B E
+’ to longitudinal 
+direction. 
+4.3.1 Characteristics of Eddy Component 
+In Figures 8 and 9, the longitudinal 
+distribution of the  pr edicted eddy component 
+of the roll damping are shown for a slender 
+ship (C b=0.5) and a full ship ( Cb=0.8). The 
+eddy component of a slender ship is large at 
+bow and stern parts, and has a small peak at 
+mid-ship, as shown in Figure 8. For a full ship, 
+however, the eddy dampi ng at parallel middle 
+body part becomes larger  and longer as shown 
+in Figure 9. The component at stern is large as 
+a slender ship, but becomes small at bow part. 
+These may be caused by that both ships has 
+similar V shape stern but the full ship has U 
+shape bow section which is not thin and flat 
+shape as a slender ship. 
+Figure 10 shows the effect of midship-
+section coefficient ( Cm ) on the eddy damping.  
+The results demonstrate that the eddy 
+component of the roll damping of parallel body 
+parts of ships is significantly sensitive to Cm.  
+This is because of larger flow separation occurs 
+at bilge corners of ships with large midship-
+section coefficient. 
+02
+1 0 2
+11
+2
+max
+2
+1 1
+3
+4
+PaPPE C
+d
+Rf H f
+d
+Rfd
+OG
+d
+Rf
+r d L B
+⎪
+⎪
+⎭
+⎪⎪
+⎬
+⎫
+⎪
+⎪
+⎩
+⎪⎪
+⎨
+⎧
+⎟
+⎠
+⎞⎜
+⎝
+⎛ − +
+⎟
+⎠
+⎞⎜
+⎝
+⎛ − −⎟
+⎠
+⎞⎜
+⎝
+⎛ −
+=′ ω ϕ ρπ
+0
+0.5
+1
+1.5
+2
+0123456789 1
+Stations
+0
+σ
+H0
+ 
+(){}[] 7 . 0 20 tanh 12
+1
+1 −+ = σf
+0
+0.03
+0.04
+0123456789 1 0
+E
+0.01
+0.02
+Stations
+B(×10-3)
+() ()() πσπσ σ 21 5
+2 sin1 5 . 1 cos 12
+1 − −− − − =ef
+() 3 4 87 . 02
+1 1877 . 0
+0 + −= −− e eCP
+γ
+d
+BH 2
+0 =
+ 
+Figure 8. Longitudinal distribution of σ, H0 and 
+roll damping coefficient of eddy component for 
+a ship with L/B=5, B/d=3.5, Cm=0.94, Cb=0.5, 
+OG/d=0 and ω€ =1.25. 
+Bd
+S=σ
+ 
+0
+0.5
+1
+1.5
+2
+0123456789 1
+Stations
+0
+σ
+H0
+ 
+0
+0.01
+0.02
+0.03
+0.04
+0123456789 1 0
+B E(×10-3)
+Stations  
+Figure 9. Longitudinal distribution of σ, H0 and 
+roll damping coefficient of eddy component for 
+a ship with L/B=5, B/d=3.5, Cm=0.94, Cb=0.8, 
+OG/d=0 and ω€ =1.25. 
+=== page break ===
+10th International Conference 
+on Stability of Ships and Ocean Vehicles 
+ 
+ 
+394 
+0
+0.02
+0.04
+0.06
+0123456789 1 0
+tions
+B E(×10-3)
+Cb=0.5 , Cm=0.98
+Cb=0.5 , Cm=0.9
+Cb=0.8 , Cm=0.9
+Cb=0.8 , Cm=0.98
+Sta  
+Figure 10. Effects of  midship-section 
+coefficient, Cm on eddy component of roll 
+damping for slender ships ( Cb=0.5) and full 
+ships (Cb=0.8). 
+4.3.2 Proposed Formula of the Eddy Roll 
+Damping 
+By fitting these predicted eddy components 
+a simple prediction formula is deduced as 
+follows. 
+(31)
+4.4 Bilge Keel Component (BBK) 
+The bilge keel component is usually the 
+largest one in the roll damping. The component 
+creates 50-80% of the total roll damping. The 
+component is created by shedding vortices 
+from the sharp edges of bilge keels due to roll 
+motion. The component can be divided into 
+two components, the normal force component 
+(BN) and the hull pressure component ( BS). 
+Both components are created by the same 
+vortices from the edge of bilge keels. The 
+former one is created by the force acting a bilge 
+keel, and the latter by the pressure over the hull 
+surfaces in front and back sides of the bilge 
+keel. 
+In Ikeda’s method, the pressure 
+distributions in front and back of a bilge keel 
+are assumed on the basis of the measured ones, 
+and are integrated over the hull surface. This 
+means that the method may be available for 
+any shape of cross section. Ikeda et at. 
+experimentally found that the magnitude and 
+distribution of the pressure created by a bilge 
+keel significantly depends on Kc. 
+The roll damping due to the normal force 
+acting on bilge keel is given by following 
+expressions. 
+(32)
+ (33)
+where r is distance from the axis of rolling to 
+bilge keel, bBK is width of bilge keel,  l BK is 
+length of bilge keel and f is correction factor on 
+bilge radius to take the velocity increase there 
+into account. 
+The roll damping due to the hull pressure 
+created by bilge keels is calculated by 
+following equations. 
+{}
+6 . 28 2 . 11 ) 15 5 . 46 (
+6 . 59 3 . 283 7 . 443 2 . 219
+) 95 . 0 25 . 0 (
+) 9408 . 0 04567 . 0 ( ) 723 . 0 55 . 1 9717 . 0 (
+) 1525 . 5 98 . 3 ( ) 6 . 1 2 . 0 (
+848 . 14 894 . 93 883 . 215695 . 215
+414 . 79 ) 8 . 1 ( ) 0155 . 0 0182 . 0 (
+)exp(
+3
+€4
+3
+€4€
+12 13
+2
+2
+2
+3
+2
+442
+242
+2
+2
+4211
+2
+2
+2
+3
+2
+4
+2
+3
+12
+3 2 1
+3
+1 2
+2
+4
+4321
+3
+− + ⋅ − =
++ −+−
+⋅ + =
+++ ⋅ + −⋅
+⋅ − ⋅ + − =
+−+−+
+− − ⋅ + − =
+⋅ + ⋅ =
+⋅
+=
+∇
+=
+= = = =
+x x xB
+x x x
+x xB
+xxx x
+xxxB
+xxx
+xxxA
+x B B A C
+C
+x x
+C
+B
+d L
+B
+d OG x , C x , C x , d B x
+E
+E
+E
+E
+B
+E EE R
+R
+a
+R
+app
+E
+mb
+E
+π
+ϕ ω
+π
+ϕ ω
+⎟⎟
+⎠
+⎞
+⎜⎜
+⎝
+⎛ += 4 . 2 5 . 223
+8 23
+a
+BK
+a BK BKN
+f r
+bf b l r B ϕ πω ϕ ρπ
+{ (
+(34)
+(35)
+where CP1 is pressure coefficient on hull 
+surface. The positive pressure coefficient 
+(CP1
++) of face of a bilge keel and the negative 
+pressure coefficient ( CP1
+-) of back side of a 
+bilge keel are given by following formulas. 
+(36)
+ (37)
+ 
+)}= + − 1 160 exp 3 . 0 1f −σ
+⎟⎟
+⎠
+⎞
+⎜⎜
+⎝
+⎛
+≤ ≤≤ ≤ −
+≤ ≤≤ ≤
+99 . 0 9 . 0 , 2 . 0 / 5 . 1
+5 . 4 / 5 . 2 , 85 . 0 5 . 0
+m
+b
+Cd OG
+d BC
+I f d r Ba
+3
+S
+22 24 ωϕ ρπ=
+∫= ds l C
+d
+I BK P12
+1
+2 . 11 =+
+PC
+2 . 15 . 22
+1 − − =−
+a
+BK
+P
+rf
+bC ϕ π
+=== page break ===
+10th International Conference 
+on Stability of Ships and Ocean Vehicles 
+ 
+ 
+395
+4.4.1 Characteristics of the Bilge Keel 
+Component 
+Calculated bilge keel component of the roll 
+damping by Ikeda’s method are shown in Figs. 
+11-13 to demonstrate the characteristics. In 
+Figure 11 bilge keel component of the roll 
+damping of slender ships (C b=0.58) and full 
+ships ( Cb=0.81) with different midship-section 
+coefficients are shown. In the prediction the 
+area of bilge keels is systematically changed. 
+The results show that the roll damping 
+component increases with increasing area of 
+bilge keels. For full ships the increase of the 
+component is almost linear, but for slender 
+ships it shows non-lin early increases. The 
+magnitude of the component significantly 
+depends on midship-sec tion coefficients, but 
+not so sensitive on block coefficient Cb. 
+Figure 11. Bilge keel component of roll 
+damping of slender and full ships for various 
+bilge keel lengths and constant breadth (bBK). 
+Figure 12. Effect of location of center of 
+gravity, or roll axis on bilge keel component of 
+roll damping. 
+In Figure 12, effects of location of center of 
+gravity on bilge keel component of roll 
+damping are shown for slender and full ships. 
+As height of center of gravity decreases, or  
+OG/d increases, the bilge keel component 
+decreases. This is because relative flow speed 
+at bilge corner decreases and flow separation at 
+the edge of bilge keels weakens. 
+S BK =86.4m 2     L PP =300m    B=60m    d=20m
+0
+0.25
+0.5
+0.75
+1
+0.1 0.2 0.3 0.4
+l BK /L PP
+B BK
+Cb=0.58 , Cm=0.92 Cb=0.58 , Cm=0.96
+Cb=0.58 , Cm=0.98 Cb=0.81 , Cm=0.92
+Cb=0.81 , Cm=0.96 Cb=0.81 , Cm=0.98
+(×109) (kgf m s/rad)
+Figure 13. Bilge keel component of roll 
+damping of slender and full ships with bilge 
+keels of the same area ( SBK) but different 
+lengths. 
+In Figure 13, effects of aspect ratio 
+(=length/breadth of a bilge keel) on the roll 
+damping of ships with the same area bilge 
+keels are shown. It can be seen that the 
+component is not so sensitive with aspect ratio, 
+but increases with increasing aspect ratio, or 
+more slender bilge keels for full ships with 
+large midship-section coefficients. 
+b BK /B=0.03    φ a =20°   ω=1.1
+0
+0.01
+0.02
+0.03
+0.04
+00 .1 0 .2 0 .3
+l B
+4.4.2 Proposed Formula of the Bilge Keel 
+Roll Damping 
+By fitting these predicted bilge keel 
+components a simple prediction formula is 
+deduced as follows. 
+0.4
+K /L PP
+B BK
+Cb=0.58 , Cm=0.94
+Cb=0.58 , Cm=0.99
+Cb=0.81 , Cm=0.94
+Cb=0.81 , Cm=0.99
+75 . 15 5 . 2
+6164 . 1 0586 . 0 0657 . 0
+1 . 0 2 . 1 15
+} 86 . 1 0425 . 000125 . 0
+2 . 0 3 . 0 5 {
+) 00189 . 0 01185 . 0 2857 . 5 (
+) 0733 . 0 8913 . 0 (
+4794 . 0 122 . 000255 . 0
+632 . 2 21 . 2 ) 83 . 2 ( ) 3907 . 0 3651 . 0 (
+) , ( ) ( ) , (
+)exp(€
+(deg)
+€
+43
+4
+2
+4
+1272
+46
+2
+6
+8171
+87
+2
+7
+2
+8 7
+2
+73
+6
+2
+62
+2
+2
+121
+8 7 3 6 2 2 1 1
+53 21
+876
+54321
+3
++ =
+++−
+− + − =
+⋅ −−+
+− + =
+⋅ +−+
+⋅−− =
++ +=
++ − − ⋅ + − =
+⋅ ⋅=
+⋅ ⋅ + ⋅ =
+===
+=====
+x B
+xx
+x x xB
+x xx
+x x x B
+xxx
+x xxf
+xxf
+xxxf
+x x f x f x x f A
+x x B B A B
+L l x , B b x ,x
+щx , d OG x , C x , C x , d B x
+BK
+BK
+BK
+BK
+B
+BKBKBKBK
+PP BKBKa
+mb
+BK
+ϕ
+0
+0.01
+0.02
+-1.5 -1 -0.5 0
+OG/d (downward direction is positive)
+B BK
+Cb=0.58 , Cm=0.94
+Cb=0.58 , Cm=0.99
+Cb=0.81 , Cm=0.94
+Cb=0.81 , Cm=0.99
+⎟
+⎟
+⎟
+⎠
+⎞
+≤ ≤≤ ≤
+≤ ≤≤ ≤ −
+≤ ≤≤ ≤
+4 . 0 / 05 . 0 , 06 . 0 / 01 . 0
+99 . 0 9 . 0 , 2 . 0 / 5 . 1
+5 . 4 / 5 . 2 , 85 . 0 5 . 0
+pp BKBK
+m
+b
+L lB b
+Cd OG
+d BC
+⎜
+⎜
+⎜
+⎝
+⎛
+(38)
+=== page break ===
+10th International Conference 
+on Stability of Ships and Ocean Vehicles 
+ 
+ 
+396 
+5. VALIDATION OF PROPOSED 
+METHOD 
+To verify the valid ity of the proposed 
+method, the values of the roll damping 
+calculated by the original Ikeda’s method and 
+the proposed method are compared on two 
+kinds of ships. Th e results of these 
+comparisons are shown in Figure 14. 
+These results indicate that the calculated 
+values of roll damping by the proposed 
+formulas are in good agreement with the roll 
+damping calculated by the Ikeda’s method, 
+although the estimated values by using the 
+proposed method have some errors about 10% 
+when ω€  becomes larger for the ship with 
+OG/d=-0.2 as shown in Figure 14. However, 
+the error margin becomes small in the low-
+frequency range beca use the bilge keel 
+component is predominant.  
+ 
+0
+0.005
+0.01
+0.015
+0.02
+0.2 0.4 0.6 0.8 1
+ω
+B 44
+Prediction Method. Total
+Prediction Method. Eddy Component
+Prediction Method. Wave Component
+Prediction Method. Bilge Keel Component
+Ikeda's Method. Total
+Ikeda's Method. Eddy Component
+Potential Theory. Wave Component
+Ikeda's Method. Bilge Keel Component
+ 
+(a) OG/d = -0.2 
+0
+0.02
+0.04
+0.06
+0.20 .40 .60 .8
+ω
+B 44
+1
+Prediction Method. Total
+Prediction Method. Eddy Component
+Prediction Method. Wave Component
+Prediction Method. Bilge Keel Component
+Ikeda's Method. Total
+Ikeda's Method. Eddy Component
+Potential Theory. Wave Component
+Ikeda's Method. Bilge Keel Component
+ 
+(b) OG/d =-1.5 
+Figure 14. Comparison between Ikeda’s 
+method and proposed one of roll damping at 
+L/B=6.0, B/d=4.0, Cb=0.65, Cm=0.98, φa=10°, 
+bBK/B=0.025 and lBK/Lpp=0.2. 
+The results in Figure 14 suggest that the 
+errors come from the discrepancy of the wave 
+component between the proposed method and 
+the potential theory. Especially, this 
+discrepancy grows larger on condition of 
+B/d=4.5 and OG/d=-0.2 ~ -0.5, so it should be 
+noted for the use of the proposed method on 
+this condition. This may be because the wave 
+component of the roll damping intricately 
+depends on frequency and locations of roll axis. 
+Therefore, if more accurate prediction is 
+needed, the calculated wave damping by any 
+potential theory should be used. 
+6. LIMITATION OF IKEDA’S METHOD 
+In recent years, the number of ships that 
+have buttock flow stern, such as large 
+passenger ship or pure car carrier, has been 
+increasing. In such a t ype of ships, however, 
+prediction accuracy of roll damping calculated 
+by Ikeda’s method might decrease remarkably. 
+In order to investigate its limitation, free roll 
+decay tests are carried out by using three types 
+of model ships, large passenger ship (LPS), 
+modern pure car carrier (PCC) and wide 
+breadth and shallow draft car carrier (WSPCC). 
+The principal particulars of these ships and the 
+body plan of large passenger ship are shown in 
+Table 1 and Figure 15, respectively. As shown 
+in Figure 15, the ship has shallow stern-bottom 
+with something like a skeg. 
+ 
+Table 1. Principal particulars of the ships 
+ LPS PCC WSPC
+Scale 1/125 1/96 1/96 
+LOA (m) 2.200 2.083 2.083 
+LPP (m) 1.933 2.00 2.00 
+Breadth (m) 0.287 0.336 0.378 
+Draft (m) 0.067 0.0938 0.0772
+Displacement(kg) 26.98 33.43 28.05 
+GM (m) 0.0126 0.0194 0.063 
+Tnr (sec) 1.88 2.06 1.05 
+OG/d -1.13 -0.071 -1.35 
+bBK/Breadth  0.0217 0.0217
+lBK/LPP  0.225 0.225 
+ 
+=== page break ===
+10th International Conference 
+on Stability of Ships and Ocean Vehicles 
+ 
+ 
+397
+ 
+Figure 15. Body plan of large passenger ship. 
+In Figure 16, the obtained results of the 
+extinction coefficient N are shown. The results 
+demonstrate that the accuracy of Ikeda’s 
+prediction method decrease remarkably when 
+the roll angle is small. However, the error of 
+roll damping becomes smaller for large 
+passenger ship and pure car carrier in condition 
+of large roll angle. For wide breadth and 
+shallow draft car carrier, however, the roll 
+damping calculated by Ikeda’s prediction 
+method is overestimated from the experimental 
+result for whole roll angle. This is pointed out 
+by Tanaka et al. (1981) th at the effect of the 
+bilge keel component on the roll damping 
+significantly decreases for the wide breadth and 
+shallow draft ships. Also, the discrepancies 
+between the simple prediction formula and 
+Ikeda’s method are attri buted to differences 
+between methodical series model and real 
+model ship and to using out of its possible 
+calculating condition. Then, the extinction 
+coefficient N of large passenger ship is 
+relatively large even for naked hull because of 
+relatively small bilge radius. Thus, Ikeda’s 
+prediction method is valid  only in large roll 
+angle for modern type of ships with buttock 
+flow stern, and overestimate the roll damping 
+for a very flat ship with large bilge keels. 
+ 
+0
+0.05
+0.1
+0 5 10 15 20
+roll angle
+N coefficient
+measured
+Simple prediction formula
+Ikeda's Prediction Method
+Ikeda's Prediction Method
+(B F +B W +B E )
+(B F +B W )
+(B F +B W +B E )
+ 
+(a) Large passenger ship 
+0
+0.05
+0.1
+0 5 10 15 20
+roll angle
+N coefficient
+Measured.
+Simple prediction formula
+Ikeda's Prediction Method
+Ikeda's Prediction Method
+Ikeda's Prediction Method
+(B F +B W +B E +B BK )
+(B F +B W )
+(B F +B W +B E )
+(B F +B W +B E +B BK )
+ 
+(b) Pure car carrier 
+0
+0.05
+0.1
+0.15
+0 5 10 15 20
+roll angle
+N coefficient
+Measured.
+Simple prediction formula
+Ikeda's Prediction Method
+Ikeda's Prediction Method
+Ikeda's Prediction Method
+(B F +B W +B E +B BK )
+(B F +B W )
+(B F +B W +B E )
+(B F +B W +B E +B BK )
+ 
+(c) Wide breadth and shallow draft car 
+carrier 
+Figure 16. Comparison of roll damping 
+between Ikeda’s method and experimental 
+result. 
+7. CONCLUSIONS 
+A simple prediction method of the roll 
+damping of ships is developed on the basis of 
+the Ikeda’s original prediction method which 
+was developed in the same concept as a strip 
+method for calculating ship motions in waves. 
+Using the data of a ship, B/d, Cb, Cm, OG/d, ω€ , 
+bBK/B, lBK/LPP, φa, the roll damping of a ship 
+can be approximately pr edicted. Moreover, the 
+limit of application of Ikeda's prediction 
+method to modern ships that have buttock flow 
+stern is demonstrated by the model experiment. 
+The computer program of the method can be 
+downloaded from the Home Page of Ikeda’s 
+Labo. 
+(http://www.marine.osakafu-
+u.ac.jp/~lab15/roll_damping.html). 
+8. ACKNOWLEDMENTS 
+This work was supported by a Grant-in Aid 
+for Scientific Research of the Japan Society for 
+Promotion of Science (No. 18360415). 
+=== page break ===
+10th International Conference 
+on Stability of Ships and Ocean Vehicles 
+ 
+ 
+398 
+The authors wish to express sincere 
+appreciation to Prof. N. Umeda of Osaka 
+University for valuable suggestions to this 
+study. 
+9. REFERENCES 
+Himeno, Y (1981), “Prediction of Ship Roll 
+Damping – State of the Art-, Report of Dept. 
+of Naval Architecture & Marine 
+engineering, the University of Michigan, 
+No.239 
+Ikeda, Y ., Himeno, Y ., Tanaka, N (1976). "On 
+Roll Damping Force of Ship -Effects of 
+Friction of Hull and Normal Force of Bilge 
+Keels-", Journal of th e Kansai Society of 
+Naval Architects, Japan No.161, pp 41-49. 
+Ikeda, Y ., Komatsu, K., Himeno, Y ., Tanaka, N 
+(1977a). “On Roll Damping Force of Ship -
+Effects of Hull Surface Pressure Created by 
+Bilge Keels-”, Jour nal of the Kansai 
+Society of Naval Arch itects, Japan No.165, 
+pp 31-40 
+Ikeda, Y ., Himeno, Y ., Tanaka, N (1977b). “On 
+Eddy Making Component of Roll Damping 
+Force on Naked Hull”, Journal of The 
+Society of Naval Arch itects, Japan No.142, 
+pp 59-69 
+Ikeda, Y ., Himeno, Y ., Tanaka, N (1978). 
+“Components of Roll Damping of Ship at 
+Forward Speed”, Journal of The Society of 
+Naval Architects, Japan No.143, pp 121-
+133 
+Ikeda, Y ., Fujiwara, T., Himeno, Y ., Tanaka, N., 
+“Velocity Field around Ship Hull in Roll 
+Motion”, Journal of the Kansai Society of 
+Naval Architects, Japan No.171, pp 33-45 
+Ikeda, Y (1982), “Prediction Method of Roll 
+Damping”, Report of Dept. of Naval 
+Architecture, University of Osaka 
+Prefecture 
+Ikeda, Y . (1984). “Roll damping”, 1ST 
+Symposium of Marine Dynamics Research 
+Group, Japan, pp 241-250 
+Kawahara, Y ., (2008). “Characteristics of Roll 
+Damping of Various Ship Types and A 
+Simple Prediction Formula of Roll 
+Damping on the Basis of Ikeda’s Method”, 
+The 4 th Asia-Pacific Workshop on Marine 
+Hydrodymics, Taipei, pp 79-86 
+=== page break ===

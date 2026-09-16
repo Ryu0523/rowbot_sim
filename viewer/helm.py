@@ -40,8 +40,7 @@ from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 
 import numpy as np
 
-from hydro import bem
-from sim.vessel import NonlinearVessel
+from sim import config
 from sim.wavefield import SeaState
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -56,8 +55,14 @@ HS, TP = 3.25, 9.7
 class Helm:
     """The plant, running in real time, taking commands from anywhere."""
 
-    def __init__(self, db, seed=0, u0=3.5):
+    def __init__(self, db, seed=0, u0=None, hull=None):
         self.db = db
+        # the vessel, resolved once; its own time step and a start speed of
+        # the USV's 3.5 m/s Froude-scaled
+        self.hull = config.resolve(db, hull)
+        sc = config.scales_for(db, self.hull)
+        self.dt = sc["dt"]
+        u0 = 3.5 * np.sqrt(sc["lam"]) if u0 is None else u0
         self.lock = threading.Lock()
         self.cmd = dict(thrust=0.45, rudder=0.0)
         self.seed = seed
@@ -68,10 +73,7 @@ class Helm:
 
     def _build(self):
         sea = SeaState(HS, TP, n_freq=N_FREQ, n_dir=N_DIR, seed=self.seed)
-        self.plant = NonlinearVessel(
-            self.db, sea, L=self.db.L,
-            B=float(self.db.attrs.get("B", 2.5)),
-            T=float(self.db.attrs.get("T", 0.8)), dt=DT)
+        self.plant = config.plant_for(self.db, sea, self.hull, dt=self.dt)
         self.s = self.plant.initial_state(self.u0)
         self.t = 0.0
         self.cost = 0.0
@@ -89,15 +91,15 @@ class Helm:
                 c = dict(self.cmd)
             thrust = float(np.clip(c["thrust"], 0, 1)) * self.plant.prop.t_max
             rudder = float(np.clip(c["rudder"], -1, 1)) * self.plant.rudder.max
-            self.s = self.plant.step(self.s, self.t, thrust, rudder, DT)
-            self.t += DT
+            self.s = self.plant.step(self.s, self.t, thrust, rudder, self.dt)
+            self.t += self.dt
 
             s = self.s
             a = self.plant.last_bow_acc / G
             # progress along +x, the direction the destination lies in
             vmg = float(s[6] * np.cos(s[5]) - s[7] * np.sin(s[5]))
-            self.dist += max(vmg, 0.0) * DT
-            self.cost += a * a * DT
+            self.dist += max(vmg, 0.0) * self.dt
+            self.cost += a * a * self.dt
             with self.lock:
                 self.state = dict(
                     t=self.t, x=float(s[0]), y=float(s[1]), z=float(s[2]),
@@ -114,7 +116,7 @@ class Helm:
                     if self.dist > 5 else None,
                     seed=self.seed)
             # pace to wall clock; if we fall behind, skip rather than spiral
-            next_t += DT
+            next_t += self.dt
             lag = next_t - time.perf_counter()
             if lag > 0:
                 time.sleep(lag)
@@ -167,15 +169,18 @@ def make_handler(helm):
     return H
 
 
-def main(port=8770, seed=0):
-    db = bem.load("hydro_wigley_10m.npz")
-    helm = Helm(db, seed=seed)
+def main(port=8770, seed=0, hull="wigley10"):
+    h, db = config.load(hull)
+    helm = Helm(db, seed=seed, hull=h)
     threading.Thread(target=helm.loop, daemon=True).start()
     srv = ThreadingHTTPServer(("127.0.0.1", port), make_handler(helm))
-    n_state = helm.db and NonlinearVessel(
-        db, SeaState(HS, TP, n_freq=N_FREQ, n_dir=N_DIR, seed=seed),
-        L=db.L, dt=DT).n_state
-    print(f"  plant: {n_state} states, running at wall-clock pace")
+    n_state = config.plant_for(
+        db, SeaState(HS, TP, n_freq=N_FREQ, n_dir=N_DIR, seed=seed), h,
+        dt=helm.dt).n_state
+    print(f"  plant ({h.name}): {n_state} states, running at wall-clock pace")
+    if h.name != "wigley10":
+        print("  NOTE: the page still DRAWS the Wigley USV (its mesh comes "
+              "from studies/export_viewer.py); the motion is this vessel's")
     print(f"  open  http://127.0.0.1:{port}/seaway_full.html?live")
     print("  the page will say LIVE PLANT once it finds this server\n")
     print("  W/S throttle, A/D rudder, space centres, R restarts")
@@ -187,4 +192,11 @@ def main(port=8770, seed=0):
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    ap = argparse.ArgumentParser(description="drive the full plant")
+    ap.add_argument("--hull", default="wigley10",
+                    help="a vessel from hydro/hulls.py")
+    ap.add_argument("--port", type=int, default=8770)
+    ap.add_argument("--seed", type=int, default=0)
+    a = ap.parse_args()
+    main(a.port, a.seed, a.hull)
