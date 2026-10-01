@@ -296,6 +296,44 @@ def decomposition():
                               for c, s, f in zip(ch, sk_w, floor_w)))
 
 
+# ------------------------------------------------------------------ T10
+def ident_skill(D2, kappa, n, d, B2):
+    """e = beta.W + xi, W ~ N(0, I_d) observed, xi ~ N(0, 1); prior
+    beta ~ N(beta_bar, I / kappa); |beta_bar - beta_g|^2 = D2,
+    |beta_g|^2 = B2. One-step skill of the posterior mean after n steps
+    (large n: sum W W^T = n I)."""
+    return (1.0 + (kappa * kappa * D2 + n * d) / (kappa + n) ** 2) / (B2 + 1.0)
+
+
+def check_ident():
+    d, n, R, B2 = 6, 256, 4000, 9.0
+    bg = np.full(d, math.sqrt(B2 / d))
+    bb = bg + np.r_[1.0, np.zeros(d - 1)]          # D2 = 1
+    for kappa in (6.0, 64.0):
+        err = []
+        for _ in range(R):
+            W = RNG.standard_normal((n, d))
+            e = W @ bg + RNG.standard_normal(n)
+            A = W.T @ W + kappa * np.eye(d)
+            bh = np.linalg.solve(A, kappa * bb + W.T @ e)
+            w = RNG.standard_normal(d)
+            err.append((w @ bg + RNG.standard_normal() - w @ bh) ** 2)
+        line(f"T10 d={d} D2=1 kappa={kappa}: formula "
+             f"{ident_skill(1.0, kappa, n, d, B2):.4f}, simulation "
+             f"{np.mean(err) / (B2 + 1):.4f}")
+    ks = np.linspace(0.5, 60, 400)
+    best = ks[np.argmin([ident_skill(1.0, k, n, d, B2) for k in ks])]
+    line(f"T10 best prior strength kappa* = d / D2 = {d}: numeric "
+         f"{best:.2f}; excess at kappa* {d / (d / 1.0 + n):.4f} "
+         f"(= d D2 / (d + n D2))")
+    rows = []
+    for dd in (60, 6):
+        for D2 in (4.0, 0.25):
+            ex = (ident_skill(D2, 64.0, n, dd, B2) - 1 / (B2 + 1))
+            rows.append(f"d={dd} D2={D2}: {ex:.3f}")
+    line("T10 excess skill at kappa=64, n=256, r=9: " + "; ".join(rows))
+
+
 def main():
     mixture_regret()
     check_conjugate()
@@ -308,6 +346,7 @@ def main():
     trigger()
     check_coef()
     decomposition()
+    check_ident()
 
 
 if __name__ == "__main__":
