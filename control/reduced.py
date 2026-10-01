@@ -137,13 +137,30 @@ class ReducedModel:
         def fresh():
             return plant.with_sea(calm, wind=Wind())
 
+        # A PLANING plant (sim/planing_vessel.py) is identified where it
+        # works: at speed. From rest it would cross the resistance hump and
+        # its decays would be a displacement hull's, a different vessel. So
+        # the step starts at 0.8 u_design, the decays run at the step's
+        # steady speed with its thrust held, and the running rise and trim
+        # at the design speed become offsets of the heave and pitch
+        # equilibria (z0, th0; zero for a displacement hull).
+        planing = getattr(plant, "kind", "") == "planing"
+
         # --- surge: thrust step in calm water -> gain and time constant ----
         v = fresh()
-        t, s = _run(v, 240.0 * rs, thrust=thr_id)
-        u = s[:, 6]
-        u_ss = float(np.mean(u[-200:]))
-        # first-order rise: u(t) = u_ss (1 - exp(-t/tau))
-        idx = np.argmax(u > 0.632 * u_ss)
+        if planing:
+            u0 = 0.8 * u_des
+            t, s = _run(v, 240.0 * rs, thrust=thr_id, u0=u0)
+            u = s[:, 6]
+            u_ss = float(np.mean(u[-200:]))
+            span = u_ss - u0 if abs(u_ss - u0) > 1e-6 else 1.0
+            idx = np.argmax((u - u0) / span > 0.632)
+        else:
+            t, s = _run(v, 240.0 * rs, thrust=thr_id)
+            u = s[:, 6]
+            u_ss = float(np.mean(u[-200:]))
+            # first-order rise: u(t) = u_ss (1 - exp(-t/tau))
+            idx = np.argmax(u > 0.632 * u_ss)
         tau_u = float(t[idx]) if idx > 0 else 8.0 * rs
         k_drag = thr_id / max(u_ss ** 2, 1e-6)      # steady drag balance
 
@@ -151,13 +168,19 @@ class ReducedModel:
         wn, zeta = {}, {}
         for dof, col, vcol in (("heave", 2, 8), ("pitch", 4, 10)):
             v = fresh()
-            s0 = v.initial_state()
-            s0[col] = 0.625 * plant.T if dof == "heave" else 0.08
+            if planing:
+                s0 = v.initial_state(u_ss)
+                s0[col] += 0.5 * plant.T if dof == "heave" else 0.02
+                thr_decay = thr_id
+            else:
+                s0 = v.initial_state()
+                s0[col] = 0.625 * plant.T if dof == "heave" else 0.08
+                thr_decay = 0.0
             n = int(30.0 * rs / dt)
             y = np.empty(n + 1)
             st = s0.copy()
             for i in range(n):
-                st = v.step(st, i * dt, 0.0, 0.0, dt)
+                st = v.step(st, i * dt, thr_decay, 0.0, dt)
                 y[i + 1] = st[col]
             y[0] = s0[col]
             tt = np.arange(n + 1) * dt
@@ -183,8 +206,27 @@ class ReducedModel:
             # crossings give the DAMPED period; the model's wn is undamped
             Td = 2.0 * float(np.mean(np.diff(tc))) if len(tc) > 2 else 2.0 * rs
             wn[dof] = 2 * np.pi / Td / np.sqrt(max(1.0 - zeta[dof] ** 2, 0.05))
+            if planing:
+                # At speed a planing hull's heave and pitch are damped so
+                # hard that the decay has no second peak and too few
+                # crossings, and the estimator above fell back to its
+                # defaults (Scarab: 4.48 rad/s, 0.3, both modes). A
+                # second-order fit of the decay itself works either side of
+                # critical damping: y[k+1] = a1 y[k] + a2 y[k-1] by least
+                # squares, its poles z mapped to s = ln(z) / dt.
+                seg = y[1:max(end, 8) + 1]
+                X = np.column_stack([seg[1:-1], seg[:-2]])
+                a1, a2 = np.linalg.lstsq(X, seg[2:], rcond=None)[0]
+                zp = np.roots([1.0, -a1, -a2]).astype(complex)
+                sp = np.log(zp) / dt
+                w_n = float(np.sqrt(np.abs(np.prod(sp))))
+                if w_n > 0 and np.all(sp.real < 0):
+                    wn[dof] = w_n
+                    zeta[dof] = float(-np.sum(sp.real) / (2.0 * w_n))
 
         # --- yaw: rudder step -> Nomoto gain and time constant -------------
+        # (for a waterjet the same step with the nozzle)
+        jet = getattr(plant, "propulsor", "propeller") == "waterjet"
         v = fresh()
         st = v.initial_state(u_ss)
         n = int(60.0 * rs / dt)
@@ -201,6 +243,7 @@ class ReducedModel:
         # Sway coefficients are COPIED, not fitted. Fitting would add error to
         # terms the plant computes in closed form and that we can simply read.
         rud = plant.rudder
+        # (a waterjet's Nozzle has no blade: k_lift is then unused and zero)
         # Mass, lift and Coriolis are read straight off the plant. Damping is
         # NOT: the plant also damps sway through the radiation memory, which is
         # linear and which this model has no way to carry. Copying only the
@@ -214,7 +257,8 @@ class ReducedModel:
         m_sway = float(plant.Mtot[1, 1])
         k_quad = float(plant.visc[1])
         m_cor = float(plant.M[0, 0])
-        k_lift = float(0.5 * rud.rho * rud.area * rud.cl_alpha)
+        k_lift = (float(0.5 * rud.rho * rud.area * rud.cl_alpha)
+                  if hasattr(rud, "cl_alpha") else 0.0)
 
         v = fresh()
         st = v.initial_state(u_des)
@@ -224,13 +268,35 @@ class ReducedModel:
             st = v.step(st, tt, 7000.0 * t_max / 12000.0, d_id, dt)
             tt += dt
         u_s, v_s, r_s = float(st[6]), float(st[7]), float(st[11])
-        lift_s = k_lift * u_s * abs(u_s) * d_id
+        if jet:
+            # A jet's side force is read off the plant, not computed from a
+            # blade: m_dot Vj sin(delta) at whatever flow the pump gives at
+            # this speed. The reduced model carries it as
+            #     side = k_jet_side * thrust * sin(delta)
+            # -- zero with zero thrust, which is the point -- with the
+            # coefficient taken from this steady turn.
+            lift_s = float(v.last_jet_force[1])
+            thr_s = 7000.0 * t_max / 12000.0
+            k_jet_side = lift_s / (thr_s * np.sin(d_id))
+        else:
+            lift_s = k_lift * u_s * abs(u_s) * d_id
         k_lin = (lift_s - k_quad * v_s * abs(v_s) - m_cor * u_s * r_s) / v_s
         k_lin = float(max(k_lin, 0.0))
 
         p_sway = dict(m_sway=m_sway, k_sway=k_quad, m_coriolis=m_cor,
                       k_lift=k_lift, k_lin_sway=k_lin,
                       rud_stall=float(rud.stall))
+        if jet:
+            # yaw per unit of the model's OWN side-force variable at the
+            # yaw step's thrust and angle, so the model reproduces that step
+            # exactly
+            p_sway.update(
+                steer_jet=1.0, k_jet_side=float(k_jet_side),
+                k_nomoto_f=float(r_ss / (k_jet_side * thr_id
+                                         * np.sin(np.radians(20.0)))))
+        if planing:
+            z_run, th_run = plant.running_attitude(u_des)
+            p_sway.update(z0=float(z_run), th0=float(th_run), planing=1.0)
 
         # --- wave-induced sway force and yaw moment ------------------------
         # Fitted, not guessed: run the plant in short-crested seas with the
@@ -331,6 +397,19 @@ class ReducedModel:
         wz, zz = p["wn_heave"], p["z_heave"]
         wp, zp = p["wn_pitch"], p["z_pitch"]
         alpha = np.arctan(slope) * p["sign_pitch"]
+        # How hard the sea drives heave and pitch, relative to the hull simply
+        # following the surface. Absent from the identified model, so 1.0 and
+        # the MPC is unchanged (x * 1.0 is exact). A free parameter of the
+        # low-fidelity world (sim/lofi.py) and for adaptation, because the
+        # wave-to-motion gain is where the plant sits furthest from a tank:
+        # short waves off by ~2x on KCS (DEFECTS F8).
+        eta_bar = eta_bar * p.get("k_wave_heave", 1.0)
+        alpha = alpha * p.get("k_wave_pitch", 1.0)
+        # a planing hull runs risen and trimmed: its heave and pitch
+        # oscillate about the running attitude, not the rest waterline
+        # (identify(); zero for a displacement hull, where + 0.0 is exact)
+        eta_bar = eta_bar + p.get("z0", 0.0)
+        alpha = alpha + p.get("th0", 0.0)
 
         # Exact transition, measured from the forcing. Holding eta_bar and the
         # wave slope constant across one control step is a zero-order hold --
@@ -362,7 +441,14 @@ class ReducedModel:
         # this function into JavaScript for the viewer's drive mode and
         # comparing the two step by step.
         rud_eff = np.clip(rudder, -p["rud_stall"], p["rud_stall"])
-        lift = p["k_lift"] * u * np.abs(u) * rud_eff
+        jet = p.get("steer_jet", 0.0) > 0.5
+        if jet:
+            # a waterjet steers with its flow: side force in proportion to
+            # thrust, none without it (identify(); sim/waterjet.py)
+            lift = (p["k_jet_side"] * np.maximum(thrust, 0.0)
+                    * np.sin(rud_eff))
+        else:
+            lift = p["k_lift"] * u * np.abs(u) * rud_eff
         vd = (lift - p["k_lin_sway"] * v - p["k_sway"] * v * np.abs(v)
               - p["m_coriolis"] * u * r) / p["m_sway"]
         # REVERTED, and the reason is worth keeping. The obvious way to give
@@ -394,7 +480,11 @@ class ReducedModel:
         # stepping is fine; yaw is marginal at tau_r = 0.5 s, so it gets the
         # exact first-order update too.
         ay = float(np.exp(-dt / p["tau_r"]))
-        r_rud = p["k_nomoto"] * rudder + (r - p["k_nomoto"] * rudder) * ay
+        if jet:
+            r_tgt = p["k_nomoto_f"] * lift
+            r_rud = r_tgt + (r - r_tgt) * ay
+        else:
+            r_rud = p["k_nomoto"] * rudder + (r - p["k_nomoto"] * rudder) * ay
         r_new = r_rud + p["c_wave_yaw"] * 9.81 * t_twist * dt
 
         ns = np.empty_like(s)

@@ -94,9 +94,17 @@ class USVControlEnv:
                  # with the operator objective, which prices cross-track at
                  # 0.4*(y/10)^2. Raising the weight puts the two back in line
                  # so the comparison measures control rather than bookkeeping.
-                 weights=(1.0, 0.5, 1.0, 1.5, 2.0, 0.05)):
+                 weights=(1.0, 0.5, 1.0, 1.5, 2.0, 0.05),
+                 fidelity="high", plant_params=None):
         # `hull`: a registered name or a Hull (sim/config.py); None = the
-        # vessel `db` was computed for, or the 10 m USV if there is no db
+        # vessel `db` was computed for, or the 10 m USV if there is no db.
+        # `fidelity`: "high" = the full plant, "low" = the MPC's reduced
+        # model as the plant (sim/lofi.py). `plant_params`: overrides of the
+        # low-fidelity coefficients, a dict or f(rng) -> dict drawn afresh at
+        # every reset (domain randomisation: f = lambda g:
+        # lofi.perturb(nominal, g)).
+        self.fidelity, self.plant_params = fidelity, plant_params
+        self._prng = np.random.default_rng(1)
         if db is None:
             if db_path is not None:
                 db = bem.load(db_path)
@@ -110,7 +118,9 @@ class USVControlEnv:
         self._lam, self._rs = sc["lam"], float(np.sqrt(sc["lam"]))
         # None = the vessel's own; for the 10 m USV the old 0.05 s, 0.5 s,
         # 200 s, 4.5 m/s and 8 s of preview
-        dt = sc["dt"] if dt is None else dt
+        if dt is None:
+            from sim import lofi
+            dt = sc["dt"] if fidelity == "high" else lofi.default_dt(sc)
         dt_ctrl = sc["dt_ctrl"] if dt_ctrl is None else dt_ctrl
         t_end = 200.0 * self._rs if t_end is None else t_end
         u_ref = sc["u_design"] if u_ref is None else u_ref
@@ -139,7 +149,11 @@ class USVControlEnv:
                        n_freq=self.n_freq, n_dir=self.n_dir, seed=seed)
         # A fresh vessel per reset costs a retardation-model lookup, which is
         # cached, so cycling a fixed seed set keeps resets cheap.
-        self._plant = config.plant_for(self.db, sea, self.hull, dt=self.dt)
+        pp = self.plant_params
+        if callable(pp):
+            pp = pp(self._prng)
+        self._plant = config.plant_for(self.db, sea, self.hull, dt=self.dt,
+                                       fidelity=self.fidelity, params=pp)
         self.sea = sea
 
     def _observe(self):
@@ -230,6 +244,9 @@ class USVControlEnv:
     def reset(self, seed=None, options=None):
         if seed is not None:
             self._rng = np.random.default_rng(seed)
+            # its own stream, so randomising the plant does not change which
+            # seas a seeded run visits
+            self._prng = np.random.default_rng(seed + 7919)
         self._build(int(self._rng.choice(self.seeds)))
         self._s = self._plant.initial_state(self.u_ref * 0.8)
         self._t = 0.0

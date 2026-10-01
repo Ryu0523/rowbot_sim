@@ -203,6 +203,34 @@ python -m studies.preview_metrics         # ~25 m  preview vs 9 criteria, 10 see
 python -m studies.preview_timescale       # ~25 m  wave-by-wave vs wave-group preview
 python -m studies.preview_sweep           # ~30 m  the M7 sweep, 12 seeds
 python -m learn.tune                      #  1-2 h CMA-ES weight tuning
+
+# sim-to-real: the low-fidelity world (the MPC's model as the plant)
+python -m sim.lofi                        # ~1.5 m  parameters, speed, same MPC in both worlds
+python -m learn.tune --fidelity low       #  tune the weights in the low-fidelity world
+
+# waterjet (wigley10_jet: the test hull with a jet and steering nozzle)
+python -m studies.hull_acceptance wigley10_jet   # 1.5 m  the eight acceptance checks
+python -m studies.sim2real_jet --workers 4        # ~45 m  tune in low fidelity, adapt to the full plant
+python -m studies.exp_waterjet                    #   3 s  jet model vs manufacturer curves and jet-boat tests
+
+# planing (scarab195: Scarab 195 ID, VM 18's public near-twin)
+python -m studies.exp_planing                     #   2 m  calm water vs Savitsky, top speed vs tests, waves
+
+# five published sim-to-real / adaptive methods reproduced on the Scarab task
+# (SG-RL, Berg et al. 2025, RMA, Jiang et al. 2026, bi-level RL; learn/repro/)
+python -m studies.repro_baselines --smoke         #   8 m  every phase with tiny budgets
+python -m studies.repro_baselines --workers 6     # ~6 h   train, evaluate on 16 target episodes (DEFECTS I)
+# corrected MPC that learns speed loss and impacts online; 48 combinations of
+# features x confounder x speed input x probing (learn/adapt/, DEFECTS J)
+python -m studies.adapt_matrix --workers 6        # ~2.5 h
+# general adaptation, step 1: infer the model error from history (random
+# residual family, learned basis, transformer + flow matching; GPU)
+python -m studies.meta_step1 --workers 5          # ~1 h (data 42 m, train 13 m)
+# step 2: derived operator family (filters on measured inputs incl. waves,
+# events, coloured noise; learn/meta/PRIOR_DERIVATION.md), jittered random
+# seas, latent-code decoder + c-flow + innovation flow (DEFECTS M)
+python -m studies.meta_step2 --phase all --smoke  #  ~15 m every phase, tiny sizes
+python -m studies.meta_step2 --phase all --procs 4  # ~3 h data + ~1.5 h training (GPU)
 ```
 
 Headline results are summarised in `PLAN.md`. The short version: preview
@@ -338,6 +366,9 @@ hydro/                  offline: geometry, fluid solution, frequency → time
                         Splits excitation into Froude–Krylov and diffraction
   hull.py               Hull: one description of a vessel -- mesh, mass,
                         appendages, cached BEM. The import path for real boats
+  planing.py            Savitsky (1964) steady planing: trim, wetted length,
+                        resistance of a prismatic hull; speed at a jet power.
+                        Not in the plant -- the first piece of a planing one
   inertia.py            rigid-body inertia that does not trust Capytaine's,
                         checked against three exact solutions; gyradius knob
   symmetry.py           zeroes the vertical/lateral coupling a symmetric hull
@@ -374,6 +405,21 @@ sim/                    the plant
   rl_env.py             direct-control RL environment: action is (thrust,
                         rudder), 39-dim observation incl. wave preview, dense
                         bounded reward. No gymnasium required
+  planing_vessel.py     the PLANING plant: 2D+t strip theory (Zarnick-type) for
+                        heave/pitch, waterjet, slender-body sway/yaw, FK wave
+                        slopes; same interface as vessel.py. Hull `scarab195`
+                        (hydro/hulls.py), VM 18's public near-twin. Validated
+                        in studies/exp_planing.py
+  waterjet.py           waterjet + steering nozzle (Hull.propulsor="waterjet"):
+                        momentum thrust with a power balance, side force from
+                        the jet's gross momentum (none without flow), pump
+                        prime lost when the intake breaks the surface,
+                        reverse bucket. Command keeps the propeller's units
+  lofi.py               the LOW-FIDELITY world for sim-to-real: the MPC's own
+                        reduced model run as a plant, same interface, same
+                        slam/bow measurement; ~13x faster. fidelity="low" in
+                        Episode, USVControlEnv, learn.tune; PRIOR = the
+                        randomisable parameters with the evidence for each
   test_*.py, verify_*.py  M3/M4 gates
 
 control/

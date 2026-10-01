@@ -21,6 +21,7 @@ itself.
 Run: python -m learn.tune [--hull NAME] [--gens 14] [--pop 8]
 """
 import argparse
+import functools
 import json
 import numpy as np
 
@@ -47,7 +48,7 @@ def norm(w):
 
 
 def evaluate(db, red, w, seeds=(0, 1), t_end=None, t_preview=0.0,
-             sea_states=SEA_STATES, hull=None):
+             sea_states=SEA_STATES, hull=None, fidelity="high"):
     u_ref = red.p["u_design"]
     if t_end is None:
         t_end = T_END * np.sqrt(red.p["L"] / 10.0)
@@ -61,7 +62,7 @@ def evaluate(db, red, w, seeds=(0, 1), t_end=None, t_preview=0.0,
             ep = Episode(db, red, hs=hs, tp=tp, seed=sd, weights=w,
                          t_preview=t_preview, u_ref=u_ref, n_samples=128,
                          n_freq=24, n_dir=5, use_rudder=False, autopilot=True,
-                         hull=hull)
+                         hull=hull, fidelity=fidelity)
             vals.append(score(ep.run(t_end), u_ref))
     return float(np.mean(vals))
 
@@ -123,15 +124,20 @@ def cma_es(f, x0, sigma0=0.45, n_gen=18, popsize=10, seed=0, verbose=True):
     return best, best_f, hist
 
 
-def main(n_gen=14, popsize=8, t_preview=0.0, out=None, hull="wigley10"):
+def main(n_gen=14, popsize=8, t_preview=0.0, out=None, hull="wigley10",
+         fidelity="high"):
     h, db = config.load(hull)
-    out = out or ("tuned_weights.json" if h.name == "wigley10"
-                  else f"tuned_weights_{h.name}.json")
+    tag = "" if fidelity == "high" else "_lofi"
+    out = out or (f"tuned_weights{tag}.json" if h.name == "wigley10"
+                  else f"tuned_weights_{h.name}{tag}.json")
     plant, _ = config.calm_plant(h, db=db)
     print(f"identifying reduced model for {h.name} ...")
     red = ReducedModel.identify(plant)
+    print(f"tuning in the {fidelity}-fidelity world")
+    # every evaluation below runs in the same world
+    ev = functools.partial(evaluate, fidelity=fidelity)
 
-    f0 = evaluate(db, red, DEFAULT_WEIGHTS, t_preview=t_preview, hull=h)
+    f0 = ev(db, red, DEFAULT_WEIGHTS, t_preview=t_preview, hull=h)
     print(f"\nbaseline (hand-set weights) score = {f0:.4f}")
     print(f"  " + "  ".join(f"{n}={v:g}" for n, v in
                             zip(WEIGHT_NAMES, DEFAULT_WEIGHTS)))
@@ -139,7 +145,7 @@ def main(n_gen=14, popsize=8, t_preview=0.0, out=None, hull="wigley10"):
           f"{n_gen*popsize} episodes-of-4:")
 
     def obj(z):
-        return evaluate(db, red, denorm(z), t_preview=t_preview, hull=h)
+        return ev(db, red, denorm(z), t_preview=t_preview, hull=h)
 
     z, fz, hist = cma_es(obj, norm(DEFAULT_WEIGHTS), n_gen=n_gen,
                          popsize=popsize)
@@ -150,16 +156,17 @@ def main(n_gen=14, popsize=8, t_preview=0.0, out=None, hull="wigley10"):
         print(f"  {n_:>10}  {v:8.3f}   (was {d:g})")
 
     # held-out check: unseen seeds
-    ho0 = evaluate(db, red, DEFAULT_WEIGHTS, seeds=(7, 8),
-                   t_preview=t_preview, hull=h)
-    ho1 = evaluate(db, red, w, seeds=(7, 8), t_preview=t_preview, hull=h)
+    ho0 = ev(db, red, DEFAULT_WEIGHTS, seeds=(7, 8),
+             t_preview=t_preview, hull=h)
+    ho1 = ev(db, red, w, seeds=(7, 8), t_preview=t_preview, hull=h)
     print(f"\nheld-out seeds: hand-set {ho0:.4f} -> tuned {ho1:.4f} "
           f"({100*(ho0-ho1)/max(abs(ho0),1e-9):+.1f}%)")
     generalises = ho1 < ho0
 
     json.dump(dict(weights=list(map(float, w)), names=WEIGHT_NAMES,
                    score=fz, baseline=f0, holdout_tuned=ho1,
-                   holdout_baseline=ho0, history=hist, hull=h.name),
+                   holdout_baseline=ho0, history=hist, hull=h.name,
+                   fidelity=fidelity),
               open(out, "w"), indent=1)
     print(f"\n  [{'PASS' if fz < f0 else 'FAIL'}]  tuning improves training score")
     print(f"  [{'PASS' if generalises else 'FAIL'}]  improvement holds on "
@@ -178,8 +185,11 @@ def cli():
     ap.add_argument("--pop", type=int, default=8)
     ap.add_argument("--preview", type=float, default=0.0)
     ap.add_argument("--out", default=None)
+    ap.add_argument("--fidelity", choices=("high", "low"), default="high",
+                    help="tune on the full plant or in the low-fidelity "
+                         "world (sim/lofi.py)")
     a = ap.parse_args()
-    return main(a.gens, a.pop, a.preview, a.out, a.hull)
+    return main(a.gens, a.pop, a.preview, a.out, a.hull, a.fidelity)
 
 
 if __name__ == "__main__":

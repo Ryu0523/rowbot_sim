@@ -191,27 +191,46 @@ class NonlinearVessel:
             if hull.rudder_rate_deg is not None:
                 rp["rate_deg"] = hull.rudder_rate_deg
             hull._fill_x()
-            # one or more units per actuator, sharing one command each
-            self.thrusters = [tuple(map(float, p)) for p in
-                              (hull.thrusters or
-                               ((hull.x_prop, 0.0, hull.z_prop),))]
-            self.rudder_points = [tuple(map(float, p)) for p in
-                                  (hull.rudders or
-                                   ((hull.x_rud, 0.0, hull.z_rud),))]
-            self.prop = prop or Propulsion(
-                dt=dt, x_prop=self.thrusters[0][0],
-                z_prop=self.thrusters[0][2], r_prop=0.5 * hull.d_prop,
-                series=hull.prop_series, n_units=len(self.thrusters),
-                rho=self.rho, **pp)
-            self.rudder = rudder or Rudder(
-                dt=dt, area=hull.rudder_area, x_rud=self.rudder_points[0][0],
-                z_rud=self.rudder_points[0][2], span=hull.rudder_span,
-                rho=self.rho, **rp)
+            self.propulsor = hull.propulsor
+            if self.propulsor == "waterjet":
+                # jet + steering nozzle (sim/waterjet.py). `thrusters` is
+                # where the jet's force acts, the nozzle; `intakes` is where
+                # the pump draws water, and what its prime depends on.
+                from .waterjet import build as build_jet
+                jet, noz, p_noz, p_in = build_jet(hull, pp["t_max"], u_d,
+                                                  dt, ph, self.rho)
+                self.prop = prop or jet
+                self.rudder = rudder or noz
+                self.thrusters = [p_noz]
+                self.rudder_points = [p_noz]
+                self.intakes = [p_in]
+            else:
+                # one or more units per actuator, sharing one command each
+                self.thrusters = [tuple(map(float, p)) for p in
+                                  (hull.thrusters or
+                                   ((hull.x_prop, 0.0, hull.z_prop),))]
+                self.rudder_points = [tuple(map(float, p)) for p in
+                                      (hull.rudders or
+                                       ((hull.x_rud, 0.0, hull.z_rud),))]
+                self.prop = prop or Propulsion(
+                    dt=dt, x_prop=self.thrusters[0][0],
+                    z_prop=self.thrusters[0][2], r_prop=0.5 * hull.d_prop,
+                    series=hull.prop_series, n_units=len(self.thrusters),
+                    rho=self.rho, **pp)
+                self.rudder = rudder or Rudder(
+                    dt=dt, area=hull.rudder_area,
+                    x_rud=self.rudder_points[0][0],
+                    z_rud=self.rudder_points[0][2], span=hull.rudder_span,
+                    rho=self.rho, **rp)
+                self.intakes = self.thrusters
         else:
+            self.propulsor = "propeller"
             self.prop = prop or Propulsion(dt=dt, **pp)
             self.rudder = rudder or Rudder(dt=dt, **rp)
             self.thrusters = [(self.prop.x_prop, 0.0, self.prop.z_prop)]
             self.rudder_points = [(self.rudder.x_rud, 0.0, self.rudder.z_rud)]
+            self.intakes = self.thrusters
+        self.last_jet_force = (0.0, 0.0)
         self._ar_tau = ph["ar_tau"]
         # Wind. Defaults to the wind that GENERATES this sea state, because a
         # sea state is a wind: taking the waves and dropping the air was a
@@ -464,6 +483,8 @@ class NonlinearVessel:
         s = np.zeros(self.n_state)
         s[6] = u0
         self._u_mean = None      # a new run: the mean speed restarts from u0
+        if self.propulsor == "waterjet":
+            self.prop.prime = 1.0
         return s
 
     def _stations(self, eta):
@@ -684,18 +705,29 @@ class NonlinearVessel:
         # stern, and that moment was not there at all. Each thruster and each
         # rudder blade acts at its own position, with its own submergence.
         tau_a = np.zeros(6)
-        units = self.prop.effective_units(
-            thr, self._submergences(eta, t, self.thrusters), u=nu[0])
-        for (x, y, z), T_i in zip(self.thrusters, units):
-            tau_a += point_load([T_i, 0.0, 0.0], [x, y, z - self.z_cog])
-        subs = self._submergences(eta, t, self.rudder_points,
-                                  0.5 * self.rudder.span)
-        for (x, y, z), sub in zip(self.rudder_points, subs):
-            lift, _, drag = self.rudder.force(
-                rud, nu[0], v=nu[1], r=nu[5],
-                submergence_factor=self.rudder.ventilation_factor(sub),
-                x_rud=x)
-            tau_a += point_load([-drag, lift, 0.0], [x, y, z - self.z_cog])
+        if self.propulsor == "waterjet":
+            # the jet's force vector at the nozzle: forward what the inlet
+            # leaves of the jet, sideways the jet's whole momentum flux
+            # turned by the nozzle, both times the pump's prime (held over
+            # the step, advanced in step())
+            fx, fy = self.prop.forces(thr, rud, nu[0])
+            x, y, z = self.thrusters[0]
+            tau_a += point_load([fx, fy, 0.0], [x, y, z - self.z_cog])
+            self._jet_f = (fx, fy)
+        else:
+            units = self.prop.effective_units(
+                thr, self._submergences(eta, t, self.thrusters), u=nu[0])
+            for (x, y, z), T_i in zip(self.thrusters, units):
+                tau_a += point_load([T_i, 0.0, 0.0], [x, y, z - self.z_cog])
+            subs = self._submergences(eta, t, self.rudder_points,
+                                      0.5 * self.rudder.span)
+            for (x, y, z), sub in zip(self.rudder_points, subs):
+                lift, _, drag = self.rudder.force(
+                    rud, nu[0], v=nu[1], r=nu[5],
+                    submergence_factor=self.rudder.ventilation_factor(sub),
+                    x_rud=x)
+                tau_a += point_load([-drag, lift, 0.0],
+                                    [x, y, z - self.z_cog])
         Yh, Nh = self.hull_side_force(nu)
         tau_a[1] += Yh
         tau_a[5] += Nh
@@ -769,9 +801,10 @@ class NonlinearVessel:
         return hit
 
     def prop_submergence(self, eta, t):
-        """Water depth over the shallowest propeller centre; negative once it
-        broaches."""
-        return float(np.min(self._submergences(eta, t, self.thrusters)))
+        """Water depth over the shallowest propeller centre -- for a
+        waterjet, over the intake, which is what its thrust depends on;
+        negative once it broaches."""
+        return float(np.min(self._submergences(eta, t, self.intakes)))
 
     @staticmethod
     def kinematics(eta, nu):
@@ -792,6 +825,10 @@ class NonlinearVessel:
 
         if self._u_mean is None:                # a run starts in steady motion
             self._u_mean = float(s[6])
+        if self.propulsor == "waterjet":
+            # the pump's prime, from the water over the intake now; held over
+            # the step like the actuator states
+            self.prop.update_prime(self.prop_submergence(eta, t), dt)
         # Heun for the rigid body; the radiation memory advanced exactly
         # (_rad_step) -- velocity held for the predictor, linear over the step
         # for the update
@@ -800,6 +837,8 @@ class NonlinearVessel:
         x0 = s[12:12 + n]
         nr0 = self._nu_rad(s[6:12])
         k1, d1 = self.deriv(s, t)
+        if self.propulsor == "waterjet":
+            self.last_jet_force = self._jet_f
         s2 = s + dt * k1
         s2[12:12 + n] = Phi @ x0 + G1 @ nr0
         k2, _ = self.deriv(s2, t + dt)

@@ -81,9 +81,14 @@ class MPPIController:
     def __init__(self, model, preview, weights=None, horizon=24,
                  dt_ctrl=None, n_knots=7, n_samples=192, sigma=(0.25, 0.25),
                  lam=0.6, u_ref=None, seed=0, n_stations=5,
-                 use_rudder=True):
+                 use_rudder=True, thrust_floor=0.0):
         p = model.p
         self.m = model
+        # Least thrust the plan may use, as a fraction of the limit. Zero for
+        # a screw. A waterjet steers with its flow, so a controller that
+        # throttles back over a crest also drops the heading: the floor keeps
+        # steerage way, and where to put it is a tuning choice.
+        self.thrust_floor = float(thrust_floor)
         self.pv = preview
         self.w = np.array(DEFAULT_WEIGHTS if weights is None else weights,
                           float)
@@ -143,7 +148,7 @@ class MPPIController:
             xs = s[:, 0:1, None] + xb * ch[..., None] - yb * sh[..., None]
             ys = s[:, 1:2, None] + xb * sh[..., None] + yb * ch[..., None]
             eta = self.pv.at(xs, ys, t, h * self.dt)
-            thrust = np.clip(seq[:, 0, h], 0.0, 1.0) * self.t_max
+            thrust = np.clip(seq[:, 0, h], self.thrust_floor, 1.0) * self.t_max
             rudder = np.clip(seq[:, 1, h], -1.0, 1.0) * self.rud_max
             s, a_bow, rel = self.m.step(s, thrust, rudder, eta, self.x_st,
                                         self.dt)
@@ -167,7 +172,7 @@ class MPPIController:
         if not self.use_rudder:
             noise[:, 1] = 0.0
         cand = self.nominal[None, :, :] + noise
-        cand[:, 0] = np.clip(cand[:, 0], 0.0, 1.0)
+        cand[:, 0] = np.clip(cand[:, 0], self.thrust_floor, 1.0)
         cand[:, 1] = np.clip(cand[:, 1], -1.0, 1.0)
         seq = self._expand(cand)
         c = self.rollout_cost(s_reduced, seq, t, track_ref)

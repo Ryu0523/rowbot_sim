@@ -115,6 +115,15 @@ class Hull:
     t_max: float = None
     rudder_max_deg: float = None
     rudder_rate_deg: float = None
+    # "propeller" (screw + rudder) or "waterjet" (jet + steering nozzle,
+    # sim/waterjet.py). For a jet, `jet` holds what is known of it:
+    # d_nozzle and p_max (m, W) -- or else `ratio`, the inlet-to-jet velocity
+    # ratio at design speed and full power, which sizes the jet to t_max --
+    # eta_pump, zeta_n, zeta_i, wake, x/z_nozzle, x/z_intake, nozzle_max_deg,
+    # nozzle_rate_deg, k_rev, tau_prime_loss/back. Missing keys run on
+    # placeholders and placeholders() lists them.
+    propulsor: str = "propeller"
+    jet: dict = None
 
     # damping, manoeuvring, wind
     visc: tuple = None              # six quadratic coefficients, SI
@@ -138,6 +147,9 @@ class Hull:
                 f"'object' or 'cad', not {self.mesh_kind!r}. It used to "
                 f"default to 'wigley', and a Hull(name, L, B, T) for a new "
                 f"vessel quietly became the old test hull.")
+        if self.propulsor not in ("propeller", "waterjet"):
+            raise ValueError(f"{self.name}: propulsor is 'propeller' or "
+                             f"'waterjet', not {self.propulsor!r}")
         self._given = {k for k in _DATA if getattr(self, k) is not None}
         if self.z_cog is None:
             self.z_cog = -self.T / 3
@@ -317,14 +329,34 @@ class Hull:
             need(k, "the bare hull's geometry -- no machinery, no payload")
         need("u_design", "the USV's 4.5 m/s, Froude-scaled")
         need("freeboard", "0.55 T / 0.8, the USV's proportion")
-        for k in ("x_rud", "z_rud", "rudder_area", "rudder_span", "x_prop",
-                  "z_prop", "d_prop"):
-            need(k, "the USV's proportions")
-        need("prop_series", "a linear K_T(J), 1.6x too steep on KVLCC2")
-        need("t_max", "the USV's thrust margin (2.1x its resistance) at "
-             "this design speed; lags Froude-scaled")
-        need("rudder_max_deg", "35 deg")
-        need("rudder_rate_deg", "25 deg/s Froude-scaled")
+        if self.propulsor == "waterjet":
+            j = self.jet or {}
+            jet_ph = dict(
+                d_nozzle="sized from t_max at an inlet/jet velocity ratio",
+                p_max="sized from t_max at an inlet/jet velocity ratio",
+                eta_pump="0.70", zeta_n="0.02 nozzle loss",
+                zeta_i="0.25 inlet loss", wake="0.05",
+                x_nozzle="at the stern", z_nozzle="0.375 T deep",
+                x_intake="0.08 L forward of the nozzle",
+                z_intake="0.94 T deep",
+                nozzle_max_deg="27 deg", nozzle_rate_deg="40 deg/s "
+                "Froude-scaled", k_rev="0.6 of ahead static thrust (HamiltonJet: up to 60%; Castoldi TD240: 65%)",
+                tau_prime_loss="prime lost in 0.05 s, Froude-scaled",
+                tau_prime_back="prime back in 1.0 s, Froude-scaled")
+            for k, what in jet_ph.items():
+                if k not in j:
+                    out.append((f"jet.{k}", what))
+            need("t_max", "the USV's thrust margin (2.1x its resistance) "
+                 "at this design speed; engine lag Froude-scaled")
+        else:
+            for k in ("x_rud", "z_rud", "rudder_area", "rudder_span",
+                      "x_prop", "z_prop", "d_prop"):
+                need(k, "the USV's proportions")
+            need("prop_series", "a linear K_T(J), 1.6x too steep on KVLCC2")
+            need("t_max", "the USV's thrust margin (2.1x its resistance) at "
+                 "this design speed; lags Froude-scaled")
+            need("rudder_max_deg", "35 deg")
+            need("rudder_rate_deg", "25 deg/s Froude-scaled")
         need("visc", "the USV's quadratic damping, Froude-scaled")
         if self.roll_damping == "placeholder" or (
                 self.roll_damping == "auto" and self.multihull):
@@ -452,15 +484,25 @@ class Hull:
                          "FROM GEOMETRY -- bare hull, no machinery", True))
         # The same criterion the Rudder asserts (sim/actuators.py): each
         # blade's top at least h_full deep, h_full = (0.10 / 0.55) span.
-        h_full = (0.10 / 0.55) * self.rudder_span
-        for x, y, z in (self.rudders or ((self.x_rud, 0.0, self.z_rud),)):
-            top = -(z + 0.5 * self.rudder_span)
-            rows.append((f"rudder at x {x:+.3g}: blade top depth",
-                         f"{top:.3g} m (needs {h_full:.3g})", top >= h_full))
-        for x, y, z in (self.thrusters or ((self.x_prop, 0.0, self.z_prop),)):
-            tip = -(z + 0.5 * self.d_prop)
-            rows.append((f"propeller at x {x:+.3g}: tip depth",
-                         f"{tip:.3g} m", tip > 0.0))
+        if self.propulsor == "waterjet":
+            # the intake has to be under water at rest, or the pump never
+            # primes; the nozzle is wherever it is
+            j = self.jet or {}
+            z_i = j.get("z_intake", -0.94 * self.T)
+            rows.append(("waterjet intake depth at rest", f"{-z_i:.3g} m",
+                         z_i < 0.0))
+        else:
+            h_full = (0.10 / 0.55) * self.rudder_span
+            for x, y, z in (self.rudders or ((self.x_rud, 0.0, self.z_rud),)):
+                top = -(z + 0.5 * self.rudder_span)
+                rows.append((f"rudder at x {x:+.3g}: blade top depth",
+                             f"{top:.3g} m (needs {h_full:.3g})",
+                             top >= h_full))
+            for x, y, z in (self.thrusters or ((self.x_prop, 0.0,
+                                                 self.z_prop),)):
+                tip = -(z + 0.5 * self.d_prop)
+                rows.append((f"propeller at x {x:+.3g}: tip depth",
+                             f"{tip:.3g} m", tip > 0.0))
         u = self.scales()["u_design"]
         if verbose:
             print(f"\n  {self.name}: L {self.L:.4g} B {self.B:.4g} "
