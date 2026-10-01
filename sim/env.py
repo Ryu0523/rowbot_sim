@@ -45,26 +45,36 @@ class Episode:
     database was computed for. dt, dt_ctrl, u_ref None = the vessel's own
     (Hull.scales: 0.05 s, 0.5 s and 4.5 m/s for the USV, Froude-scaled for
     any other). u_ref used to default to 4.0 m/s for every vessel.
+
+    fidelity="low" runs the same loop in the low-fidelity world (sim/lofi.py:
+    the MPC's reduced model as the plant), `plant_params` overriding its
+    coefficients -- the source domain of the sim-to-real study.
     """
 
     def __init__(self, db, reduced, hs=3.25, tp=9.7, seed=0, t_preview=0.0,
                  preview_noise=0.0, weights=None, u_ref=None, dt=None,
                  dt_ctrl=None, theta0=np.pi, n_freq=32, n_dir=6,
                  n_samples=192, use_rudder=True, autopilot=False,
-                 heading_ref=0.0, hull=None):
+                 heading_ref=0.0, hull=None, fidelity="high",
+                 plant_params=None, thrust_floor=0.0, sea_kw=None):
         hull = config.resolve(db, hull)
         sc = config.scales_for(db, hull)
-        dt = sc["dt"] if dt is None else dt
+        if dt is None:
+            from sim import lofi
+            dt = sc["dt"] if fidelity == "high" else lofi.default_dt(sc)
         dt_ctrl = sc["dt_ctrl"] if dt_ctrl is None else dt_ctrl
         u_ref = sc["u_design"] if u_ref is None else u_ref
+        # sea_kw: extra SeaState options (jitter, spread_s, band, gamma)
         self.sea = SeaState(hs, tp, theta0=theta0, n_freq=n_freq,
-                            n_dir=n_dir, seed=seed)
-        self.plant = config.plant_for(db, self.sea, hull, dt=dt)
+                            n_dir=n_dir, seed=seed, **(sea_kw or {}))
+        self.plant = config.plant_for(db, self.sea, hull, dt=dt,
+                                      fidelity=fidelity, params=plant_params)
         self.pv = PreviewProvider(self.sea, t_preview, preview_noise, seed)
         self.ctrl = MPPIController(reduced, self.pv, weights=weights,
                                    dt_ctrl=dt_ctrl, u_ref=u_ref, seed=seed,
                                    n_samples=n_samples,
-                                   use_rudder=use_rudder)
+                                   use_rudder=use_rudder,
+                                   thrust_floor=thrust_floor)
         self.reduced = reduced
         self.dt, self.dt_ctrl = dt, dt_ctrl
         self.sub = max(int(round(dt_ctrl / dt)), 1)
@@ -80,7 +90,7 @@ class Episode:
         self.heading_ref = heading_ref
         self._psi_i = 0.0
 
-    def _steer(self, s, wn=None, zeta=1.0, lim=None):
+    def _steer(self, s, thrust=None, wn=None, zeta=1.0, lim=None):
         """Heading hold, gains placed on the IDENTIFIED Nomoto model.
 
         For  r' = (K delta - r)/T  and  delta = -(a psi_err + b r),
@@ -103,13 +113,39 @@ class Episode:
         over cannot help and guarantees an overshoot when authority returns.
         """
         rs = np.sqrt(self.plant.L / 10.0)
-        wn = 0.30 / rs if wn is None else wn
-        lim = self.plant.rudder.max if lim is None else lim
         p = self.reduced.p
-        K = p.get("k_nomoto", -1.0)
+        planing = p.get("planing", 0.0) > 0.5
+        if wn is None:
+            # A planing boat's yaw time scale is L/U at its own speed, not
+            # the Froude-scaled USV's: 0.30 rad/s at the USV's U/L of 0.45
+            # (the same number for any Froude-scaled hull), 1.6 rad/s for a
+            # 5.4 m boat at 25 kn. The Froude value left the Scarab's
+            # heading loop at a quarter of its yaw bandwidth, where the
+            # design below cancels the hull's own damping -- and with the
+            # nozzle's lags the heading oscillation grew until it turned
+            # round.
+            wn = (0.30 * (self.u_ref / self.plant.L) / 0.45 if planing
+                  else 0.30 / rs)
+        lim = self.plant.rudder.max if lim is None else lim
+        if p.get("steer_jet", 0.0) > 0.5:
+            # A waterjet's authority is its flow: the gain per radian of
+            # nozzle is proportional to thrust, so the gains are scheduled on
+            # the thrust being commanded -- floored at 15% of the limit,
+            # below which there is too little flow to schedule on and the
+            # nozzle simply saturates.
+            t_now = (0.5 * p["t_max"] if thrust is None
+                     else max(float(thrust), 0.15 * p["t_max"]))
+            K = p["k_nomoto_f"] * p["k_jet_side"] * t_now
+        else:
+            K = p.get("k_nomoto", -1.0)
         T = max(p.get("tau_r", 3.0), 0.5 * rs)
         a = wn ** 2 * T / K
         b = (2 * zeta * wn * T - 1.0) / K
+        if planing:
+            # never feed back yaw rate against the hull's own damping: that
+            # relies on the Nomoto model being exact, and a jet's lags are
+            # not in it
+            b = max(2 * zeta * wn * T - 1.0, 0.0) / K
         err = _wrap(s[5] - self.heading_ref)
         raw = -(a * err + b * s[11] + (0.12 / rs) * a * self._psi_i)
         if abs(raw) < lim:
@@ -128,16 +164,21 @@ class Episode:
         # statistic that noisy; it has to be replaced. The impact force is the
         # same physics sampled every step instead of a few times per run.
         slamf, relb = [], []
+        # vertical acceleration at the CG: the standard impact measure for
+        # planing craft (present when the plant reports it)
+        cga = [] if hasattr(self.plant, "last_cg_acc") else None
         t = 0.0
         for _ in range(n_ctrl):
             sr = self.reduced.from_plant_state(s)
             cmd = self.ctrl(sr, t)
             thrust, rudder = self.ctrl.to_actuator(cmd)
             if self.autopilot:
-                rudder = self._steer(s)
+                rudder = self._steer(s, thrust)
             for _ in range(self.sub):
                 s = self.plant.step(s, t, thrust, rudder, self.dt)
                 acc.append(self.plant.last_bow_acc)
+                if cga is not None:
+                    cga.append(self.plant.last_cg_acc)
                 slamf.append(self.plant.last_slam_force)
                 relb.append(self.plant.last_rel_bow)
                 spd.append(s[6]); yaw.append(s[5])
@@ -175,6 +216,10 @@ class Episode:
             t_end=float(t),
             L=float(self.plant.L),
             **sk)
+        if cga is not None and len(cga):
+            c = np.abs(np.asarray(cga)) / G
+            out.update(acc_cg_p99=float(np.percentile(c, 99)),
+                       acc_cg_rms=float(np.sqrt(np.mean(c ** 2))))
         if trace:
             out["trace"] = np.asarray(tr)
         return out
@@ -228,7 +273,8 @@ if HAVE_GYM:
 
         def __init__(self, hull="wigley10", t_end=None,
                      sea_states=((3.25, 9.7), (1.88, 8.0)), u_ref=None,
-                     t_preview=0.0, n_seeds=2):
+                     t_preview=0.0, n_seeds=2, fidelity="high"):
+            self.fidelity = fidelity
             self.hull, self.db = config.load(hull)
             sc = self.hull.scales()
             self.reduced = None
@@ -266,7 +312,8 @@ if HAVE_GYM:
                 for sd in range(self.n_seeds):
                     ep = Episode(self.db, self.reduced, hs=hs, tp=tp, seed=sd,
                                  t_preview=self.t_preview, weights=w,
-                                 u_ref=self.u_ref, hull=self.hull)
+                                 u_ref=self.u_ref, hull=self.hull,
+                                 fidelity=self.fidelity)
                     vals.append(score(ep.run(self.t_end), self.u_ref))
             r = -float(np.mean(vals))
             hs, tp = self.sea_states[0]

@@ -1,0 +1,42 @@
+# Related work for step 2 (history-conditioned probabilistic forecasting of the model error)
+
+Found and checked online on 2026-09-29 by a search workflow. Each entry's authors, year, venue and link were verified against arXiv or the publisher.
+
+Our setting is multi-step probabilistic forecasting of a physics model's error:
+- conditioned on the history (states, commands, errors);
+- conditioned on candidate plans (known future inputs, counterfactual);
+- with an explicit task code c (epistemic uncertainty, reducible by probing) and generated innovations (aleatoric);
+- trained only on a synthetic prior of random error operators, and deployed zero-shot.
+
+| Direction | Paper | First author, year, venue | Link | Relation to ours |
+|---|---|---|---|---|
+| Synthetic prior (PFN) | Transformers Can Do Bayesian Inference | Müller, 2022, ICLR | https://arxiv.org/abs/2112.10510 | The training recipe we follow (train on a synthetic prior, output a posterior predictive); we add an explicit task code c |
+| Synthetic prior (PFN) | ForecastPFN: Synthetically-Trained Zero-Shot Forecasting | Dooley, 2023, NeurIPS | https://arxiv.org/abs/2311.01933 | Zero-shot forecasting trained on synthetic data only; its prior is trend + season + noise, with no inputs |
+| Synthetic prior | Chronos: Learning the Language of Time Series | Ansari, 2024, TMLR | https://arxiv.org/abs/2403.07815 | KernelSynth (random-kernel GPs) is the analogue of our random filters; univariate, no control inputs |
+| Synthetic prior | Mamba4Cast: Efficient Zero-Shot Time Series Forecasting with State Space Models | Bhethanabhotla, 2024, NeurIPS workshop | https://arxiv.org/abs/2410.09385 | Synthetic-only training with diagonal state-space modes, like our filter bank |
+| Synthetic prior | TempoPFN: Synthetic Pre-training of Linear RNNs for Zero-shot Time Series Forecasting | Moroshan, 2025, arXiv | https://arxiv.org/abs/2510.25502 | The strongest current evidence that synthetic-only training transfers; passive, univariate |
+| Synthetic prior | Chronos-2: From Univariate to Universal Forecasting | Ansari, 2025, arXiv | https://arxiv.org/abs/2510.15821 | Known future covariates match the slot of our planned commands; learned from correlations, so counterfactuals are not guaranteed |
+| In-context system identification | From system models to class models: An in-context learning paradigm | Forgione, 2023, IEEE L-CSS | https://arxiv.org/abs/2308.13380 | Closest: a transformer trained on random LTI / Wiener-Hammerstein systems predicts outputs for given future inputs; whole system, deterministic, no task code |
+| In-context system identification | On the adaptation of in-context learners for system identification | Piga, 2024, IFAC SYSID | https://arxiv.org/abs/2312.04083 | Fine-tunes the pretrained model when the target is outside the prior: our 'learn online on the target' path |
+| In-context system identification | Enhanced Transformer architecture for in-context learning of dynamical systems | Rufolo, 2025, ECC | https://arxiv.org/abs/2410.03291 | Probabilistic output, synthetic-only training, zero-shot on a real system |
+| In-context system identification | Can Transformers Learn Optimal Filtering for Unknown Systems? | Balim, 2023, IEEE L-CSS | https://arxiv.org/abs/2308.08536 | A transformer trained on random systems learns Kalman-like prediction, the job of our history encoder |
+| In-context system identification | On Foundation Models for Dynamical Systems from Purely Synthetic Data | Ziegler, 2024, arXiv | https://arxiv.org/abs/2412.00395 | A purely synthetic random-dynamics prior that transfers to hardware (whole system, not errors) |
+| In-context system identification | Dynamics as Prompts: In-Context Learning for Sim-to-Real System Identifications | Zhang, 2025, IEEE RA-L | https://arxiv.org/abs/2410.20357 | Interaction history as a prompt infers simulator parameters to close the sim-to-real gap |
+| In-context system identification | Variational meta-learning inference for low dimensional neural system identification | Rufolo, 2026, arXiv | https://arxiv.org/abs/2607.18965 | A low-dimensional system code with a posterior: the closest to our c |
+| In-context system identification | Diffusion Sequence Models for Generative In-Context Meta-Learning of Robot Dynamics | Moroncelli, 2026, arXiv | https://arxiv.org/abs/2604.13366 | Generative sequence models are more robust under distribution shift, which supports our generative choice |
+| Learned error + MPC / adaptation | Meta-Learning Priors for Efficient Online Bayesian Regression (ALPaCA) | Harrison, 2018, WAFR | https://arxiv.org/abs/1807.08912 | Meta-learned basis + Gaussian last-layer prior: our step 1 and our linear baseline |
+| Learned error + MPC / adaptation | Cautious Model Predictive Control Using Gaussian Process Regression | Hewing, 2020, IEEE TCST | https://arxiv.org/abs/1705.10702 | Physics model + GP error in MPC, with uncertainty carried along the horizon |
+| Learned error + MPC / adaptation | Learning to Adapt in Dynamic, Real-World Environments Through Meta-RL | Nagabandi, 2019, ICLR | https://arxiv.org/abs/1803.11347 | A meta-learned dynamics model adapted from recent steps, inside MPC |
+| Learned error + MPC / adaptation | Adaptive-Control-Oriented Meta-Learning for Nonlinear Systems | Richards, 2021, RSS | https://arxiv.org/abs/2103.04490 | Argues the error model should be meta-trained on the control objective, a point for later |
+| Learned error + MPC / adaptation | Neural-Fly Enables Rapid Learning for Agile Flight in Strong Winds | O'Connell, 2022, Science Robotics | https://arxiv.org/abs/2205.06908 | Offline error basis + online linear adaptation (the same form as our linear baseline) |
+| Learned error + MPC / adaptation | RMA: Rapid Motor Adaptation for Legged Robots | Kumar, 2021, RSS | https://arxiv.org/abs/2107.04034 | History -> environment latent, sim-only, zero-shot (reproduced in DEFECTS I) |
+| Learned error + MPC / adaptation | Deep RL in a Handful of Trials using Probabilistic Dynamics Models (PETS) | Chua, 2018, NeurIPS | https://arxiv.org/abs/1805.12114 | Action-conditioned probabilistic model in MPC; splits aleatoric from model uncertainty |
+| Learned error + MPC / adaptation | Diffusion Model Predictive Control | Zhou, 2025, TMLR | https://arxiv.org/abs/2410.05364 | A generative multi-step dynamics model used directly in MPC |
+| Generative forecasting | Autoregressive Denoising Diffusion Models for Multivariate Probabilistic Time Series Forecasting (TimeGrad) | Rasul, 2021, ICML | https://arxiv.org/abs/2101.12072 | History -> diffusion samples of the future, step by step |
+| Generative forecasting | CSDI: Conditional Score-based Diffusion Models for Probabilistic Time Series Imputation | Tashiro, 2021, NeurIPS | https://arxiv.org/abs/2107.03502 | Transformer on the known part + generative model for the unknown part |
+| Generative forecasting | Flow Matching with Gaussian Process Priors for Probabilistic Time Series Forecasting (TSFlow) | Kollovieh, 2025, ICLR | https://arxiv.org/abs/2410.03024 | Flow matching starting from a structured prior; our nu-flow could start from the filter bank's forecast |
+| Generative forecasting | Probabilistic Forecasting with Stochastic Interpolants and Föllmer Processes | Chen, 2024, ICML | https://arxiv.org/abs/2403.13724 | Generate only the deviation from a deterministic forecast |
+| Forecasting with covariates | DeepAR: Probabilistic Forecasting with Autoregressive Recurrent Networks | Salinas, 2020, Int. J. Forecasting | https://doi.org/10.1016/j.ijforecast.2019.07.001 | One model over many related series, with known future covariates |
+| Forecasting with covariates | Temporal Fusion Transformers for Interpretable Multi-horizon Time Series Forecasting | Lim, 2021, Int. J. Forecasting | https://arxiv.org/abs/1912.09363 | Static / known-future / past-only inputs map onto our c / plan / history (but c is given there, inferred here) |
+| Ships | Predicting Ship Responses in Different Seaways using a Generalizable Force Correcting Machine Learning Method | Marlantes, 2024, Ocean Engineering | https://arxiv.org/abs/2405.08033 | Low-fidelity ship model + learned force correction, generalisation to unseen seaways |
+| Ships | A pre-trained multi-step prediction informer for ship motion prediction with a mechanism-data dual-driven framework | Shen, 2025, Eng. Appl. of AI | https://doi.org/10.1016/j.engappai.2024.109523 | Pretrained on model-generated data, fine-tuned on sea trials |

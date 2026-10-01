@@ -57,9 +57,14 @@ class WaveField:
     """
 
     def __init__(self, hs, tp, gamma=3.3, theta0=np.pi, spread_s=8,
-                 n_freq=64, n_dir=16, band=(0.5, 3.0), seed=0):
+                 n_freq=64, n_dir=16, band=(0.5, 3.0), seed=0,
+                 jitter=False):
         wp = 2.0 * np.pi / tp
         self.wmin, self.wmax = band[0] * wp, band[1] * wp
+        if jitter:
+            self._init_jittered(hs, tp, gamma, theta0, spread_s, n_freq,
+                                n_dir, seed)
+            return
         w = np.linspace(self.wmin, self.wmax, n_freq)
         # n_freq = 1 is a legitimate degenerate case -- a single component
         # standing in for the whole band -- and it used to raise IndexError
@@ -83,6 +88,55 @@ class WaveField:
         self.w = np.repeat(w, n_dir)
         self.th = np.tile(th, n_freq)
         self.k = self.w ** 2 / G                      # deep-water dispersion
+        self.phi = rng.uniform(0, 2 * np.pi, self.a.size)
+        self.hs, self.tp, self.theta0 = hs, tp, theta0
+
+    def _init_jittered(self, hs, tp, gamma, theta0, spread_s, n_freq, n_dir,
+                       seed):
+        """One random frequency inside each of n_freq equal bins (and one
+        random direction inside each of n_dir equal bins, per frequency).
+
+        The evenly spaced grid above is a deterministic line spectrum. At a
+        fixed point it repeats every 2 pi / dw, which is 46 s for 24
+        components at Tp 5 s. A learner shown such a sea can find a wave
+        'predictability' that no real sea has (learn/meta/PRIOR_DERIVATION.md
+        section 0). Jittered components remove the repeat and look like a
+        continuous spectrum within any history shorter than 2 pi / dw.
+
+        Energy is exact: each bin's density is scaled so that
+        sum(a^2 / 2) = (hs / 4)^2. The jitter draws come from their own
+        stream, so the phases are independent of them."""
+        rj = np.random.default_rng([int(seed), 7919])
+        # bin edges at equal steps of the integral of sqrt(S): denser
+        # where the energy is (a peaked JONSWAP otherwise has only a few
+        # components near its peak and keeps a long-lag correlation), yet
+        # not so sparse in the tails as equal-energy bins
+        wf = np.linspace(self.wmin, self.wmax, 4001)
+        cum = np.concatenate([[0.0], np.cumsum(np.sqrt(np.maximum(
+            jonswap(0.5 * (wf[1:] + wf[:-1]), hs, tp, gamma), 0.0))
+            * np.diff(wf))])
+        cum = cum / cum[-1]
+        edges = np.interp(np.linspace(0.0, 1.0, n_freq + 1), cum, wf)
+        dw = np.diff(edges)
+        w = edges[:-1] + rj.random(n_freq) * dw
+        S = jonswap(w, hs, tp, gamma)
+        S = S * (hs / 4.0) ** 2 / max((S * dw).sum(), 1e-300)
+        if n_dir == 1:
+            th = np.full((n_freq, 1), float(theta0))
+            amp = np.sqrt(2.0 * S * dw)[:, None]
+        else:
+            dth = np.pi / n_dir
+            th = theta0 - np.pi / 2 + (np.arange(n_dir)[None, :]
+                                       + rj.random((n_freq, n_dir))) * dth
+            arg = np.clip((th - theta0) / 2.0, -np.pi / 2, np.pi / 2)
+            D = np.cos(arg) ** (2 * spread_s)
+            D = D / (D.sum(1, keepdims=True) * dth)
+            amp = np.sqrt(2.0 * S[:, None] * D * dw[:, None] * dth)
+        rng = np.random.default_rng(seed)
+        self.a = amp.ravel()
+        self.w = np.repeat(w, th.shape[1])
+        self.th = th.ravel()
+        self.k = self.w ** 2 / G
         self.phi = rng.uniform(0, 2 * np.pi, self.a.size)
         self.hs, self.tp, self.theta0 = hs, tp, theta0
 

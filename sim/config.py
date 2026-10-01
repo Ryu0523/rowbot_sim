@@ -37,7 +37,13 @@ def load(hull="wigley10", verbose=False):
     """(hull, database) for a registered name or a Hull."""
     from hydro import bem
     h = hull_of(hull)
-    if h.name == "wigley10" and os.path.exists(LEGACY_DB):
+    if getattr(h, "kind", None) == "planing":
+        # the planing plant is strip theory: no BEM database
+        return h, None
+    # a variant of the test hull that differs only in how it is driven
+    # (hydro/hulls.py: wigley10_jet) has the same hydrodynamics
+    same = h.extras.get("same_hydro_as", h.name)
+    if same == "wigley10" and os.path.exists(LEGACY_DB):
         db = bem.load(LEGACY_DB)
     else:
         db = h.database(out_dir=HERE, verbose=verbose)
@@ -79,8 +85,20 @@ def scales_for(db, hull=None):
                 dt_ctrl=0.5 * np.sqrt(lam))
 
 
-def plant_for(db, sea, hull=None, dt=None, **kw):
-    """The plant for `db` in `sea`, through its Hull where it has one."""
+def plant_for(db, sea, hull=None, dt=None, fidelity="high", params=None,
+              **kw):
+    """The plant for `db` in `sea`, through its Hull where it has one.
+
+    fidelity="low": the MPC's reduced model run as a plant (sim/lofi.py),
+    `params` overriding its identified coefficients by name."""
+    if fidelity == "low":
+        from sim import lofi
+        return lofi.plant_for(db, sea, hull, dt=dt, params=params)
+    if fidelity != "high":
+        raise ValueError(f"fidelity is 'high' or 'low', not {fidelity!r}")
+    if params:
+        raise ValueError("params= sets the low-fidelity model's coefficients;"
+                         " the full plant takes its own keywords")
     h = resolve(db, hull)
     if h is None:
         from sim.vessel import NonlinearVessel

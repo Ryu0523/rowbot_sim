@@ -100,6 +100,62 @@ def box_barge_20m():
                 extras={"mesh": mesh})
 
 
+def wigley_10m_jet():
+    """The 10 m test hull driven by a waterjet with a steering nozzle instead
+    of a screw and rudder (sim/waterjet.py). Same hull, so the same
+    hydrodynamics and the same database file; what changes is how it is
+    pushed and steered. The jet is sized to give the screw's thrust at the
+    design speed (12 kN at 4.5 m/s) at an inlet-to-jet velocity ratio of
+    0.35 -- a small, fast jet for a displacement hull. Every jet number is a
+    placeholder; Hull.check() lists them.
+
+    ONE hull input differs from wigley10, and the jet is why: the quadratic
+    YAW damping. A jet pushes the stern sideways at zero speed, which a
+    rudder cannot, so large turn rates become reachable, and there the
+    quadratic yaw term is all that resists rotation. The screw boat's 6000
+    N m s^2 is a placeholder that never mattered -- a rudder loses its force
+    as the hull slows -- and with it this hull spun at 78 deg/s under 20 deg
+    of nozzle at 60% thrust. It is replaced by strip crossflow drag on the
+    Wigley's rectangular lateral profile, C_D = 1 (Hooft's range for ship
+    sections is 0.8-1.2):
+        N = -1/2 rho C_D T r|r| int |x|^3 dx = -1/2 rho C_D T (L/2)^4 / 2 r|r|
+    = 1.28e5 N m s^2 at L 10 m, T 0.8 m. The other five are wigley10's; sway
+    already sits at this estimate (4000 against 4100)."""
+    yaw = 0.5 * 1025.0 * 1.0 * 0.8 * (10.0 / 2) ** 4 / 2.0
+    return wigley_10m(name="wigley10_jet", propulsor="waterjet",
+                      jet=dict(ratio=0.35),
+                      visc=(280.0, 4000.0, 3000.0, 2500.0, 9000.0, yaw),
+                      extras={"same_hydro_as": "wigley10"})
+
+
+def scarab_195():
+    """Scarab 195 ID jet boat -- the public near-twin of the VM 18 (same
+    Rotax 300 hp engine and pump class, same length), used as the planing
+    stand-in until the VM 18's own data arrive. Runs on the planing plant
+    (sim/planing_vessel.py), not the BEM one.
+
+    From public data: deadrise 20 deg and the 161 mm pump (Boating magazine
+    tests), 300 hp (Rotax spec), loaded mass ~1340-1490 kg (the two test
+    loads; 1400 here). Everything else is an assumption taken at the middle
+    of the ranges that reproduced the measured top speed with Savitsky
+    (studies/exp_waterjet.py): keel length 5.4 m of the 5.74 m LOA, chine
+    beam 0.83 x the 2.44 m beam, LCG 0.38 LOA from the transom, nozzle
+    85 mm, pump efficiency 0.775, air drag C_D A 1.7 m^2."""
+    from hydro.planing import PlaningHull
+    return PlaningHull(
+        name="scarab195", L=5.4, b=0.83 * 2.44, beta_deg=20.0, mass=1400.0,
+        lcg=0.38 * 5.74, vcg=0.55, depth=1.1, cda=1.7,
+        u_design=25 * KNOT,
+        jet=dict(d_nozzle=0.085, p_max=300 * 745.7, eta_pump=0.775,
+                 nozzle_max_deg=25.0, nozzle_rate_deg=40.0, x_intake=0.8,
+                 z_nozzle=0.15, tau=0.6),
+        given=("beta_deg", "mass", "jet.p_max"),
+        sources=dict(
+            beta_deg="Boating magazine test, Scarab 195 ID (2019, 2024)",
+            mass="dry 1116 kg + test loads (Boating magazine)",
+            p_max="Rotax 1630 ACE 300 spec sheet"))
+
+
 def our_boat():
     """TEMPLATE -- your vessel. Copy the call below out of this docstring,
     fill in every value, and return it; until then this raises.
@@ -143,6 +199,8 @@ def our_boat():
 
 REGISTRY = {
     "wigley10": wigley_10m,
+    "wigley10_jet": wigley_10m_jet,
+    "scarab195": scarab_195,
     "kvlcc2_68": kvlcc2_68,
     "kcs_2_10": kcs_2_10,
     "kcs_2_11": kcs_2_11,
