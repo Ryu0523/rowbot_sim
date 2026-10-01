@@ -252,6 +252,50 @@ def adam_bound():
          f"about lr; LoRA lr 1e-3 -> tau / lr = {0.02 / 1e-3:.0f}")
 
 
+# ------------------------------------------------------------------ T8
+def coef_skill(r, kappa, n):
+    """e = beta W + xi, W ~ N(0,1) observed, xi ~ N(0, 1) (sigma = 1);
+    prior beta ~ N(0, 1/kappa) (symmetric: worth kappa steps); target
+    beta^2 = r. One-step skill (MSE / E e^2) of the posterior-mean
+    prediction after n steps (large-n approximation of sum W^2 = n)."""
+    return (1.0 + (r * kappa * kappa + n) / (n + kappa) ** 2) / (r + 1.0)
+
+
+def check_coef():
+    r, kappa, n, R = 9.0, 256.0, 256, 20000
+    beta = math.sqrt(r)
+    W = RNG.standard_normal((R, n))
+    e = beta * W + RNG.standard_normal((R, n))
+    bh = (W * e).sum(1) / ((W * W).sum(1) + kappa)
+    w = RNG.standard_normal(R)
+    y = beta * w + RNG.standard_normal(R)
+    mc = np.mean((y - bh * w) ** 2) / (r + 1.0)
+    line(f"T8 observed-input coefficient, r={r} kappa={kappa} n={n}: "
+         f"formula skill {coef_skill(r, kappa, n):.4f}, simulation {mc:.4f}"
+         f", floor {1 / (r + 1):.4f}, at n=0 {coef_skill(r, kappa, 0):.3f}")
+    rows = []
+    for k in (0.1, 16, 256, 1024):
+        g = (1 - coef_skill(9.0, k, 256)) / (1 - 1 / 10.0)
+        rows.append(f"kappa={k}: {g:.2f}")
+    line("T8 share of the available gain used at n = 256 (r = 9): "
+         + ", ".join(rows))
+
+
+def decomposition():
+    """Skill = floor + model gap (law of total variance). Floors bounded
+    above by DEFECTS M11 (target fine-tuning, held-out); skills: meta5
+    one-step on C (run_m15 log)."""
+    ch = ("surge", "sway", "yaw", "pitch")
+    floor_h = (0.11, 0.12, 0.33, 0.47)        # history only (upper ends)
+    floor_w = (0.03, 0.04, 0.10, 0.35)        # + 15-point elevations at t
+    sk_a = (0.32, 0.57, 0.78, 1.10)
+    sk_w = (0.32, 0.72, 0.81, 0.82)
+    line("T8 model gap >= skill - floor bound: a "
+         + ", ".join(f"{c} {s - f:.2f}" for c, s, f in zip(ch, sk_a, floor_h))
+         + "; w " + ", ".join(f"{c} {s - f:.2f}"
+                              for c, s, f in zip(ch, sk_w, floor_w)))
+
+
 def main():
     mixture_regret()
     check_conjugate()
@@ -262,6 +306,8 @@ def main():
     adam_bound()
     selection_bias()
     trigger()
+    check_coef()
+    decomposition()
 
 
 if __name__ == "__main__":
