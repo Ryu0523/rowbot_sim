@@ -8,7 +8,8 @@ hour.
 Missions: those of studies/mpc_compare.py -- learn/repro/task.py in the
 turned-track geometry (waves from pi, legs 0 = head seas and 1 = 45 deg
 off the bow), sea state 3 (Hs 1.0 m, Tp 5 s), task.EVAL_SEEDS x both legs,
-120 s each, the same missions for every row (paired).
+'120 s' each (480 control steps of 0.24 s = 115.2 s: Mission counts steps
+with the nominal 0.25 s), the same missions for every row (paired).
 
 Rows (each skipped with a message when its checkpoint is missing):
   hand              control/mpc.py with the hand weights (z_hand), as the
@@ -443,7 +444,11 @@ def run_mission(spec, seed, leg, T, turn, nets, carry=None):
     geo = geometry(m, env)
     rec = Recorder(m, env)
     m.residual = rec
-    safe = MC.SafeMode(m.dt_ctrl)
+    # the control step the plant actually advances: sub plant steps (12 x
+    # 0.02 = 0.24 s), not the nominal m.dt_ctrl (0.25 s, which only sets
+    # n_ctrl: a '120 s' mission is 480 steps = 115.2 s)
+    dtc = m.dt * m.sub
+    safe = MC.SafeMode(dtc)
     lim = MC.Limits()
     jobs = [dict(seed=seed, leg=leg)]
     ctrl = mon = learner = live = None
@@ -484,7 +489,7 @@ def run_mission(spec, seed, leg, T, turn, nets, carry=None):
     t_ctl = t_lrn = 0.0
     n_steps = 0
     past, diags = [], []
-    n_win = int(round(lim.win_s / m.dt_ctrl))
+    n_win = int(round(lim.win_s / dtc))
     cmd_thr, cmd_noz, safe_on = [], [], []
     k = 0
     while not m.done():
