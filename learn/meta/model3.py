@@ -264,10 +264,12 @@ def fm_validate(net, D, va, L, Lmax):
 
 
 def train(D, steps=20000, batch=48, L=W_CTX, lr=3e-4, log=print, seed=0,
-          patience=3, net=None, pools=None):
+          patience=3, net=None, pools=None, resume=None):
     """Teacher-forced FM training on D's recorded windows. net: start from
     this network (fine-tuning) instead of a fresh one; pools: (training,
-    validation) episode index tensors instead of split_pools(D.n)."""
+    validation) episode index tensors instead of split_pools(D.n); resume:
+    a file path to save the training state to every 1000 steps and to
+    continue from when it exists (learn/meta/train_resume.py)."""
     dev = D.dev
     torch.manual_seed(seed)
     if net is None:
@@ -282,8 +284,13 @@ def train(D, steps=20000, batch=48, L=W_CTX, lr=3e-4, log=print, seed=0,
     Lmax = D.len.cpu()
 
     best = dict(v=float("inf"), it=-1, bad=0)
+    from learn.meta.train_resume import Resume
+    rs = Resume(resume, dict(kind="model3", steps=steps, batch=batch, L=L,
+                             lr=lr, seed=seed, n=int(D.n)), log=log)
+    start = rs.load(net, opt, sched, g, best)
     t0 = time.time()
-    for it in range(steps):
+    it = start - 1
+    for it in range(start, steps):
         ii, a = fm_draw(tr, batch, g, Lmax, L, dev)
         loss = fm_loss(net, D, ii, a, L, g)
         opt.zero_grad()
@@ -307,9 +314,11 @@ def train(D, steps=20000, batch=48, L=W_CTX, lr=3e-4, log=print, seed=0,
                         log(f"    not better for {patience} checks, "
                             f"stopping at step {it}")
                         break
+        rs.save(it, net, opt, sched, g, best)
     if best["it"] >= 0 and best["it"] != it:
         net.load_state_dict(best["state"])
         log(f"    restored step {best['it']} ({best['v']:.4f})")
+    rs.done()
     return net
 
 

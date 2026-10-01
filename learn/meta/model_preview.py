@@ -412,9 +412,10 @@ def fm_validate_p(net, D, va, L, Lmax, variant):
 
 
 def train_p(D, variant, steps=20000, batch=48, L=M.W_CTX, lr=3e-4,
-            log=print, seed=0, patience=3):
-    """model3.train (same schedule, pools, validation checks and early
-    stopping) for NetP under the variant's convention (w or p)."""
+            log=print, seed=0, patience=3, resume=None):
+    """model3.train (same schedule, pools, validation checks, early
+    stopping and resume file) for NetP under the variant's convention (w or
+    p)."""
     assert variant in ("w", "p")
     dev = D.dev
     torch.manual_seed(seed)
@@ -426,8 +427,14 @@ def train_p(D, variant, steps=20000, batch=48, L=M.W_CTX, lr=3e-4,
     tr, va = M.split_pools(D.n, seed)
     Lmax = D.len.cpu()
     best = dict(v=float("inf"), it=-1, bad=0)
+    from learn.meta.train_resume import Resume
+    rs = Resume(resume, dict(kind="model_" + variant, steps=steps,
+                             batch=batch, L=L, lr=lr, seed=seed,
+                             n=int(D.n)), log=log)
+    start = rs.load(net, opt, sched, g, best)
     t0 = time.time()
-    for it in range(steps):
+    it = start - 1
+    for it in range(start, steps):
         ii, a = M.fm_draw(tr, batch, g, Lmax, L, dev)
         loss = fm_loss_p(net, D, ii, a, L, g, variant)
         opt.zero_grad()
@@ -451,9 +458,11 @@ def train_p(D, variant, steps=20000, batch=48, L=M.W_CTX, lr=3e-4,
                         log(f"    not better for {patience} checks, "
                             f"stopping at step {it}")
                         break
+        rs.save(it, net, opt, sched, g, best)
     if best["it"] >= 0 and best["it"] != it:
         net.load_state_dict(best["state"])
         log(f"    restored step {best['it']} ({best['v']:.4f})")
+    rs.done()
     return net
 
 

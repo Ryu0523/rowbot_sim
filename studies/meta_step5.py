@@ -319,7 +319,20 @@ def _steps(args):
     return args.steps or (300 if args.smoke else 40000)
 
 
+def _have_ckpt(args, name):
+    """True (and the phase is skipped) when the checkpoint exists and
+    --force is not given: rerunning the train phases after a stop trains
+    only the networks that are missing; an unfinished one continues from
+    its resume_<name> file (learn/meta/train_resume.py)."""
+    if os.path.exists(os.path.join(CACHE, name)) and not args.force:
+        log(f"{name} exists: skipped (--force retrains it)")
+        return True
+    return False
+
+
 def phase_train_a(args):
+    if _have_ckpt(args, "model3.pt"):
+        return
     import torch
 
     from learn.meta import model3 as M
@@ -332,13 +345,16 @@ def phase_train_a(args):
         f"{np.round(D.stats['e_sd'], 3)}")
     ctx = MP.train_ctx(D)
     log(f"  trained context {ctx} tokens (model_preview.train_ctx)")
-    net = M.train(D, steps=_steps(args), log=log)
+    net = M.train(D, steps=_steps(args), log=log,
+                  resume=os.path.join(CACHE, "resume_model3.pt"))
     _save_ckpt(dict(net=net.state_dict(), stats=D.stats, variant="a",
                     ctx=ctx), os.path.join(CACHE, "model3.pt"))
     log("saved model3.pt")
 
 
 def _train_var(args, variant):
+    if _have_ckpt(args, f"model_{variant}.pt"):
+        return
     import torch
 
     from learn.meta import model3 as M
@@ -353,7 +369,9 @@ def _train_var(args, variant):
     log(f"train_{variant}: {D.n} episodes, {MP.N_WX} wave columns, "
         f"stats from {'model3.pt' if stats is not None else 'the data'}, "
         f"trained context {ctx} tokens")
-    net = MP.train_p(D, variant, steps=_steps(args), log=log)
+    net = MP.train_p(D, variant, steps=_steps(args), log=log,
+                     resume=os.path.join(CACHE,
+                                         f"resume_model_{variant}.pt"))
     conv = dict(P_NOROLL=MP.P_NOROLL, P_NOPREV=MP.P_NOPREV,
                 HP_MAX=MP.HP_MAX, J0_MAX=MP.J0_MAX, P_LAM0=MP.P_LAM0,
                 LAM_RANGE=MP.LAM_RANGE, MSD_RANGE=MP.MSD_RANGE,
