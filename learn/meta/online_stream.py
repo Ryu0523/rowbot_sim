@@ -56,6 +56,7 @@ from learn.meta import model3 as M
 VEL_CH = (0, 1, 2, 3, 4)
 TAU = 0.02
 LR_HEAD, LR_LORA, LR_SAFETY = 1e-4, 1e-3, 1e-3
+LR_SCRATCH = 3e-4       # the from-scratch rate of DEFECTS M13
 RANK, REPS = 4, 8
 N_WIN, N_TAIL, N_MIN, N_MIN_TAIL = 60, 240, 20, 60
 UP, DOWN, S_MAX = 1.03, 1.01, 3.0
@@ -236,20 +237,33 @@ def fm_loss_rep(net, h, tgt, ok, gen, reps=REPS):
 
 class OnlineLearner:
     """Predict-then-learn adaptation of one row (module docstring). Adds
-    the LoRA adapters to `net` in place (a fresh net per mission)."""
+    the LoRA adapters to `net` in place.
+
+    scratch=True (the "no prior" row): `net` is an untrained network and
+    EVERY weight of it learns (Adam, LR_SCRATCH, as model3 trains), plus the
+    safety head; no adapters and no pull (there is no prior to pull to).
+
+    One learner can serve consecutive missions (rebind): the data count n,
+    the weights and the optimiser state carry over, so the pull keeps
+    weakening as 1 / (all steps seen)."""
 
     def __init__(self, net, live, b, ctx, variant, head=None, tau=TAU,
-                 seed=0):
+                 seed=0, scratch=False):
         from learn.meta.safety_head import QS
         self.net, self.D, self.b, self.ctx = net, live, b, int(ctx)
         self.variant, self.head, self.tau = variant, head, float(tau)
+        self.scratch = bool(scratch)
         self.qs = QS
         for p in net.parameters():
             p.requires_grad_(False)
-        lora = add_lora(net, seed=seed)
-        groups = [dict(params=list(net.head.parameters()), lr=LR_HEAD),
-                  dict(params=lora, lr=LR_LORA)]
-        self.params = list(net.head.parameters()) + lora
+        if self.scratch:
+            groups = [dict(params=list(net.parameters()), lr=LR_SCRATCH)]
+            self.params = list(net.parameters())
+        else:
+            lora = add_lora(net, seed=seed)
+            groups = [dict(params=list(net.head.parameters()), lr=LR_HEAD),
+                      dict(params=lora, lr=LR_LORA)]
+            self.params = list(net.head.parameters()) + lora
         if head is not None:
             groups.append(dict(params=list(head.parameters()), lr=LR_SAFETY))
             self.params += list(head.parameters())
@@ -258,13 +272,33 @@ class OnlineLearner:
         self.prior = [p.detach().clone() for p in self.params]
         self.opt = torch.optim.Adam(groups)
         self.gen = torch.Generator().manual_seed(seed + 101)
-        self.n = 0
+        self.n = self.n0 = 0
         self.log = dict(fm=[], head=[], pull=[])
+
+    def rebind(self, live, b=0):
+        """Continue on the next mission's live data (weights, optimiser
+        state and the data count n carry over)."""
+        self.D, self.b, self.n0 = live, b, self.n
+
+    def state(self):
+        return dict(net=self.net.state_dict(), opt=self.opt.state_dict(),
+                    head=(self.head.state_dict() if self.head is not None
+                          else None), n=self.n)
+
+    def load_state(self, st):
+        """Restore state() into a learner built exactly as the saved one
+        (same net, head, seed and mode: the adapters and the prior are then
+        identical by construction)."""
+        self.net.load_state_dict(st["net"])
+        if self.head is not None:
+            self.head.load_state_dict(st["head"])
+        self.opt.load_state_dict(st["opt"])
+        self.n = self.n0 = int(st["n"])
 
     def step(self, k):
         """One gradient step after the plant advanced step k."""
         D, b, L = self.D, self.b, self.ctx
-        self.n = k + 1
+        self.n = self.n0 + k + 1
         if not np.isfinite(D.E0[b, k]).all():
             return
         a = max(0, k + 1 - L)
@@ -296,9 +330,12 @@ class OnlineLearner:
                     lh = (pinball(q, yn, self.qs).sum(-1) * okh).sum() \
                         / okh.sum()
                     loss = loss + lh
-            pull = sum(((p - p0) ** 2).sum() for p, p0 in
-                       zip(self.params, self.prior)) / (2 * self.tau ** 2
-                                                        * self.n)
+            if self.scratch:
+                pull = torch.zeros(())
+            else:
+                pull = sum(((p - p0) ** 2).sum() for p, p0 in
+                           zip(self.params, self.prior)) / (
+                    2 * self.tau ** 2 * self.n)
             loss = loss + pull
             self.opt.zero_grad(set_to_none=True)
             loss.backward()

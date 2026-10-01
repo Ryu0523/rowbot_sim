@@ -21,6 +21,20 @@ Rows (each skipped with a message when its checkpoint is missing):
                     mismatch trigger on (spread inflation)
   <fam>_<v>_online  the same plus streaming online learning (head + LoRA,
                     pulled to the prior), learn/meta/online_stream.py
+  <fam>_<v>_scratch the "no prior" row: the same network shape, MPC,
+                    trigger and online learning, but starting from untrained
+                    weights (seeded per mission) with every weight learning
+                    and no pull; it shares only the checkpoint's input /
+                    output normalisation and, for gen / cat, a fresh safety
+                    head with the trained head's output scale. scratch -
+                    online = what the prior is worth in closed loop
+  ..._online_carry / ..._scratch_carry
+                    one boat over consecutive missions (in the order of
+                    --missions x --legs): what was learned (weights,
+                    optimiser, data count; not the inflation) carries over
+                    instead of starting each mission afresh. The state after
+                    every mission is saved (carry_<row>.pt) so a stopped
+                    run resumes where it was
 proj rows have no safety head (meta5 has no APK / HMIN arrays): their
 acceleration constraint uses the predicted step-mean heave acceleration
 and their bow constraint the bow height from the predicted heave and pitch
@@ -47,7 +61,10 @@ Phases (results in studies/_cache/final_eval[/<tag>], written atomically):
 
     python -m studies.final_eval --phase turn,heads,eval,report \\
         --rows hand,m0,proj_p_prior,proj_p_online,gen_p_prior,gen_p_online,\\
-cat_p_prior,cat_p_online [--plant default|gz] [--missions 0-7] [--T 120]
+gen_p_scratch,cat_p_prior,cat_p_online,cat_p_scratch [--plant default|gz] \\
+        [--missions 0-7] [--T 120]
+    python -m studies.final_eval --tag carry --phase eval,report \\
+        --rows cat_p_online_carry,cat_p_scratch_carry
 """
 import argparse
 import json
@@ -247,18 +264,19 @@ def resolve_row(name):
     """Row spec or (None, reason)."""
     if name in ("hand", "m0"):
         return dict(name=name, kind=name), None
-    try:
-        fam, v, mode = name.split("_")
-    except ValueError:
+    parts = name.split("_")
+    carry = len(parts) == 4 and parts[3] == "carry"
+    if len(parts) != 3 and not carry:
         return None, f"unknown row {name!r}"
+    fam, v, mode = parts[:3]
     if fam not in FAMILIES or v not in ("a", "w", "p") or mode not in (
-            "prior", "online"):
+            "prior", "online", "scratch") or (carry and mode == "prior"):
         return None, f"unknown row {name!r}"
     cache, ck = ckpt_path(fam, v)
     if not os.path.exists(ck):
         return None, f"checkpoint {os.path.relpath(ck, ROOT)} does not exist"
     spec = dict(name=name, kind="net", fam=fam, variant=v, mode=mode,
-                cache=cache, ckpt=ck, head=None)
+                carry=carry, cache=cache, ckpt=ck, head=None)
     if fam != "proj":
         from learn.meta.safety_head import head_path
         hp = head_path(cache, v)
@@ -376,8 +394,40 @@ def geometry(m, env):
 
 
 # ------------------------------------------------------------ one mission
-def run_mission(spec, seed, leg, T, turn, nets):
-    """One closed-loop mission of a row; returns its record."""
+def build_net(spec, ck, head0, dev, seed, leg):
+    """(net, head) a mission of a net row starts from: the checkpoint's
+    trained weights and a copy of the trained safety head; for scratch rows
+    an untrained network of the same shape (seeded by the row's mission, or
+    by the first mission of a carry chain) and a fresh head that keeps only
+    the trained head's output scale (y_mu / y_sd)."""
+    import copy
+    import torch
+    from learn.meta import model_preview as MP
+    from learn.meta import mpc_learned as ML
+    if spec["mode"] != "scratch":
+        head = copy.deepcopy(head0) if head0 is not None else None
+        return MP.load_variant(ck, dev), head
+    from learn.meta import model3 as M3
+    from learn.meta.safety_head import SafetyHead
+    torch.manual_seed(ML.row_seed(seed, leg, 19))
+    net = (MP.NetP() if ck.get("variant", "a") in ("w", "p")
+           else M3.Net()).to(dev)
+    net.eval()
+    head = None
+    if head0 is not None:
+        head = SafetyHead(d=net.d, qs=head0.qs).to(dev)
+        head.y_mu.copy_(head0.y_mu)
+        head.y_sd.copy_(head0.y_sd)
+        head.eval()
+    return net, head
+
+
+def run_mission(spec, seed, leg, T, turn, nets, carry=None):
+    """One closed-loop mission of a row; returns its record. carry (carry
+    rows): None for the first mission of the chain, else dict(state=the
+    learner's state after the previous mission, seed, leg of the chain's
+    first mission); the record then holds the new state under
+    '_carry_state' (taken out before the record is stored)."""
     import torch
     from learn.meta import mpc_constrained as MC
     from learn.meta import mpc_learned as ML
@@ -404,24 +454,28 @@ def run_mission(spec, seed, leg, T, turn, nets):
         if kind == "net":
             dev = device()
             ck, head0 = nets[spec["name"]]
-            from learn.meta import model_preview as MP
-            net = MP.load_variant(ck, dev)
+            # a carry chain builds every mission's learner like its first
+            # mission's, then loads the saved state
+            s1, l1 = ((carry["seed"], carry["leg"]) if carry else (seed, leg))
+            net, head = build_net(spec, ck, head0, dev, s1, l1)
             variant = spec["variant"]
             ctx = int(ck.get("ctx", 256))
             nh = ctx - ML.M.HB
             live = MC.LiveDataW(1, m.n_ctrl + 1, ck["stats"], dev,
                                 ML.mission_consts(m), [m.sea], env)
             live.start(0, m.s, m.t)
-            if head0 is not None:
-                import copy
-                head = copy.deepcopy(head0)
             fc = dict(lam=OPT["fc_lam"], hp=OPT["fc_hp"], msd=0.01)
-            mon = MC_monitor(net, live, ctx, variant, head, fc, seed, leg)
-            if spec["mode"] == "online":
+            if spec["mode"] in ("online", "scratch"):
                 from learn.meta.online_stream import OnlineLearner
                 learner = OnlineLearner(net, live, 0, ctx, variant, head=head,
-                                        seed=ML.row_seed(seed, leg, 17))
-            net_info = dict(ctx=ctx, variant=variant, head=head is not None)
+                                        seed=ML.row_seed(s1, l1, 17),
+                                        scratch=spec["mode"] == "scratch")
+                if carry:
+                    learner.load_state(carry["state"])
+            mon = MC_monitor(net, live, ctx, variant, head, fc, seed, leg)
+            net_info = dict(ctx=ctx, variant=variant, head=head is not None,
+                            mode=spec["mode"], carry=bool(spec.get("carry")),
+                            n_before=learner.n if learner else 0)
         ctrl = MC.ConstrainedMPPI(jobs, [m], env, lim, geo, net=net,
                                   live=live, head=head, variant=variant,
                                   nh=nh, K=OPT["K"], S=OPT["S"],
@@ -505,6 +559,8 @@ def run_mission(spec, seed, leg, T, turn, nets):
         r["monitor"] = mon.summary()
     if learner is not None:
         r["learner"] = learner.summary()
+        if spec.get("carry"):
+            r["_carry_state"] = learner.state()
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
     return r
@@ -736,13 +792,39 @@ def phase_eval(rows, missions, legs, T):
                 from learn.meta.safety_head import load_head
                 head, _ = load_head(spec["head"], dev)
             nets = {spec["name"]: (ck, head)}         # one row's net at a time
+        order = [f"s{s}_l{lg}" for s in missions for lg in legs]
+        cpath = os.path.join(out_dir(), f"carry_{spec['name']}.pt")
+        carry = None
+        if spec.get("carry"):
+            done = [key for key in order if key in rr]
+            if done != order[:len(done)]:
+                log(f"  [eval] {spec['name']}: finished missions {done} are "
+                    f"not a prefix of the chain {order} (other --missions / "
+                    f"--legs than before?): skipped; use another --tag")
+                continue
+            if done:
+                c = torch.load(cpath, map_location=device(),
+                               weights_only=False)
+                if c.get("last") != done[-1] or c.get("order", [])[
+                        :len(done)] != done:
+                    log(f"  [eval] {spec['name']}: {cpath} does not match "
+                        f"the finished missions: skipped")
+                    continue
+                carry = c
         for s, lg in todo:
             if not wait_ram():
                 return
             t0 = time.time()
-            r = run_mission(spec, s, lg, T, turn, nets)
+            r = run_mission(spec, s, lg, T, turn, nets, carry=carry)
             r["wall_s"] = time.time() - t0
-            rr[f"s{s}_l{lg}"] = r
+            key = f"s{s}_l{lg}"
+            if spec.get("carry"):
+                carry = dict(state=r.pop("_carry_state"), order=order,
+                             last=key, seed=(carry or dict(seed=s))["seed"],
+                             leg=(carry or dict(leg=lg))["leg"])
+                torch.save(carry, cpath + ".tmp")
+                os.replace(cpath + ".tmp", cpath)
+            rr[key] = r
             atomic_pickle(R, os.path.join(out_dir(), "results.pkl"))
             e = r["events"]["2.0"]
             log(f"  [eval] {spec['name']} s{s} l{lg}: {r['kn']:.1f} kn, "
@@ -827,6 +909,15 @@ def phase_report():
                          f"{mm['apk_out90']:.2f}, APK > q99 "
                          f"{mm['apk_above99']:.3f}, inflation mean "
                          f"{mm['infl_mean']:.2f} max {mm['infl_max']:.2f}")
+        if name.endswith("_carry"):
+            seq = sorted(recs, key=lambda r_: r_["net"].get("n_before", 0))
+            row["chain"] = [dict(mission=f"s{r_['seed']}_l{r_['leg']}",
+                                 kn=r_["kn"], n_before=r_["net"]["n_before"],
+                                 a110=r_["events"]["2.0"].get("a110"))
+                            for r_ in seq]
+            lines.append(f"  {'':<16} chain (kn, A1/10 g at k 2): " + ", ".join(
+                f"{c['kn']:.1f}/{c['a110'] if c['a110'] is not None else np.nan:.2f}"
+                for c in row["chain"]))
         if hours > 0:
             lines.append(f"  {'':<16} {hours:.3f} h: 0 capsizes bound "
                          f"the rate below {3.0 / hours:.0f} per hour (95%)")
@@ -854,7 +945,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--phase", default="turn,eval,report")
     ap.add_argument("--rows", default="hand,m0,proj_p_prior,proj_p_online,"
-                    "gen_p_prior,gen_p_online,cat_p_prior,cat_p_online")
+                    "gen_p_prior,gen_p_online,gen_p_scratch,cat_p_prior,"
+                    "cat_p_online,cat_p_scratch",
+                    help="also ..._online_carry / ..._scratch_carry (one "
+                    "boat over consecutive missions; best with its own "
+                    "--tag)")
     ap.add_argument("--head-variants", default="p",
                     help="variants whose gen / cat safety heads phase "
                     "heads trains")

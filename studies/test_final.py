@@ -428,11 +428,76 @@ def test_9():
            f"{r['events']['2.0']['source']}")
 
 
+# ------------------------------------------------------------------ 10
+def test_10():
+    """scratch row: untrained start, every weight learns, no pull; carry:
+    a two-mission chain through phase_eval, the second mission starting
+    from the first one's learned state, and the saved state round trip."""
+    from studies import final_eval as FE
+    from learn.meta.safety_head import load_head
+    if "head7" not in RES:
+        test_7()
+    tmp, ck, _ = RES["head7"]
+    head, _ = load_head(tmp, dev())
+    FE.OPT.update(tag="test_final_10", S=4, K=32)
+    turn = dict(u=[5.0, 15.0], r=[0.3, 0.5])
+    spec = dict(name="gen_w_scratch", kind="net", fam="gen", variant="w",
+                mode="scratch", cache=SMOKE6, ckpt=None, head=tmp)
+    nets = {spec["name"]: (ck, head)}
+    n1, h1 = FE.build_net(spec, ck, head, dev(), 0, 0)
+    n2, _ = FE.build_net(spec, ck, head, dev(), 0, 0)
+    n3, _ = FE.build_net(spec, ck, head, dev(), 1, 0)
+    sd1, sd2, sd3 = n1.state_dict(), n2.state_dict(), n3.state_dict()
+    seeded = all(torch.equal(sd1[k], sd2[k]) for k in sd1)
+    fresh = not all(torch.equal(sd1[k], ck["net"][k].to(sd1[k].device))
+                    for k in sd1) and not all(torch.equal(sd1[k], sd3[k])
+                                              for k in sd1)
+    w1, w0 = next(h1.net.parameters()), next(head.net.parameters())
+    scale = torch.equal(h1.y_sd, head.y_sd) and not torch.equal(w1, w0)
+    r = FE.run_mission(spec, 0, 0, 1.5, turn, nets)
+    ok_s = (r["finite"] and r["learner"]["pull_last60"] == 0.0
+            and r["learner"]["dev_sq"] > 0)
+    # carry chain through phase_eval (results under the test tag)
+    import shutil
+    shutil.rmtree(FE.out_dir(), ignore_errors=True)
+    cspec = dict(spec, name="gen_w_online_carry", mode="online", carry=True)
+    orig = FE.resolve_row
+    FE.resolve_row = lambda nm: (cspec, None)
+    orig_turn = FE.phase_turn
+    FE.phase_turn = lambda force=False: turn
+    orig_load = torch.load
+    try:
+        import learn.meta.safety_head as SH
+        orig_lh = SH.load_head
+        SH.load_head = lambda p, d: (head, {})
+        cspec["ckpt"] = os.path.join(FE.out_dir(), "ck.pt")
+        torch.save(ck, cspec["ckpt"])
+        FE.phase_eval([cspec["name"]], [0], [0, 1], 1.5)
+        R = FE.load_results()["rows"][cspec["name"]]
+        c = orig_load(os.path.join(FE.out_dir(),
+                                   f"carry_{cspec['name']}.pt"),
+                      map_location=dev(), weights_only=False)
+    finally:
+        FE.resolve_row, FE.phase_turn = orig, orig_turn
+        SH.load_head = orig_lh
+    nb = [R[k]["net"]["n_before"] for k in ("s0_l0", "s0_l1")]
+    ok_c = (nb[0] == 0 and nb[1] == R["s0_l0"]["learner"]["n"] > 0
+            and c["last"] == "s0_l1" and c["state"]["n"]
+            == R["s0_l1"]["learner"]["n"] and "_carry_state" not in
+            R["s0_l1"])
+    ok = seeded and fresh and scale and ok_s and ok_c
+    report("10 scratch row / carry chain", ok,
+           f"seeded {seeded}, untrained {fresh}, head scale only {scale}; "
+           f"scratch: no pull {r['learner']['pull_last60'] == 0.0}, moved "
+           f"{r['learner']['dev_sq']:.2e}; carry n_before {nb}, saved "
+           f"after {c['last']} (n {c['state']['n']})")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("tests", nargs="*", type=int)
     a = ap.parse_args()
-    which = a.tests or list(range(1, 10))
+    which = a.tests or list(range(1, 11))
     t0 = time.time()
     for i in which:
         try:
