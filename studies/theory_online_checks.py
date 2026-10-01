@@ -139,7 +139,7 @@ def check_ols():
     out = []
     for rho in (0.1, 0.25, 0.5, 0.75):
         p = int(rho * N)
-        hits, R = 0, 400
+        hits, R = 0, 4000
         for _ in range(R):
             X = RNG.standard_normal((N, p))
             beta = RNG.standard_normal(p)
@@ -155,10 +155,11 @@ def check_ols():
          + "; ".join(out))
 
 
-def window_prior_sd(tau=0.02, L=256):
-    line("T5 effective prior sd once the window is full (tau sqrt(n/L)): "
-         + ", ".join(f"n={n}: {tau * math.sqrt(max(n, L) / L):.3f}"
-                     for n in (256, 1000, 4800, 15000)))
+def window_prior_sd(tau=0.02):
+    for nm, W in (("variant a, |W| = 256", 256), ("w / p, E|W| ~ 178", 178)):
+        line(f"T5 effective prior sd tau sqrt(n/|W|), {nm}: " + ", ".join(
+            f"n={n}: {tau * math.sqrt(max(n, W) / W):.3f}"
+            for n in (256, 1000, 4800, 15000)))
 
 
 # ------------------------------------------------------------------ T6
@@ -195,22 +196,60 @@ def trigger():
         pc = stats.binom.sf(k_cor - 1, 60, p)
         rows.append(f"p={p:.2f}: indep {pi:.3f}, corr {pc:.3f}")
     line(f"T7 trigger threshold {thr:.4f}; P(window above): " + "; ".join(rows))
-    up = math.log(3) / math.log(1.03)
-    dn = math.log(3) / math.log(1.01)
-    line(f"T7 inflation 1 -> 3 in {up:.0f} steps ({up * 0.24:.1f} s), "
-         f"3 -> 1 in {dn:.0f} steps ({dn * 0.24:.1f} s)")
+    up = math.ceil(math.log(3) / math.log(1.03))
+    dn = math.ceil(math.log(3) / math.log(1.01))
+    line(f"T7 inflation 1 -> 3 in {up} steps ({up * 0.24:.1f} s), "
+         f"3 -> 1 in {dn} steps ({dn * 0.24:.1f} s) (when the rule acts "
+         "every step)")
+    mission_trigger()
+    tail_rule()
     T, g = 480, 0.05
     for a in (0.1, 0.01):
         line(f"T7 ACI bound one mission (T={T}, gamma={g}, alpha={a}): "
              f"|miss - alpha| <= {(max(a, 1 - a) + g) / (g * T):.3f}")
 
 
+def mission_trigger(T=480, R=4000):
+    """Sliding 90% rule over one mission (miss indicators i.i.d. in time):
+    P(fires at least once), firing allowed from n >= 20 (N_MIN)."""
+    rows = []
+    for p in (0.10, 0.15, 0.20):
+        res = []
+        for mode in ("indep", "corr"):
+            if mode == "indep":
+                x = RNG.binomial(5, p, (R, T)) / 5.0
+            else:
+                x = RNG.binomial(1, p, (R, T)).astype(float)
+            c = np.cumsum(x, 1)
+            fired = np.zeros(R, bool)
+            for t in range(19, T):
+                n = min(t + 1, 60)
+                tot = c[:, t] - (c[:, t - 60] if t >= 60 else 0.0)
+                fired |= tot / n > 0.10 + 2 * math.sqrt(0.09 / n)
+            res.append(f"{mode} {fired.mean():.3f}")
+        rows.append(f"p={p:.2f}: " + ", ".join(res))
+    line(f"T7 P(90% rule fires at least once in a {T}-step mission): "
+         + "; ".join(rows))
+
+
+def tail_rule():
+    """Gaussian scale misfit giving 85% coverage of the 90% band: the 99%
+    band's miss rate vs the 240-step tail threshold."""
+    r = stats.norm.ppf(0.925) / Z90            # sigma_hat / sigma
+    m99 = 2 * stats.norm.sf(stats.norm.ppf(0.995) * r)
+    thr = 0.01 + 2 * math.sqrt(0.0099 / 240)
+    line(f"T7 scale misfit with 85% coverage of the 90% band (sigma_hat = "
+         f"{r:.3f} sigma): 99% band miss rate {m99:.4f} vs tail threshold "
+         f"{thr:.4f} at n = 240")
+
+
 def adam_bound():
     b1, b2 = 0.9, 0.999
     r = (1 - b1) / math.sqrt(1 - b2)
-    line(f"T5 Adam per-step move bound (Kingma & Ba 2.1, (1-b1) > sqrt(1-b2))"
-         f": {r:.2f} x lr; LoRA lr 1e-3 -> tau / lr = {0.02 / 1e-3:.0f} "
-         "steps of consistent push per prior sd")
+    worst = (1 - b1) / math.sqrt((1 - b2) * (1 - b1 * b1 / b2))
+    line(f"T5 Adam per-step move: {r:.2f} x lr in Kingma & Ba's sparse case,"
+         f" {worst:.2f} x lr worst case (Cauchy-Schwarz, large t); typical "
+         f"about lr; LoRA lr 1e-3 -> tau / lr = {0.02 / 1e-3:.0f}")
 
 
 def main():
