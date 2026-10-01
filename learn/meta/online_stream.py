@@ -142,13 +142,17 @@ class Monitor:
         h = self.net.encode(tok)[0, k - a]
         y0 = torch.randn((N_PRED, M.C7), generator=self.gen) \
             * self.spread * self.infl
-        e = self.net.sample_grad(h.expand(N_PRED, -1), y0.to(D.dev))
+        if getattr(self.net, "bayes", None) is not None:
+            # one posterior adapter draw per sample: the not-yet-known part
+            hh = self.net.bayes.sample_h(h, N_PRED, self.gen)
+        else:
+            hh = h.expand(N_PRED, -1)
+        e = self.net.sample_grad(hh, y0.to(D.dev))
         lv = torch.tensor([0.005, 0.05, 0.5, 0.95, 0.995], device=D.dev)
         out = dict(qe=torch.quantile(e, lv, dim=0).cpu().numpy())  # (5, 10)
         if self.head is not None:
             from learn.meta.safety_head import inflate, inv_cdf
-            q = inflate(self.head(h.expand(N_PRED, -1), e).double(),
-                        self.infl)
+            q = inflate(self.head(hh, e).double(), self.infl)
             u = torch.rand((N_PRED, 2), generator=self.gen,
                            dtype=torch.float64).to(D.dev)
             v = inv_cdf(q, u)                                # (n, 2)

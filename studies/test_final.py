@@ -493,11 +493,110 @@ def test_10():
            f"after {c['last']} (n {c['state']['n']})")
 
 
+# ------------------------------------------------------------------ 11
+def test_11():
+    """learn/meta/bayes_adapter: (a) sequential ekf_update = the batch
+    Gaussian posterior on a linear problem; (b) an adapter with prior width
+    ~0 leaves rollout_tap equal to the prior net; (c) the posterior narrows
+    (trace P falls) and moves; per-future draws are fixed over the horizon
+    and differ between futures; (d) the closed-loop bayes row runs and its
+    carry state round-trips."""
+    from learn.meta import bayes_adapter as BA
+    from learn.meta import model_preview as MP
+    from learn.meta import mpc_constrained as MC
+    from studies import final_eval as FE
+    g = torch.Generator().manual_seed(3)
+    p_, m_, n_ = 6, 4, 12
+    th = torch.randn(p_, generator=g, dtype=torch.float64)
+    mu = torch.zeros(p_, dtype=torch.float64)
+    P = torch.eye(p_, dtype=torch.float64) * 0.5
+    Js, ys = [], []
+    for _ in range(n_):
+        J = torch.randn(m_, p_, generator=g, dtype=torch.float64)
+        y = J @ th + 0.3 * torch.randn(m_, generator=g, dtype=torch.float64)
+        mu, P = BA.ekf_update(mu, P, J, J @ mu - y, torch.full((m_,), 0.09,
+                                                               dtype=torch.float64))
+        Js.append(J)
+        ys.append(y)
+    Jall, yall = torch.cat(Js), torch.cat(ys)
+    Pb = torch.linalg.inv(torch.eye(p_, dtype=torch.float64) / 0.5
+                          + Jall.T @ Jall / 0.09)
+    mub = Pb @ (Jall.T @ yall / 0.09)
+    ok_a = torch.allclose(mu, mub, atol=1e-9) and torch.allclose(P, Pb,
+                                                                 atol=1e-9)
+    # (b) tiny prior width: the rollout equals the prior net's
+    tmp, ck, _ = RES.get("head7") or (None, None, None)
+    if ck is None:
+        test_7()
+        tmp, ck, _ = RES["head7"]
+    net = MP.load_variant(ck, dev())
+    m, live, env = live_mission(ck["stats"], 30)
+    ctx = int(ck.get("ctx", M.W_CTX))
+    nh, k, P2, S = ctx - M.HB, 30, 2, 3
+    base = torch.randn((1, 1, S, M.HB, M.C7), generator=g).expand(
+        1, P2, S, M.HB, M.C7)
+    plans = torch.rand((1, P2, M.HB, 2), generator=g, dtype=torch.float64)
+    plans[..., 1] = 0.0
+    def wv():
+        return MP.WaveRoll(live, [0], [k], 0.0, 0, 0.01,
+                           torch.Generator().manual_seed(9))
+    e0, s0, _, _ = MC.rollout_tap(net, live, [0], [k], plans, m.s[None], env,
+                                  S, base, wave=wv(), nh=nh)
+    net.bayes = BA.BayesAdapter(net.d, dev(), tau=1e-9, seed=1)
+    net.bayes.resample(S, g)
+    e1, s1, _, _ = MC.rollout_tap(net, live, [0], [k], plans, m.s[None], env,
+                                  S, base, wave=wv(), nh=nh)
+    ok_b = torch.allclose(e0, e1, atol=1e-5) and torch.allclose(s0, s1,
+                                                                atol=1e-6)
+    del net.bayes
+    # (c) narrowing on live data
+    net = MP.load_variant(ck, dev())
+    lr = BA.BayesLearner(net, live, 0, ctx, "w", seed=0, q_rw=0.0)
+    w0 = lr.ad.width()
+    widths = []
+    for kk in range(20, 30):
+        lr.step(kk)
+        widths.append(lr.ad.width())
+    mono = all(b_ <= a_ + 1e-12 for a_, b_ in zip([w0] + widths, widths))
+    moved = float(lr.ad.mu.norm()) > 0
+    wd, snr = lr.width_data, lr.snr0
+    lr.ad.resample(S, g)
+    hh = torch.randn(2, P2, S, net.d, device=dev())
+    o1, o2 = lr.ad.apply(hh), lr.ad.apply(hh)
+    fixed = torch.equal(o1, o2)
+    differ = not torch.allclose(o1[..., 0, :], o1[..., 1, :])
+    ok_c = mono and wd < 1.0 and moved and fixed and differ
+    # (d) closed loop with the bayes row, carry state round trip
+    head, _ = __import__("learn.meta.safety_head",
+                         fromlist=["load_head"]).load_head(tmp, dev())
+    FE.OPT.update(tag="test_final_11", S=4, K=32)
+    turn = dict(u=[5.0, 15.0], r=[0.3, 0.5])
+    spec = dict(name="gen_w_bayes", kind="net", fam="gen", variant="w",
+                mode="bayes", carry=True, cache=SMOKE6, ckpt=None, head=tmp)
+    r = FE.run_mission(spec, 0, 0, 1.5, turn, {spec["name"]: (ck, head)})
+    st = r.pop("_carry_state")
+    r2 = FE.run_mission(spec, 0, 1, 1.5, turn, {spec["name"]: (ck, head)},
+                        carry=dict(state=st, seed=0, leg=0))
+    ok_d = (r["finite"] and r2["finite"]
+            and r2["net"]["n_before"] == st["n"] > 0
+            and r["learner"]["width_data"] < 1.0)
+    ok = ok_a and ok_b and ok_c and ok_d
+    report("11 Bayesian adapter", ok,
+           f"EKF = batch posterior {ok_a}; tiny prior = prior net {ok_b}; "
+           f"trace width {w0:.3f} -> {widths[-1]:.5f} monotone {mono}, width "
+           f"on the excited directions {wd:.3f} (one observation's prior "
+           f"SNR {snr:.2e}), moved "
+           f"{moved}, per-future draws fixed {fixed} / distinct {differ}; "
+           f"closed loop excited-direction width "
+           f"{r['learner']['width_data']:.3f}, n carried "
+           f"{r2['net']['n_before']}")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("tests", nargs="*", type=int)
     a = ap.parse_args()
-    which = a.tests or list(range(1, 11))
+    which = a.tests or list(range(1, 12))
     t0 = time.time()
     for i in which:
         try:

@@ -29,7 +29,12 @@ Rows (each skipped with a message when its checkpoint is missing):
                     output normalisation and, for gen / cat, a fresh safety
                     head with the trained head's output scale. scratch -
                     online = what the prior is worth in closed loop
-  ..._online_carry / ..._scratch_carry
+  <fam>_<v>_bayes   the prior net plus learn/meta/bayes_adapter: a Bayesian
+                    low-rank adapter on the trunk output whose posterior
+                    N(mu, P) narrows by one extended-Kalman step per
+                    observation (each used once); every sampled future
+                    keeps its own adapter draw for the whole horizon
+  ..._online_carry / ..._scratch_carry / ..._bayes_carry
                     one boat over consecutive missions (in the order of
                     --missions x --legs): what was learned (weights,
                     optimiser, data count; not the inflation) carries over
@@ -271,7 +276,8 @@ def resolve_row(name):
         return None, f"unknown row {name!r}"
     fam, v, mode = parts[:3]
     if fam not in FAMILIES or v not in ("a", "w", "p") or mode not in (
-            "prior", "online", "scratch") or (carry and mode == "prior"):
+            "prior", "online", "scratch", "bayes") or (
+            carry and mode == "prior"):
         return None, f"unknown row {name!r}"
     cache, ck = ckpt_path(fam, v)
     if not os.path.exists(ck):
@@ -470,7 +476,14 @@ def run_mission(spec, seed, leg, T, turn, nets, carry=None):
                                 ML.mission_consts(m), [m.sea], env)
             live.start(0, m.s, m.t)
             fc = dict(lam=OPT["fc_lam"], hp=OPT["fc_hp"], msd=0.01)
-            if spec["mode"] in ("online", "scratch"):
+            if spec["mode"] == "bayes":
+                from learn.meta.bayes_adapter import BayesLearner
+                learner = BayesLearner(net, live, 0, ctx, variant, head=head,
+                                       seed=ML.row_seed(s1, l1, 17),
+                                       fc=fc)
+                if carry:
+                    learner.load_state(carry["state"])
+            elif spec["mode"] in ("online", "scratch"):
                 from learn.meta.online_stream import OnlineLearner
                 learner = OnlineLearner(net, live, 0, ctx, variant, head=head,
                                         seed=ML.row_seed(s1, l1, 17),
@@ -950,8 +963,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--phase", default="turn,eval,report")
     ap.add_argument("--rows", default="hand,m0,proj_p_prior,proj_p_online,"
-                    "gen_p_prior,gen_p_online,gen_p_scratch,cat_p_prior,"
-                    "cat_p_online,cat_p_scratch",
+                    "gen_p_prior,gen_p_online,gen_p_bayes,gen_p_scratch,"
+                    "cat_p_prior,cat_p_online,cat_p_bayes,cat_p_scratch",
                     help="also ..._online_carry / ..._scratch_carry (one "
                     "boat over consecutive missions; best with its own "
                     "--tag)")

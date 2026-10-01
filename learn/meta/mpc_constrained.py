@@ -251,6 +251,10 @@ def rollout_tap(net, D, ii, k, plans, xs_k, env, S, base, steer=None,
             tok = torch.cat([tok, wave(j, sr, Uj).float()], -1)
         h = M.kv_step(net, tok, net.pos[Lh + j].view(B, 1, 1, -1), hist,
                       hide, cache)
+        if getattr(net, "bayes", None) is not None:
+            # learn/meta/bayes_adapter: future s keeps its own adapter
+            # sample for the whole horizon
+            h = net.bayes.apply(h)
         e = net.sample_grad(h, base[:, :, :, j], ode_steps)
         e_raw = (e * e_sd).double()
         sr = m0(sr, Uj) + (e_raw[..., :n_st] * dtc) @ sel
@@ -387,6 +391,8 @@ class ConstrainedMPPI:
             ML.row_seed(j["seed"], j["leg"], 9)) for j in jobs]
         self.gen_w = torch.Generator().manual_seed(
             ML.row_seed(jobs[0]["seed"], jobs[0]["leg"], 11))
+        self.gen_b = torch.Generator().manual_seed(
+            ML.row_seed(jobs[0]["seed"], jobs[0]["leg"], 23))
         self.dev = live.dev if net is not None else torch.device("cpu")
         self.dtc = en["dt"] * en["sub"]
         self.n_bad = np.zeros(self.B, int)
@@ -456,6 +462,8 @@ class ConstrainedMPPI:
                 self.spread * infl, dtype=torch.float32).view(nb, 1, 1, 1, 1)
             base = base.to(self.dev).expand(nb, K, S, H, M.C7)
             wave = self._wave(rows, k)
+            if getattr(self.net, "bayes", None) is not None:
+                self.net.bayes.resample(S, self.gen_b)
             with _cached(self.net):
                 e, st, _, hs = rollout_tap(
                     self.net, self.live, list(rows), [k] * nb,
