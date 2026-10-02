@@ -41,6 +41,12 @@ Rows (each skipped with a message when its checkpoint is missing):
                     instead of starting each mission afresh. The state after
                     every mission is saved (carry_<row>.pt) so a stopped
                     run resumes where it was
+Steering (--steer): auto (default) = the heading autopilot sets the nozzle
+in the rollouts and on the boat, the MPPI plans the thrust; free = the MPPI
+plans the nozzle too (learn/meta/mpc_constrained.py, steer='free'), for
+every row but hand (its own controller). --y-lengths sets the planner's
+cross-track limit (boat lengths, default 2). A non-default setting appends
+'steerfree' / 'y<n>' to the tag, so its results never mix with another's.
 proj rows have no safety head (meta5 has no APK / HMIN arrays): their
 acceleration constraint uses the predicted step-mean heave acceleration
 and their bow constraint the bow height from the predicted heave and pitch
@@ -94,7 +100,8 @@ KN = 0.514444
 FAMILIES = dict(proj="meta5", gen="meta6", cat="meta7")
 K_EVAL = (1.5, 2.0, 2.5)
 OPT = dict(tag="", plant="gz", T=task.T_EVAL, S=8, K=128, device="auto",
-           fc_lam=0.1, fc_hp=24, trigger=True, min_gb=3.0)
+           fc_lam=0.1, fc_hp=24, trigger=True, min_gb=3.0, steer="auto",
+           y_lengths=2.0)
 
 
 # ------------------------------------------------------------ plumbing
@@ -455,7 +462,7 @@ def run_mission(spec, seed, leg, T, turn, nets, carry=None):
     # n_ctrl: a '120 s' mission is 480 steps = 115.2 s)
     dtc = m.dt * m.sub
     safe = MC.SafeMode(dtc)
-    lim = MC.Limits()
+    lim = MC.Limits(y_lengths=OPT["y_lengths"])
     jobs = [dict(seed=seed, leg=leg)]
     ctrl = mon = learner = live = None
     net_info = {}
@@ -498,12 +505,14 @@ def run_mission(spec, seed, leg, T, turn, nets, carry=None):
                                   live=live, head=head, variant=variant,
                                   nh=nh, K=OPT["K"], S=OPT["S"],
                                   fc=dict(lam=OPT["fc_lam"],
-                                          hp=OPT["fc_hp"]))
+                                          hp=OPT["fc_hp"]),
+                                  steer=OPT["steer"])
     t_ctl = t_lrn = 0.0
     n_steps = 0
     past, diags = [], []
     n_win = int(round(lim.win_s / dtc))
     cmd_thr, cmd_noz, safe_on = [], [], []
+    hdg = []                     # heading minus track angle per step (rad)
     k = 0
     while not m.done():
         tc = time.perf_counter()
@@ -518,7 +527,10 @@ def run_mission(spec, seed, leg, T, turn, nets, carry=None):
                                           and OPT["trigger"]) else 1.0)
             cmds, dg = ctrl([0], k, [info])
             thrust = float(cmds[0]) * m.t_max
-            rud = m.ep._steer(m.s, thrust)
+            if OPT["steer"] == "free":
+                rud = dg[0]["nozzle"] * m.rud_max
+            else:
+                rud = m.ep._steer(m.s, thrust)
             diags.append(dg[0])
         t_ctl += time.perf_counter() - tc
         thrust, rud, on = safe(m.s[3], thrust, rud)
@@ -537,6 +549,7 @@ def run_mission(spec, seed, leg, T, turn, nets, carry=None):
             break
         apk, hmin = step_safety(rec, n0, s0, geo, m.sub)
         past.append(apk)
+        hdg.append(math.remainder(float(m.s[5]) - float(m.phi), 2 * math.pi))
         tl = time.perf_counter()
         if live is not None:
             live.push(0, u_app, m.s, m.t, apk, hmin)
@@ -562,7 +575,11 @@ def run_mission(spec, seed, leg, T, turn, nets, carry=None):
              t_step=(t_ctl + t_lrn) / max(n_steps, 1), n_steps=n_steps,
              safe_entries=safe.n_entries, safe_steps=safe.n_on,
              apk_mean_g=float(np.mean(past)) / task.G if past else np.nan,
-             plant=OPT["plant"], net=net_info)
+             plant=OPT["plant"], net=net_info, steer=OPT["steer"],
+             hdg_dev_mean_deg=(math.degrees(float(np.mean(hdg))) if hdg
+                               else float("nan")),
+             hdg_dev_abs_deg=(math.degrees(float(np.mean(np.abs(hdg))))
+                              if hdg else float("nan")))
     if diags:
         r["plan"] = dict(
             n_ok_mean=float(np.mean([d["n_ok"] for d in diags])),
@@ -571,6 +588,9 @@ def run_mission(spec, seed, leg, T, turn, nets, carry=None):
             **{nm: float(np.mean([d[nm] > 0 for d in diags]))
                for nm in diags[0] if nm.startswith("g_")},
             kind=diags[0]["kind"])
+        if "nozzle" in diags[0]:
+            r["plan"]["nozzle_abs_mean"] = float(np.mean(
+                [abs(d["nozzle"]) for d in diags]))
     if ctrl is not None:
         r["n_bad"], r["n_samp"] = int(ctrl.n_bad[0]), int(ctrl.n_samp[0])
     if mon is not None:
@@ -919,6 +939,15 @@ def phase_report():
                          f"{e2.get('a110_win_over_share', np.nan):.2f}, "
                          f">=7g {e2.get('n_ge7', np.nan):.0f}, >=10g "
                          f"{e2.get('n_ge10', np.nan):.0f}")
+        hd = [r for r in recs if "hdg_dev_abs_deg" in r]
+        if hd:
+            row["hdg_dev_abs_deg"] = float(np.nanmean(
+                [r["hdg_dev_abs_deg"] for r in hd]))
+            row["hdg_dev_mean_deg"] = float(np.nanmean(
+                [r["hdg_dev_mean_deg"] for r in hd]))
+            lines.append(f"  {'':<16} steer {hd[0].get('steer', 'auto')}: "
+                         f"|heading - track| {row['hdg_dev_abs_deg']:.1f} deg"
+                         f" (mean signed {row['hdg_dev_mean_deg']:+.1f})")
         if "monitor" in row:
             mm = row["monitor"]
             lines.append(f"  {'':<16} monitor: cov90 vel "
@@ -985,7 +1014,20 @@ def main():
     ap.add_argument("--device", default="auto")
     ap.add_argument("--tag", default="")
     ap.add_argument("--force-turn", action="store_true")
+    ap.add_argument("--steer", default="auto", choices=("auto", "free"),
+                    help="auto: the heading autopilot sets the nozzle (rollouts "
+                    "and boat); free: the MPPI plans the nozzle too "
+                    "(learn/meta/mpc_constrained.py). The hand row keeps its "
+                    "own controller either way")
+    ap.add_argument("--y-lengths", type=float, default=2.0,
+                    help="the planner's cross-track limit in boat lengths")
     a = ap.parse_args()
+    # results of another steering or corridor never share a directory (a
+    # resumed run would skip missions finished under the other setting)
+    suffix = ([] if a.steer == "auto" else ["steerfree"]) + (
+        [] if a.y_lengths == 2.0 else [f"y{a.y_lengths:g}"])
+    if suffix:
+        a.tag = "_".join(([a.tag] if a.tag else []) + suffix)
     if a.plant == "auto":
         try:
             import sim.planing_vessel_gz   # noqa: F401
@@ -994,10 +1036,12 @@ def main():
             a.plant = "default"
     OPT.update(tag=a.tag, plant=a.plant, T=a.T, S=a.S, K=a.K,
                device=a.device, fc_lam=a.fc_lam, fc_hp=a.fc_hp,
-               trigger=not a.no_trigger)
+               trigger=not a.no_trigger, steer=a.steer,
+               y_lengths=a.y_lengths)
     phases = a.phase.split(",")
     log(f"final_eval phases {phases} rows {a.rows} missions {a.missions} "
         f"legs {a.legs} T {a.T} plant {a.plant} S {a.S} K {a.K} "
+        f"steer {a.steer} corridor {a.y_lengths:g} L tag {a.tag!r} "
         f"({free_gb():.1f} GB free)")
     task.ctx()
     if "turn" in phases:

@@ -9,7 +9,8 @@ futures of a learned one-step error model (or of the e = 0 model, row m0).
 Structure kept from learn/meta/mpc_learned.LearnedMPPI (read-only import):
 7 thrust knots over the 24-step horizon, warm start shifted by one step,
 softmax weights (lam 0.6), knot noise 0.25, 128 candidates, the nozzle set
-by the heading autopilot in the rollouts (SteerT) and on the boat, common
+by the heading autopilot in the rollouts (SteerT) and on the boat
+(steer='auto'; steer='free' below), common
 random numbers (one base draw per row and call, shared by all candidates),
 the per-row random streams (seed, leg, 5) knots / (seed, leg, 7) flow base
 noise; new streams (seed, leg, 9) for the safety-quantity draws and
@@ -31,6 +32,18 @@ worst ceil(alpha S) futures, alpha = 0.1; at S <= 10 the worst one):
           speed the plan cannot move), from a turning run on the plant
   g_y     max_j |y| / (2 L) - 1, worst-alpha mean
   cost    speed + W_JUMP sum (dU)^2 + sum_g [g > 0] (BIG + W_G g^2)
+
+steer='free': the planner owns the heading. Every candidate also carries 7
+nozzle knots (fractions in [-1, 1], knot noise SIGMA_N, warm start shifted
+like the thrust's, the first plan straight at 0); the rollouts take the
+plan's nozzle column as it is (no autopilot) and the boat gets the
+weighted plan's first nozzle command (diag 'nozzle'). Nothing else
+changes: the same objective (along-track progress; a heading off the track
+counts only its cos share), the same constraints (yaw rate <= r_max(u),
+cross-track <= y_lengths L, accelerations, bow), W_JUMP on the nozzle
+jumps as on the thrust's. The heading in the rollouts then comes from the
+error model's yaw predictions alone (no autopilot pulling it back inside
+the horizon); replanning every step is the only feedback.
 
 g <= 0: no penalty. BIG = 100 exceeds any speed difference (the speed term
 spans about -3 .. 6). W_G = BIG as well: when every candidate violates,
@@ -81,6 +94,9 @@ from learn.repro.task import G
 H = M.HB
 K_CAND, N_KNOTS, SIGMA, LAM, W_JUMP = (ML.K_CAND, ML.N_KNOTS, ML.SIGMA,
                                        ML.LAM, ML.W_JUMP)
+SIGMA_N = 0.25          # nozzle knot noise (fraction of full lock), free
+                        # steering; the thrust's value [assumption]
+STEER_MODES = ("auto", "free")
 S_DEFAULT = 8
 S_BOW = 16          # wave draws per call for the statistical bow form
 
@@ -367,11 +383,17 @@ class ConstrainedMPPI:
     dict(fb, x_b, s_p, L, u_ref). Call with the live rows, the step k and
     per-row info dicts (past (n_p,) measured per-step peaks of the past
     window in g, u_meas, r_max, bow (mu, sd, omega), infl); returns the
-    thrust commands (fractions) and diagnostics of the chosen plan."""
+    thrust commands (fractions) and diagnostics of the chosen plan (with
+    steer='free' also the nozzle command, fraction of full lock, as diag
+    'nozzle'; module docstring)."""
 
     def __init__(self, jobs, missions, en, lim, geo, net=None, live=None,
                  head=None, variant="a", nh=None, spread=1.0, K=K_CAND,
-                 S=S_DEFAULT, sigma=SIGMA, lam=LAM, floor=0.0, fc=None):
+                 S=S_DEFAULT, sigma=SIGMA, lam=LAM, floor=0.0, fc=None,
+                 steer="auto", sigma_n=SIGMA_N):
+        if steer not in STEER_MODES:
+            raise ValueError(f"steer {steer!r} not in {STEER_MODES}")
+        self.steer, self.sigma_n = steer, float(sigma_n)
         self.jobs, self.ms, self.en, self.lim, self.geo = (jobs, missions,
                                                            en, lim, geo)
         self.net, self.live, self.head = net, live, head
@@ -383,6 +405,7 @@ class ConstrainedMPPI:
         self.fc = {**dict(lam=0.1, hp=H, msd=0.01), **(fc or {})}
         self.E, self.Sh = ML.knot_matrices()
         self.nominal = np.full((self.B, N_KNOTS), 0.5)
+        self.nominal_n = np.zeros((self.B, N_KNOTS))       # steer 'free'
         self.rng = [np.random.default_rng([j["seed"], j["leg"], 5])
                     for j in jobs]
         self.gen = [torch.Generator().manual_seed(
@@ -440,11 +463,16 @@ class ConstrainedMPPI:
     # ---------------------------------------------------------------- call
     def __call__(self, rows, k, info):
         nb, K, S = len(rows), self.K, self.S
-        cand, bases = [], []
+        free = self.steer == "free"
+        cand, cand_n, bases = [], [], []
         for b in rows:
             noise = self.rng[b].normal(0.0, 1.0, (K, N_KNOTS)) * self.sigma
             cand.append(np.clip(self.nominal[b][None] + noise, self.floor,
                                 1.0))
+            if free:
+                nz = self.rng[b].normal(0.0, 1.0, (K, N_KNOTS)) * self.sigma_n
+                cand_n.append(np.clip(self.nominal_n[b][None] + nz, -1.0,
+                                      1.0))
             if self.net is not None:
                 bases.append(torch.randn((S, H, M.C7), generator=self.gen[b]))
         cand = np.stack(cand)
@@ -454,7 +482,13 @@ class ConstrainedMPPI:
         ms = [self.ms[b] for b in rows]
         xs = np.stack([m.s for m in ms])
         phi = np.array([m.phi for m in ms])
-        steer = ML.SteerT(ms[0].ep, phi, [m.ep._psi_i for m in ms], self.en)
+        if free:
+            cand_n = np.stack(cand_n)
+            plans[..., 1] = cand_n @ self.E.T
+            steer = None
+        else:
+            steer = ML.SteerT(ms[0].ep, phi, [m.ep._psi_i for m in ms],
+                              self.en)
         infl = np.array([float(info[i].get("infl", 1.0)) for i in range(nb)])
         wave = None
         if self.net is not None:
@@ -528,6 +562,10 @@ class ConstrainedMPPI:
                                    self.geo["u_ref"], H * self.dtc)
         thr_t = torch.as_tensor(thr, dtype=torch.float64, device=dev)
         c = c + W_JUMP * ((thr_t[..., 1:] - thr_t[..., :-1]) ** 2).sum(-1)
+        if free:
+            noz_t = torch.as_tensor(plans[..., 1], dtype=torch.float64,
+                                    device=dev)
+            c = c + W_JUMP * ((noz_t[..., 1:] - noz_t[..., :-1]) ** 2).sum(-1)
         bad = ~torch.isfinite(st).all(-1).all(-1)           # (nb, K, S)
         C = c.cpu().numpy()
         cmds = np.zeros(nb)
@@ -538,12 +576,19 @@ class ConstrainedMPPI:
             if np.all(np.isfinite(C[i])):
                 w = np.exp(-(C[i] - C[i].min()) / self.lam)
                 self.nominal[b] = (w[:, None] * cand[i]).sum(0) / w.sum()
+                if free:
+                    self.nominal_n[b] = (w[:, None] * cand_n[i]).sum(0) \
+                        / w.sum()
                 best = int(np.argmin(C[i]))
             else:
                 best = 0
             cmds[i] = self.nominal[b, 0]
             self.nominal[b] = self.nominal[b] @ self.Sh.T
-            diag.append(dict(
+            extra = {}
+            if free:
+                extra["nozzle"] = float(self.nominal_n[b, 0])
+                self.nominal_n[b] = self.nominal_n[b] @ self.Sh.T
+            diag.append(dict(**extra,
                 kind=kind, best=best,
                 n_ok=int((parts["pen"][i] == 0).sum()),
                 **{nm: float(parts[nm][i, best]) for nm in parts

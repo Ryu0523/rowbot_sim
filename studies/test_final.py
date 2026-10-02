@@ -428,6 +428,88 @@ def test_9():
            f"{r['events']['2.0']['source']}")
 
 
+# ------------------------------------------------------------------ 12
+def test_12():
+    """steer='free' (mpc_constrained, final_eval --steer free): the rollouts
+    get no autopilot and the plans' nozzle column varies between
+    candidates; the boat applies the planner's nozzle (the commanded
+    nozzle per step equals the diag's); auto keeps no 'nozzle' in the
+    diag; m0 and a net row both run finite."""
+    from studies import final_eval as FE
+    from learn.meta import mpc_constrained as MC
+    from learn.meta import mpc_learned as ML
+    from learn.meta.safety_head import load_head
+    if "head7" not in RES:
+        test_7()
+    tmp, ck, _ = RES["head7"]
+    head, _ = load_head(tmp, dev())
+    turn = dict(u=[5.0, 15.0], r=[0.3, 0.5])
+    seen = dict(steer=[], nz_sd=[], diag_nz=[], applied=[])
+    o_tap, o_zero, o_call = MC.rollout_tap, ML.rollout_zero, \
+        MC.ConstrainedMPPI.__call__
+
+    def tap(net, D, ii, k, plans, *a, steer=None, **kw):
+        seen["steer"].append(steer)
+        seen["nz_sd"].append(float(plans[..., 1].std()))
+        return o_tap(net, D, ii, k, plans, *a, steer=steer, **kw)
+
+    def zero(plans, xs, en, steer=None):
+        seen["steer"].append(steer)
+        seen["nz_sd"].append(float(torch.as_tensor(plans)[..., 1].std()))
+        return o_zero(plans, xs, en, steer)
+
+    def call(self, rows, k, info):
+        cmds, dg = o_call(self, rows, k, info)
+        seen["diag_nz"].append(dg[0].get("nozzle"))
+        return cmds, dg
+    MC.rollout_tap, ML.rollout_zero = tap, zero
+    MC.ConstrainedMPPI.__call__ = call
+    o_safe = MC.SafeMode.__call__
+
+    def safe(self, roll, thrust, rud):
+        out = o_safe(self, roll, thrust, rud)
+        seen["applied"].append((rud, out[2]))
+        return out
+    MC.SafeMode.__call__ = safe
+    try:
+        FE.OPT.update(tag="test_final_12", S=4, K=32, steer="free")
+        r0 = FE.run_mission(dict(name="m0", kind="m0"), 0, 0, 1.5, turn, {})
+        n0 = len(seen["diag_nz"])
+        spec = dict(name="cat_w_prior", kind="net", fam="cat", variant="w",
+                    mode="prior", cache=SMOKE6, ckpt=None, head=tmp)
+        r1 = FE.run_mission(spec, 0, 1, 1.5, turn, {spec["name"]: (ck, head)})
+        free_ok = (all(s is None for s in seen["steer"])
+                   and min(seen["nz_sd"]) > 0
+                   and all(d is not None and -1 <= d <= 1
+                           for d in seen["diag_nz"]))
+        rm = [rud for rud, _ in seen["applied"]]
+        # the applied nozzle (before the roll safe mode) is diag x rud_max
+        m = FE.make_mission(0, 0, 1.5)
+        app_ok = len(rm) == len(seen["diag_nz"]) and all(
+            abs(a_ - d_ * m.rud_max) < 1e-9
+            for a_, d_ in zip(rm, seen["diag_nz"]))
+        seen["diag_nz"].clear()
+        FE.OPT.update(steer="auto")
+        r2 = FE.run_mission(dict(name="m0", kind="m0"), 0, 0, 1.5, turn, {})
+        auto_ok = all(d is None for d in seen["diag_nz"])
+    finally:
+        MC.rollout_tap, ML.rollout_zero = o_tap, o_zero
+        MC.ConstrainedMPPI.__call__ = o_call
+        MC.SafeMode.__call__ = o_safe
+        FE.OPT.update(steer="auto")
+    ok = (free_ok and app_ok and auto_ok and r0["finite"] and r1["finite"]
+          and r2["finite"] and r1["steer"] == "free"
+          and "nozzle_abs_mean" in r1["plan"])
+    report("12 free steering", ok,
+           f"rollouts without autopilot and nozzle plans varying {free_ok}; "
+           f"boat applies the planned nozzle {app_ok} ({n0} m0 + "
+           f"{len(rm) - n0} net steps); auto has no planned nozzle "
+           f"{auto_ok}; |heading - track| m0 {r0['hdg_dev_abs_deg']:.1f} deg "
+           f"(auto {r2['hdg_dev_abs_deg']:.1f}), net "
+           f"{r1['hdg_dev_abs_deg']:.1f} deg, nozzle |mean| "
+           f"{r1['plan']['nozzle_abs_mean']:.2f}")
+
+
 # ------------------------------------------------------------------ 10
 def test_10():
     """scratch row: untrained start, every weight learns, no pull; carry:
@@ -635,7 +717,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("tests", nargs="*", type=int)
     a = ap.parse_args()
-    which = a.tests or list(range(1, 12))
+    which = a.tests or list(range(1, 13))
     t0 = time.time()
     for i in which:
         try:
