@@ -72,11 +72,13 @@ Phases (results in studies/_cache/final_eval[/<tag>], written atomically):
   report  the table
 
     python -m studies.final_eval --phase turn,heads,eval,report \\
-        --rows hand,m0,proj_p_prior,proj_p_online,gen_p_prior,gen_p_online,\\
-gen_p_scratch,cat_p_prior,cat_p_online,cat_p_scratch [--plant default|gz] \\
+        --rows hand,m0,cat_p_prior,cat_p_online,cat_p_bayes,cat_p_scratch,\\
+cat_p_online_carry,cat_p_bayes_carry,cat_p_scratch_carry --tag meta7 \\
+        --steer auto,free --y-lengths 2,4 [--procs auto] [--plant default|gz] \\
         [--missions 0-7] [--T 120]
-    python -m studies.final_eval --tag carry --phase eval,report \\
-        --rows cat_p_online_carry,cat_p_scratch_carry
+(--steer auto,free runs both settings in one go: tags meta7 and
+meta7_steerfree_y4; --procs auto starts a process per mission (per carry
+chain) while free RAM allows, see phase_eval.)
 """
 import argparse
 import glob
@@ -918,94 +920,145 @@ def _worker_init(opt, threads):
     task.ctx()
 
 
-def _worker(spec, todo, order, carry, T, turn):
-    """One unit in a worker process: each record goes to its own part
-    file (the parent folds them into results.pkl)."""
+def _part_sink(name):
+    """sink(key, record) writing one part file per mission (load_results
+    merges them, _fold_parts moves them into results.pkl)."""
     pdir = os.path.join(out_dir(), "parts")
     os.makedirs(pdir, exist_ok=True)
 
     def sink(key, r):
-        fp = os.path.join(pdir, f"{spec['name']}__{key}.pkl")
-        atomic_pickle((spec["name"], key, r), fp)
+        atomic_pickle((name, key, r),
+                      os.path.join(pdir, f"{name}__{key}.pkl"))
+    return sink
+
+
+def _proc_main(opt, threads, spec, todo, order, carry, T, turn):
+    """A worker process: one unit, then exit (its memory goes back)."""
+    _worker_init(opt, threads)
     try:
-        return _run_unit(spec, todo, order, carry, T, turn, sink)
+        ok = _run_unit(spec, todo, order, carry, T, turn,
+                       _part_sink(spec["name"]))
     except Exception:
         import traceback
         log(f"  [eval] {spec['name']} {todo}: worker failed\n"
             + traceback.format_exc())
-        return False
+        ok = False
+    sys.exit(0 if ok else 1)
 
 
-def phase_eval(rows, missions, legs, T, procs=1):
-    """procs 1: every row's missions in turn in this process. procs > 1:
-    units (one mission of a row; a carry row's whole chain) in procs
-    worker processes, torch threads split between them; each new unit
-    waits for OPT['min_gb'] free RAM."""
-    R = load_results()
-    R.setdefault("meta", {}).update(plant=OPT["plant"], T=T, S=OPT["S"],
-                                    K=OPT["K"], fc_lam=OPT["fc_lam"],
-                                    fc_hp=OPT["fc_hp"],
-                                    trigger=OPT["trigger"],
-                                    steer=OPT["steer"],
-                                    y_lengths=OPT["y_lengths"])
-    _fold_parts(R)
+def _setting(st):
+    """Switch this process to a steering setting (its own tag)."""
+    OPT.update(st)
+
+
+def _fold(st):
+    _setting(st)
+    _fold_parts(load_results())
+
+
+def phase_eval(rows, missions, legs, T, procs=0, settings=None,
+               gb_per_proc=1.6):
+    """The rows x missions of every setting (steer, corridor, tag).
+
+    procs 1: the units in turn in this process. procs 0 (auto) or N > 1:
+    every unit (one mission of a row; a carry row's whole chain, which
+    stays in order) in a fresh spawn process that exits when done; a new
+    one starts while fewer than the cap run (N, or auto: half the CPU
+    count) and free RAM >= gb_per_proc + OPT['min_gb'] (at least 15 s after
+    the last start, so the last one's memory shows). Carry chains go
+    first (the longest units). Records go to part files folded into each
+    tag's results.pkl, so a stopped run resumes where it was."""
+    settings = settings or [dict(tag=OPT["tag"], steer=OPT["steer"],
+                                 y_lengths=OPT["y_lengths"])]
     turn = phase_turn()
-    specs = []
-    for nm in rows:
-        spec, why = resolve_row(nm)
-        if spec is None:
-            log(f"  [eval] row {nm} skipped: {why}")
-            continue
-        specs.append(spec)
     units = []
-    for spec in specs:
-        prep = _prepare(spec, R["rows"].setdefault(spec["name"], {}),
-                        missions, legs)
-        if prep is None:
-            continue
-        todo, order, carry = prep
-        if spec.get("carry") or procs <= 1:
-            units.append((spec, todo, order, carry))
-        else:
-            units += [(spec, [m_], order, None) for m_ in todo]
-    if procs <= 1:
-        for spec, todo, order, carry in units:
-            rr = R["rows"][spec["name"]]
+    for st in settings:
+        _setting(st)
+        R = load_results()
+        R.setdefault("meta", {}).update(
+            plant=OPT["plant"], T=T, S=OPT["S"], K=OPT["K"],
+            fc_lam=OPT["fc_lam"], fc_hp=OPT["fc_hp"],
+            trigger=OPT["trigger"], steer=OPT["steer"],
+            y_lengths=OPT["y_lengths"])
+        _fold_parts(R)
+        for nm in rows:
+            if nm == "hand" and OPT["steer"] != "auto":
+                log(f"  [eval] {OPT['tag']}: hand skipped (its own "
+                    "controller, the same in every steering setting)")
+                continue
+            spec, why = resolve_row(nm)
+            if spec is None:
+                log(f"  [eval] {OPT['tag']}: row {nm} skipped: {why}")
+                continue
+            prep = _prepare(spec, R["rows"].setdefault(spec["name"], {}),
+                            missions, legs)
+            if prep is None:
+                continue
+            todo, order, carry = prep
+            if spec.get("carry") or procs == 1:
+                units.append((dict(st), spec, todo, order, carry))
+            else:
+                units += [(dict(st), spec, [m_], order, None)
+                          for m_ in todo]
+    units.sort(key=lambda u: not u[1].get("carry"))      # chains first
+    if not units:
+        return
+    if procs == 1:
+        for st, spec, todo, order, carry in units:
+            _setting(st)
+            sink = _part_sink(spec["name"])
 
-            def sink(key, r, rr=rr):
-                rr[key] = r
-                atomic_pickle(R, os.path.join(out_dir(), "results.pkl"))
-            if not _run_unit(spec, todo, order, carry, T, turn, sink):
+            def sink2(key, r, sink=sink, st=st):
+                sink(key, r)
+                _fold(st)
+            if not _run_unit(spec, todo, order, carry, T, turn, sink2):
                 return
         return
     import multiprocessing as mp
-    from concurrent.futures import (FIRST_COMPLETED, ProcessPoolExecutor,
-                                    wait)
-    threads = max(1, (os.cpu_count() or procs) // procs)
-    log(f"  [eval] {len(units)} units in {procs} processes, {threads} torch "
-        f"threads each")
-    opt = dict(OPT)
-    opt["gpu_frac"] = min(0.35, 0.9 / procs)
-    with ProcessPoolExecutor(max_workers=procs,
-                             mp_context=mp.get_context("spawn"),
-                             initializer=_worker_init,
-                             initargs=(opt, threads)) as ex:
-        pending, queue = set(), list(units)
-        while queue or pending:
-            while queue and len(pending) < procs:
-                if not wait_ram():
-                    queue = []
-                    break
-                spec, todo, order, carry = queue.pop(0)
-                pending.add(ex.submit(_worker, spec, todo, order, carry, T,
-                                      turn))
-                if queue and len(pending) < procs:
-                    time.sleep(20)      # let the new process load first
-            if not pending:
-                break
-            done, pending = wait(pending, return_when=FIRST_COMPLETED)
-            _fold_parts(load_results())
-    _fold_parts(load_results())
+    ncpu = os.cpu_count() or 2
+    cap = procs if procs > 1 else max(1, ncpu // 2)
+    threads = max(1, ncpu // cap)
+    ctx = mp.get_context("spawn")
+    log(f"  [eval] {len(units)} units over {len(settings)} setting(s); up "
+        f"to {cap} processes ({threads} torch threads each), a new one "
+        f"while >= {gb_per_proc + OPT['min_gb']:.1f} GB free")
+    queue, running, t_last = list(units), [], 0.0
+    try:
+        while queue or running:
+            for pr, st, nm in list(running):
+                if not pr.is_alive():
+                    pr.join()
+                    running.remove((pr, st, nm))
+                    _fold(st)
+                    if pr.exitcode:
+                        log(f"  [eval] {st['tag']} {nm}: worker exit code "
+                            f"{pr.exitcode}")
+            free = free_gb()
+            can = (queue and len(running) < cap
+                   and time.time() - t_last >= 15.0
+                   and (free >= gb_per_proc + OPT["min_gb"]
+                        or (not running and free >= OPT["min_gb"])))
+            if can:
+                st, spec, todo, order, carry = queue.pop(0)
+                opt = dict(OPT, **st, gpu_frac=min(0.35, 0.9 / cap))
+                pr = ctx.Process(target=_proc_main,
+                                 args=(opt, threads, spec, todo, order,
+                                       carry, T, turn))
+                pr.start()
+                running.append((pr, st, spec["name"]))
+                t_last = time.time()
+                log(f"  [eval] start {st['tag'] or '(no tag)'} "
+                    f"{spec['name']} {[f's{a}_l{b}' for a, b in todo]}: "
+                    f"{len(running)} running, {len(queue)} queued, "
+                    f"{free:.1f} GB free")
+            else:
+                time.sleep(5.0)
+    finally:
+        for pr, _, _ in running:
+            if pr.is_alive():
+                pr.terminate()
+        for st in settings:
+            _fold(st)
 
 
 def phase_report():
@@ -1149,41 +1202,57 @@ def main():
     ap.add_argument("--device", default="auto")
     ap.add_argument("--tag", default="")
     ap.add_argument("--force-turn", action="store_true")
-    ap.add_argument("--steer", default="auto", choices=("auto", "free"),
-                    help="auto: the heading autopilot sets the nozzle (rollouts "
-                    "and boat); free: the MPPI plans the nozzle too "
-                    "(learn/meta/mpc_constrained.py). The hand row keeps its "
-                    "own controller either way")
-    ap.add_argument("--procs", type=int, default=1,
-                    help="worker processes for phase eval (one mission of a "
-                    "row, or a carry row's chain, per unit); each needs "
-                    "about 1-2 GB; a new unit waits for --min-gb free")
-    ap.add_argument("--min-gb", type=float, default=3.0,
-                    help="free RAM (GB) a new mission waits for")
-    ap.add_argument("--y-lengths", type=float, default=2.0,
-                    help="the planner's cross-track limit in boat lengths")
+    ap.add_argument("--steer", default="auto",
+                    help="comma list of auto / free. auto: the heading "
+                    "autopilot sets the nozzle (rollouts and boat); free: "
+                    "the MPPI plans the nozzle too "
+                    "(learn/meta/mpc_constrained.py). The hand row runs "
+                    "under auto only (its own controller)")
+    ap.add_argument("--y-lengths", default="2",
+                    help="the planner's cross-track limit in boat lengths: "
+                    "one value, or one per --steer entry")
+    ap.add_argument("--procs", default="auto",
+                    help="phase eval processes: auto (as many as free RAM "
+                    "allows, up to half the CPU count), N (at most N, still "
+                    "RAM-gated) or 1 (all in this process)")
+    ap.add_argument("--gb-per-proc", type=float, default=1.6,
+                    help="RAM one process needs (measured about 1.3 GB at "
+                    "K 128, S 8)")
+    ap.add_argument("--min-gb", type=float, default=1.5,
+                    help="free RAM kept in reserve")
     a = ap.parse_args()
+    steers = a.steer.split(",")
+    ys = [float(x) for x in a.y_lengths.split(",")]
+    if len(ys) == 1:
+        ys = ys * len(steers)
+    if len(ys) != len(steers) or any(x not in ("auto", "free")
+                                     for x in steers):
+        raise SystemExit("--steer: auto / free, --y-lengths: one value or "
+                         "one per --steer entry")
     # results of another steering or corridor never share a directory (a
     # resumed run would skip missions finished under the other setting)
-    suffix = ([] if a.steer == "auto" else ["steerfree"]) + (
-        [] if a.y_lengths == 2.0 else [f"y{a.y_lengths:g}"])
-    if suffix:
-        a.tag = "_".join(([a.tag] if a.tag else []) + suffix)
+    settings = []
+    for st_, y_ in zip(steers, ys):
+        suffix = ([] if st_ == "auto" else ["steerfree"]) + (
+            [] if y_ == 2.0 else [f"y{y_:g}"])
+        settings.append(dict(steer=st_, y_lengths=y_, tag="_".join(
+            ([a.tag] if a.tag else []) + suffix)))
+    procs = 0 if a.procs == "auto" else int(a.procs)
     if a.plant == "auto":
         try:
             import sim.planing_vessel_gz   # noqa: F401
             a.plant = "gz"
         except ImportError:
             a.plant = "default"
-    OPT.update(tag=a.tag, plant=a.plant, T=a.T, S=a.S, K=a.K,
+    OPT.update(plant=a.plant, T=a.T, S=a.S, K=a.K,
                device=a.device, fc_lam=a.fc_lam, fc_hp=a.fc_hp,
-               trigger=not a.no_trigger, steer=a.steer, min_gb=a.min_gb,
-               y_lengths=a.y_lengths)
+               trigger=not a.no_trigger, min_gb=a.min_gb, **settings[0])
     phases = a.phase.split(",")
     log(f"final_eval phases {phases} rows {a.rows} missions {a.missions} "
-        f"legs {a.legs} T {a.T} plant {a.plant} S {a.S} K {a.K} "
-        f"steer {a.steer} corridor {a.y_lengths:g} L tag {a.tag!r} "
-        f"({free_gb():.1f} GB free)")
+        f"legs {a.legs} T {a.T} plant {a.plant} S {a.S} K {a.K} settings "
+        + ", ".join(f"{x['tag'] or '(no tag)'} (steer {x['steer']}, "
+                    f"corridor {x['y_lengths']:g} L)" for x in settings)
+        + f" procs {a.procs} ({free_gb():.1f} GB free)")
     task.ctx()
     if "turn" in phases:
         phase_turn(force=a.force_turn)
@@ -1191,9 +1260,12 @@ def main():
         phase_heads(a.head_variants.split(","))
     if "eval" in phases:
         phase_eval(a.rows.split(","), parse_range(a.missions),
-                   parse_range(a.legs), a.T, procs=a.procs)
+                   parse_range(a.legs), a.T, procs=procs, settings=settings,
+                   gb_per_proc=a.gb_per_proc)
     if "report" in phases:
-        phase_report()
+        for st in settings:
+            _setting(st)
+            phase_report()
 
 
 if __name__ == "__main__":
