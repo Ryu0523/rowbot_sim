@@ -956,7 +956,7 @@ def _fold(st):
     _fold_parts(load_results())
 
 
-def phase_eval(rows, missions, legs, T, procs=0, settings=None,
+def phase_eval(rows, missions, legs, T, procs=1, settings=None,
                gb_per_proc=1.6):
     """The rows x missions of every setting (steer, corridor, tag).
 
