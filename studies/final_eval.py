@@ -79,6 +79,7 @@ gen_p_scratch,cat_p_prior,cat_p_online,cat_p_scratch [--plant default|gz] \\
         --rows cat_p_online_carry,cat_p_scratch_carry
 """
 import argparse
+import glob
 import json
 import math
 import os
@@ -173,7 +174,8 @@ def device():
         if want == "cpu" or not torch.cuda.is_available():
             _DEV["dev"] = torch.device("cpu")
         elif want == "cuda" or gpu_free_gb() >= 2.0:
-            torch.cuda.set_per_process_memory_fraction(0.35)
+            torch.cuda.set_per_process_memory_fraction(
+                OPT.get("gpu_frac", 0.35))
             _DEV["dev"] = torch.device("cuda")
         else:
             log("  GPU has < 2 GB free: CPU")
@@ -796,81 +798,214 @@ def fallback_events(tr, k):
 
 # ------------------------------------------------------------ phases
 def load_results():
+    """results.pkl plus the per-mission part files the parallel workers
+    write (parts/<row>__<mission>.pkl, merged here; phase_eval folds them
+    into results.pkl and removes them)."""
     p = os.path.join(out_dir(), "results.pkl")
-    return pickle.load(open(p, "rb")) if os.path.exists(p) else dict(rows={})
+    R = pickle.load(open(p, "rb")) if os.path.exists(p) else dict(rows={})
+    for fp in sorted(glob.glob(os.path.join(out_dir(), "parts", "*.pkl"))):
+        try:
+            name, key, r = pickle.load(open(fp, "rb"))
+        except Exception:
+            continue                    # a part still being written
+        R["rows"].setdefault(name, {})[key] = r
+    return R
 
 
-def phase_eval(rows, missions, legs, T):
+def _fold_parts(R):
+    """Write R (with the parts merged by load_results) and drop the parts
+    it now holds."""
+    atomic_pickle(R, os.path.join(out_dir(), "results.pkl"))
+    for fp in glob.glob(os.path.join(out_dir(), "parts", "*.pkl")):
+        try:
+            name, key, _ = pickle.load(open(fp, "rb"))
+        except Exception:
+            continue
+        if key in R["rows"].get(name, {}):
+            os.remove(fp)
+
+
+def _prepare(spec, rr, missions, legs):
+    """(todo, order, carry) of one row, or None (logged) when it has
+    nothing to do or its carry chain does not match. carry: None (no
+    carry row, or its chain starts now) or "load" (_run_unit loads the
+    saved state on its own device, so the parent never touches the GPU)."""
     import torch
+    todo = [(s, lg) for s in missions for lg in legs
+            if f"s{s}_l{lg}" not in rr]
+    if not todo:
+        log(f"  [eval] {spec['name']}: done")
+        return None
+    order = [f"s{s}_l{lg}" for s in missions for lg in legs]
+    cpath = os.path.join(out_dir(), f"carry_{spec['name']}.pt")
+    carry = None
+    if spec.get("carry"):
+        done = [key for key in order if key in rr]
+        if done != order[:len(done)]:
+            log(f"  [eval] {spec['name']}: finished missions {done} are "
+                f"not a prefix of the chain {order} (other --missions / "
+                f"--legs than before?): skipped; use another --tag")
+            return None
+        if done:
+            c = torch.load(cpath, map_location="cpu", weights_only=False)
+            if c.get("last") != done[-1] or c.get("order", [])[
+                    :len(done)] != done:
+                log(f"  [eval] {spec['name']}: {cpath} does not match "
+                    f"the finished missions: skipped")
+                return None
+            carry = "load"
+    return todo, order, carry
+
+
+_NETS = {}
+
+
+def _row_nets(spec):
+    """{row: (checkpoint, head)} for a net row, cached per process (one
+    row's net at a time)."""
+    import torch
+    if spec["kind"] != "net":
+        return {}
+    if spec["name"] not in _NETS:
+        dev = device()
+        ck = torch.load(spec["ckpt"], map_location=dev, weights_only=False)
+        head = None
+        if spec["head"]:
+            from learn.meta.safety_head import load_head
+            head, _ = load_head(spec["head"], dev)
+        _NETS.clear()
+        _NETS[spec["name"]] = (ck, head)
+    return _NETS
+
+
+def _run_unit(spec, todo, order, carry, T, turn, sink):
+    """Run the missions `todo` of one row in order (a carry row's chain:
+    the learner state passes from mission to mission and is saved after
+    each); sink(key, record) stores each record. False when RAM ran out."""
+    import torch
+    nets = _row_nets(spec)
+    cpath = os.path.join(out_dir(), f"carry_{spec['name']}.pt")
+    if carry == "load":
+        carry = torch.load(cpath, map_location=device(), weights_only=False)
+    for s, lg in todo:
+        if not wait_ram():
+            return False
+        t0 = time.time()
+        r = run_mission(spec, s, lg, T, turn, nets, carry=carry)
+        r["wall_s"] = time.time() - t0
+        key = f"s{s}_l{lg}"
+        if spec.get("carry"):
+            carry = dict(state=r.pop("_carry_state"), order=order,
+                         last=key, seed=(carry or dict(seed=s))["seed"],
+                         leg=(carry or dict(leg=lg))["leg"])
+            torch.save(carry, cpath + ".tmp")
+            os.replace(cpath + ".tmp", cpath)
+        sink(key, r)
+        e = r["events"]["2.0"]
+        log(f"  [eval] {spec['name']} s{s} l{lg}: {r['kn']:.1f} kn, "
+            f"A1/10 {e.get('a110', float('nan')):.2f} g (k 2), "
+            f">=7g {e.get('n_ge7')}, bow wet {e.get('bow_wet')}, "
+            f"broach {e.get('broach')}, roll>20 {e.get('roll_gt20')}, "
+            f"{r['t_step']:.2f} s/step (ctrl {r['t_ctrl_step']:.2f}), "
+            f"{r['wall_s']:.0f} s wall")
+    return True
+
+
+def _worker_init(opt, threads):
+    import torch
+    OPT.update(opt)
+    torch.set_num_threads(max(1, int(threads)))
+    task.ctx()
+
+
+def _worker(spec, todo, order, carry, T, turn):
+    """One unit in a worker process: each record goes to its own part
+    file (the parent folds them into results.pkl)."""
+    pdir = os.path.join(out_dir(), "parts")
+    os.makedirs(pdir, exist_ok=True)
+
+    def sink(key, r):
+        fp = os.path.join(pdir, f"{spec['name']}__{key}.pkl")
+        atomic_pickle((spec["name"], key, r), fp)
+    try:
+        return _run_unit(spec, todo, order, carry, T, turn, sink)
+    except Exception:
+        import traceback
+        log(f"  [eval] {spec['name']} {todo}: worker failed\n"
+            + traceback.format_exc())
+        return False
+
+
+def phase_eval(rows, missions, legs, T, procs=1):
+    """procs 1: every row's missions in turn in this process. procs > 1:
+    units (one mission of a row; a carry row's whole chain) in procs
+    worker processes, torch threads split between them; each new unit
+    waits for OPT['min_gb'] free RAM."""
     R = load_results()
     R.setdefault("meta", {}).update(plant=OPT["plant"], T=T, S=OPT["S"],
                                     K=OPT["K"], fc_lam=OPT["fc_lam"],
                                     fc_hp=OPT["fc_hp"],
-                                    trigger=OPT["trigger"])
+                                    trigger=OPT["trigger"],
+                                    steer=OPT["steer"],
+                                    y_lengths=OPT["y_lengths"])
+    _fold_parts(R)
     turn = phase_turn()
-    specs, nets = [], {}
+    specs = []
     for nm in rows:
         spec, why = resolve_row(nm)
         if spec is None:
             log(f"  [eval] row {nm} skipped: {why}")
             continue
         specs.append(spec)
+    units = []
     for spec in specs:
-        rr = R["rows"].setdefault(spec["name"], {})
-        todo = [(s, lg) for s in missions for lg in legs
-                if f"s{s}_l{lg}" not in rr]
-        if not todo:
-            log(f"  [eval] {spec['name']}: done")
+        prep = _prepare(spec, R["rows"].setdefault(spec["name"], {}),
+                        missions, legs)
+        if prep is None:
             continue
-        if spec["kind"] == "net" and spec["name"] not in nets:
-            dev = device()
-            ck = torch.load(spec["ckpt"], map_location=dev, weights_only=False)
-            head = None
-            if spec["head"]:
-                from learn.meta.safety_head import load_head
-                head, _ = load_head(spec["head"], dev)
-            nets = {spec["name"]: (ck, head)}         # one row's net at a time
-        order = [f"s{s}_l{lg}" for s in missions for lg in legs]
-        cpath = os.path.join(out_dir(), f"carry_{spec['name']}.pt")
-        carry = None
-        if spec.get("carry"):
-            done = [key for key in order if key in rr]
-            if done != order[:len(done)]:
-                log(f"  [eval] {spec['name']}: finished missions {done} are "
-                    f"not a prefix of the chain {order} (other --missions / "
-                    f"--legs than before?): skipped; use another --tag")
-                continue
-            if done:
-                c = torch.load(cpath, map_location=device(),
-                               weights_only=False)
-                if c.get("last") != done[-1] or c.get("order", [])[
-                        :len(done)] != done:
-                    log(f"  [eval] {spec['name']}: {cpath} does not match "
-                        f"the finished missions: skipped")
-                    continue
-                carry = c
-        for s, lg in todo:
-            if not wait_ram():
+        todo, order, carry = prep
+        if spec.get("carry") or procs <= 1:
+            units.append((spec, todo, order, carry))
+        else:
+            units += [(spec, [m_], order, None) for m_ in todo]
+    if procs <= 1:
+        for spec, todo, order, carry in units:
+            rr = R["rows"][spec["name"]]
+
+            def sink(key, r, rr=rr):
+                rr[key] = r
+                atomic_pickle(R, os.path.join(out_dir(), "results.pkl"))
+            if not _run_unit(spec, todo, order, carry, T, turn, sink):
                 return
-            t0 = time.time()
-            r = run_mission(spec, s, lg, T, turn, nets, carry=carry)
-            r["wall_s"] = time.time() - t0
-            key = f"s{s}_l{lg}"
-            if spec.get("carry"):
-                carry = dict(state=r.pop("_carry_state"), order=order,
-                             last=key, seed=(carry or dict(seed=s))["seed"],
-                             leg=(carry or dict(leg=lg))["leg"])
-                torch.save(carry, cpath + ".tmp")
-                os.replace(cpath + ".tmp", cpath)
-            rr[key] = r
-            atomic_pickle(R, os.path.join(out_dir(), "results.pkl"))
-            e = r["events"]["2.0"]
-            log(f"  [eval] {spec['name']} s{s} l{lg}: {r['kn']:.1f} kn, "
-                f"A1/10 {e.get('a110', float('nan')):.2f} g (k 2), "
-                f">=7g {e.get('n_ge7')}, bow wet {e.get('bow_wet')}, "
-                f"broach {e.get('broach')}, roll>20 {e.get('roll_gt20')}, "
-                f"{r['t_step']:.2f} s/step (ctrl {r['t_ctrl_step']:.2f}), "
-                f"{r['wall_s']:.0f} s wall")
+        return
+    import multiprocessing as mp
+    from concurrent.futures import (FIRST_COMPLETED, ProcessPoolExecutor,
+                                    wait)
+    threads = max(1, (os.cpu_count() or procs) // procs)
+    log(f"  [eval] {len(units)} units in {procs} processes, {threads} torch "
+        f"threads each")
+    opt = dict(OPT)
+    opt["gpu_frac"] = min(0.35, 0.9 / procs)
+    with ProcessPoolExecutor(max_workers=procs,
+                             mp_context=mp.get_context("spawn"),
+                             initializer=_worker_init,
+                             initargs=(opt, threads)) as ex:
+        pending, queue = set(), list(units)
+        while queue or pending:
+            while queue and len(pending) < procs:
+                if not wait_ram():
+                    queue = []
+                    break
+                spec, todo, order, carry = queue.pop(0)
+                pending.add(ex.submit(_worker, spec, todo, order, carry, T,
+                                      turn))
+                if queue and len(pending) < procs:
+                    time.sleep(20)      # let the new process load first
+            if not pending:
+                break
+            done, pending = wait(pending, return_when=FIRST_COMPLETED)
+            _fold_parts(load_results())
+    _fold_parts(load_results())
 
 
 def phase_report():
@@ -1019,6 +1154,12 @@ def main():
                     "and boat); free: the MPPI plans the nozzle too "
                     "(learn/meta/mpc_constrained.py). The hand row keeps its "
                     "own controller either way")
+    ap.add_argument("--procs", type=int, default=1,
+                    help="worker processes for phase eval (one mission of a "
+                    "row, or a carry row's chain, per unit); each needs "
+                    "about 1-2 GB; a new unit waits for --min-gb free")
+    ap.add_argument("--min-gb", type=float, default=3.0,
+                    help="free RAM (GB) a new mission waits for")
     ap.add_argument("--y-lengths", type=float, default=2.0,
                     help="the planner's cross-track limit in boat lengths")
     a = ap.parse_args()
@@ -1036,7 +1177,7 @@ def main():
             a.plant = "default"
     OPT.update(tag=a.tag, plant=a.plant, T=a.T, S=a.S, K=a.K,
                device=a.device, fc_lam=a.fc_lam, fc_hp=a.fc_hp,
-               trigger=not a.no_trigger, steer=a.steer,
+               trigger=not a.no_trigger, steer=a.steer, min_gb=a.min_gb,
                y_lengths=a.y_lengths)
     phases = a.phase.split(",")
     log(f"final_eval phases {phases} rows {a.rows} missions {a.missions} "
@@ -1050,7 +1191,7 @@ def main():
         phase_heads(a.head_variants.split(","))
     if "eval" in phases:
         phase_eval(a.rows.split(","), parse_range(a.missions),
-                   parse_range(a.legs), a.T)
+                   parse_range(a.legs), a.T, procs=a.procs)
     if "report" in phases:
         phase_report()
 
