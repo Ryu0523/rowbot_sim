@@ -566,6 +566,39 @@ def test_11():
     fixed = torch.equal(o1, o2)
     differ = not torch.allclose(o1[..., 0, :], o1[..., 1, :])
     ok_c = mono and wd < 1.0 and moved and fixed and differ
+    # (e) robust weights (T12): from the same state, one observation whose
+    # error is blown up x1e2 and x1e4 (asinh already compresses these to a
+    # few sd): with HUBER_C the outlier gets weight < 1, its pull on mu is
+    # below the plain update's and grows less from x1e2 to x1e4 (bounded
+    # influence), and sigma^2 grows less; the ordinary steps before it kept
+    # weight 1
+    import copy
+    wmin_ord = min(lr.log["w"])
+    st0 = copy.deepcopy(lr.state())
+    g0 = lr.gen.get_state()
+    kk = 29                    # an observed step (the mission has 30)
+    e_keep = live.E[0, kk].clone()
+    shift, sig, w_out = {}, {}, {}
+    for fac in (1e2, 1e4):
+        live.E[0, kk] = e_keep * fac
+        for hub in (BA.HUBER_C, 0.0):
+            lx = BA.BayesLearner(MP.load_variant(ck, dev()), live, 0, ctx,
+                                 "w", seed=0, q_rw=0.0, huber=hub)
+            lx.load_state(copy.deepcopy(st0))
+            lx.gen.set_state(g0)
+            mu0 = lx.ad.mu.clone()
+            lx.step(kk)
+            shift[fac, hub] = float((lx.ad.mu - mu0).norm())
+            sig[fac, hub] = float((lx.sig2 / st0["sig2"]).max())
+            w_out[fac, hub] = lx.log["w"][-1]
+    live.E[0, kk] = e_keep
+    hc = BA.HUBER_C
+    grow_r = shift[1e4, hc] / shift[1e2, hc]
+    grow_p = shift[1e4, 0.0] / shift[1e2, 0.0]
+    ok_e = (wmin_ord == 1.0 and w_out[1e2, hc] < 1.0
+            and all(shift[f, hc] < shift[f, 0.0] and sig[f, hc] < sig[f, 0.0]
+                    for f in (1e2, 1e4))
+            and grow_r < grow_p)
     # (d) closed loop with the bayes row, carry state round trip
     head, _ = __import__("learn.meta.safety_head",
                          fromlist=["load_head"]).load_head(tmp, dev())
@@ -580,9 +613,15 @@ def test_11():
     ok_d = (r["finite"] and r2["finite"]
             and r2["net"]["n_before"] == st["n"] > 0
             and r["learner"]["width_data"] < 1.0)
-    ok = ok_a and ok_b and ok_c and ok_d
+    ok = ok_a and ok_b and ok_c and ok_d and ok_e
     report("11 Bayesian adapter", ok,
            f"EKF = batch posterior {ok_a}; tiny prior = prior net {ok_b}; "
+           f"robust: outlier x1e2 / x1e4 shift {shift[1e2, hc]:.3g} / "
+           f"{shift[1e4, hc]:.3g} vs plain {shift[1e2, 0.0]:.3g} / "
+           f"{shift[1e4, 0.0]:.3g}, weight {w_out[1e2, hc]:.3f} / "
+           f"{w_out[1e4, hc]:.3f}, sigma^2 x{sig[1e4, hc]:.2f} (plain "
+           f"x{sig[1e4, 0.0]:.2f}), ordinary steps' min weight "
+           f"{wmin_ord:.3f} [{ok_e}]; "
            f"trace width {w0:.3f} -> {widths[-1]:.5f} monotone {mono}, width "
            f"on the excited directions {wd:.3f} (one observation's prior "
            f"SNR {snr:.2e}), moved "

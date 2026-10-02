@@ -30,7 +30,19 @@ residuals of that observation:
   level a slowly changing boat allows (the Kalman steady state);
 * rollouts: resample(S) draws S adapters from N(mu, P); apply() gives
   future s its own adapter for the whole horizon, so the not-yet-known
-  part of the law accumulates as H^2 (T11), not H.
+  part of the law accumulates as H^2 (T11), not H;
+* robust weights (T12): the adapter is a PARAMETER (how this boat
+  responds), a sudden event is a STATE surprise (its onset is not in the
+  observations; its aftermath is in the history the net reads). Per
+  channel, z^2 = (mean squared residual of this observation) / (its
+  predicted value: sigma^2 + the adapter's current spread there, before
+  this observation); weight w = min(1, HUBER_C / z), the residual variance
+  divided by w (a Huber likelihood as an iteratively reweighted Gaussian).
+  An onset's pull on mu is bounded instead of growing with the residual;
+  ordinary steps (z ~ 1) keep weight 1; a persistent miss (the aftermath
+  the net does not predict) still accumulates, bounded per step. sigma^2
+  is updated with the weighted squares (w^2 ms), so one event does not
+  make the next ~1/SIG_EMA steps over-cautious.
 
 Only the adapter is learned here; the trunk and the flow head stay at the
 prior weights (no window re-fit, T5.2). The safety head, when present, gets
@@ -54,6 +66,8 @@ TAU_V = 0.5           # prior width in output units: the adapter's prior
 REPS_B = 8
 Q_RW = 1e-4
 SIG_EMA = 0.02
+HUBER_C = 2.5         # robust weight threshold in predicted-sd units (T12);
+                      # 0 or None: plain Gaussian EKF
 LR_SAFETY_B = 1e-3
 TAU_SAFETY = 0.02
 
@@ -68,6 +82,14 @@ def ekf_update(mu, P, J, r, rvar):
     mu = mu - K @ r
     P = P - K @ PJt.T
     return mu, 0.5 * (P + P.T)
+
+
+def huber_weight(ms, ref, c):
+    """Per-channel weights min(1, c / z), z^2 = ms / ref (module docstring,
+    robust weights). ms, ref (C,) the observed and predicted mean squared
+    residual."""
+    z = (ms / ref.clamp(min=1e-12)).clamp(min=0).sqrt()
+    return (c / z.clamp(min=1e-12)).clamp(max=1.0)
 
 
 class BayesAdapter:
@@ -143,10 +165,12 @@ class BayesLearner:
     mpc_constrained.rollout_tap and online_stream.Monitor use."""
 
     def __init__(self, net, live, b, ctx, variant, head=None, seed=0,
-                 tau=TAU_B, rank=RANK, reps=REPS_B, q_rw=Q_RW, fc=None):
+                 tau=TAU_B, rank=RANK, reps=REPS_B, q_rw=Q_RW, fc=None,
+                 huber=HUBER_C):
         self.net, self.D, self.b, self.ctx = net, live, b, int(ctx)
         self.variant, self.head = variant, head
         self.reps, self.q = int(reps), float(q_rw)
+        self.huber = float(huber) if huber else 0.0
         self.fc = {**dict(lam=0.1, hp=M.HB, msd=0.01), **(fc or {})}
         for p in net.parameters():
             p.requires_grad_(False)
@@ -163,7 +187,7 @@ class BayesLearner:
                 p.requires_grad_(True)
             self.hprior = [p.detach().clone() for p in head.parameters()]
             self.hopt = torch.optim.Adam(head.parameters(), LR_SAFETY_B)
-        self.log = dict(fm=[], head=[], width=[])
+        self.log = dict(fm=[], head=[], width=[], w=[])
 
     # ------------------------------------------------------------ data
     def _h_at(self, k):
@@ -210,10 +234,12 @@ class BayesLearner:
         J = torch.func.jacrev(res)(mu32).detach()
         rr = r0.view(R, M.C7)
         ms = (rr.double() ** 2).mean(0)
-        self.sig2 = ms if self.sig2 is None else \
-            (1 - SIG_EMA) * self.sig2 + SIG_EMA * ms
-        rvar = (self.sig2.clamp(min=1e-6) * R).repeat(R)
         Jd = J.double()
+        first = self.sig2 is None
+        if first:
+            # no reference yet: the first observation sets sigma^2, weight 1
+            self.sig2 = ms
+        rvar = (self.sig2.clamp(min=1e-6) * R).repeat(R)
         if not self.scaled:
             # prior width in output units (module docstring, TAU_V)
             g2 = float((Jd * Jd).sum()) / self.ad.tau ** 2  # per unit tau^2
@@ -221,6 +247,18 @@ class BayesLearner:
             self.ad.P = self.ad.P * (t2 / self.ad.tau ** 2)
             self.ad.tau = math.sqrt(t2)
             self.scaled = True
+        # robust weights (module docstring, T12): the residual's predicted
+        # mean square per channel = sigma^2 (before this observation) + the
+        # adapter's current spread on this observation's rows
+        w = torch.ones_like(ms)
+        if not first and self.huber > 0:
+            epi = torch.einsum("mp,pq,mq->m", Jd, self.ad.P, Jd)
+            w = huber_weight(ms, self.sig2 + epi.view(R, M.C7).mean(0),
+                             self.huber)
+            self.sig2 = (1 - SIG_EMA) * self.sig2 + SIG_EMA * ms * w ** 2
+            rvar = rvar / w.repeat(R)
+        elif not first:
+            self.sig2 = (1 - SIG_EMA) * self.sig2 + SIG_EMA * ms
         # diagnostics on the directions this observation excites: the
         # prior's predictive spread vs the noise (signal-to-noise of one
         # observation), and the width left there now relative to the prior
@@ -234,6 +272,7 @@ class BayesLearner:
         self.ad.mu, self.ad.P = mu, P
         self.log["fm"].append(float(ms.mean()))
         self.log["width"].append(self.ad.width())
+        self.log["w"].append(float(w.min()))
         if self.head is not None:
             self._head_step(h, tgt, k)
 
@@ -284,5 +323,10 @@ class BayesLearner:
                     head_last60=f(self.log["head"]),
                     width=self.ad.width(), width_data=self.width_data,
                     snr0=self.snr0,
+                    robust_frac=(float(np.mean([x < 1.0 for x in
+                                                self.log["w"]]))
+                                 if self.log["w"] else float("nan")),
+                    robust_wmin=(min(self.log["w"]) if self.log["w"]
+                                 else float("nan")),
                     mu_norm=float(self.ad.mu.norm()),
                     pull_last60=0.0, dev_sq=float((self.ad.mu ** 2).sum()))
