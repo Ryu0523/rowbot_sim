@@ -1,0 +1,48 @@
+{
+ "reference_position": {
+  "latitude": 1.2605794,
+  "longitude": 103.7516212,
+  "altitude": 0.0
+ },
+ "environment": {
+  "ocean": {
+   "wave_height": 1.0,
+   "wave_period": 5.0,
+   "theta0": 3.141592653589793
+  }
+ },
+ "agents": {
+  "usv0": {
+   "model": "scarab195@as1",
+   "plant": "gz",
+   "heading": 0.0,
+   "waypoint_interface": {
+    "enabled": true,
+    "radius": 25.0,
+    "path_enu": [
+     [
+      3000.0,
+      0.0
+     ]
+    ]
+   },
+   "speed": 10.28888,
+   "policy": {
+    "type": "callable",
+    "target": "app.demo_policies:SpeedHold",
+    "kwargs": {
+     "v_kn": 20.0,
+     "rule": "learned_future",
+     "v_lo_kn": 15.0,
+     "thr": 3.0
+    }
+   }
+  }
+ },
+ "usv": {
+  "duration": 90.0,
+  "seed": 3
+ },
+ "name": "demo_ctrl_pred",
+ "description": "head seas, 20 kn, slowed to 15 kn when the learned impact predictor (exact future wave + motion) expects more than 3 g in the next 5 s"
+}

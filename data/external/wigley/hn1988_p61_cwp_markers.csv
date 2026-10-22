@@ -1,0 +1,14 @@
+# Fn, 10^3 C_WP, lab (SRI, UT, SRI+UT = overlapping markers read as one), reading error Fn, reading error 10^3 C_WP; source: Hendrix & Noblesse (1988) p. 61 lower panel (scan in wavebem_tokyoWigley.pdf), data McCarthy 1985 DTNSRDC-85/011; read by studies/rankine_wigley_scan.py
+0.2093,0.385,SRI,0.0012,0.027
+0.2295,0.452,SRI,0.0012,0.027
+0.2498,0.721,SRI+UT,0.0020,0.045
+0.2666,0.664,UT,0.0012,0.027
+0.2883,0.992,SRI+UT,0.0020,0.045
+0.2993,1.211,SRI,0.0012,0.027
+0.3150,1.503,SRI+UT,0.0020,0.045
+0.3296,1.346,SRI,0.0012,0.027
+0.3499,1.193,SRI,0.0012,0.027
+0.3535,1.137,UT,0.0012,0.027
+0.3799,1.400,SRI,0.0012,0.027
+0.4000,1.672,SRI,0.0012,0.027
+0.4078,2.077,UT,0.0012,0.027

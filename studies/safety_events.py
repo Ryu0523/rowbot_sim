@@ -321,9 +321,10 @@ def mission_gz(seed, head, t_end, sea=None):
     """A learn/repro/task.Mission in the high-fidelity world with the GZ
     plant (recording) in place of the one it built."""
     from learn.repro.task import Mission
-    from sim.planing_vessel_gz import from_plant
+    from sim import physics
     m = Mission("high", seed, head, t_end=t_end, sea=sea)
-    gz = from_plant(m.plant, record=True)
+    # the frozen from_plant for a v0 hull, the as twin for an '@as1' one
+    gz = physics.gz_twin(m.plant, record=True)
     m.plant = m.ep.plant = gz
     m.s = gz.initial_state(0.8 * m.u_ref)
     m.s[5] = m.phi

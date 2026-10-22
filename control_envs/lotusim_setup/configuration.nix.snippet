@@ -1,0 +1,34 @@
+  # ---- LOTUSim additions (paste inside the main { ... } block of
+  # ---- /etc/nixos/configuration.nix, keep the existing imports and
+  # ---- system.stateVersion lines). Source: LOTUSim README, Windows (WSL2).
+
+  # Flakes + the two binary caches. Without the caches Nix compiles the
+  # ROS 2 / Gazebo stack from source on first use (about an hour, silently).
+  nix.settings = {
+    experimental-features = [ "nix-command" "flakes" ];
+    extra-substituters = [ "https://ros.cachix.org" "https://naval-group.cachix.org" ];
+    extra-trusted-public-keys = [
+      "ros.cachix.org-1:dSyZxI8geDCJrwgvCOHDoAfOm5sV1wCPjBkKL+38Rvo="
+      "naval-group.cachix.org-1:ytTEzFEeuzQrC9IRYLzHGa5OnM65G95M6/sbPd0fy28="
+    ];
+  };
+
+  # GPU access through the Windows driver (Gazebo GUI and rendering sensors).
+  hardware.graphics.enable = true;
+  wsl.useWindowsDriver = true;
+  # /dev/dri/card0 is group "video" and renderD128 group "render": without
+  # these groups the Gazebo window falls back to software rendering
+  # ("failed to open /dev/dri/card0: Permission denied", 2026-10-21).
+  users.users.nixos.extraGroups = [ "video" "render" ];
+
+  # git: needed to clone repositories and for flakes to see local files.
+  environment.systemPackages = with pkgs; [ git ];
+
+  # ROS 2 discovery between processes uses UDP multicast/unicast on the
+  # loopback and LAN; the NixOS firewall blocks it by default.
+  networking.firewall.enable = false;
+
+  # WSL 3.x generates a unit (wsl-mnt-guard.service) whose ExecStart is
+  # /bin/true, a path NixOS does not have; without it nixos-rebuild switch
+  # ends with "the following units failed" (exit 4). Provide the file.
+  systemd.tmpfiles.rules = [ "L+ /bin/true - - - - ${pkgs.coreutils}/bin/true" ];

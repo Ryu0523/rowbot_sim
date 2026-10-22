@@ -167,23 +167,59 @@ def regular_wave(hull, V, lam_over_L, H, T=40.0, dt=0.005, x_acc=None):
     return amp[0] / a, amp[1] / (k * a), float(pk[0]), float(pk[1])
 
 
-def fridsma_hull(case):
+def _tow_jet(lcg, vcg, tow):
+    """The 'jet' of a towed model: where the plant applies the captive
+    (towing) force. tow="cg": at the CG, horizontal -- Fridsma's set-up
+    (1969, DL 1275: "a constant horizontal force at the model's center of
+    gravity or tow point", the pitch pivot at the CG; 1971, DL 1495: thrust
+    axes horizontal through the CG). tow="nozzle": the plant's default jet
+    nozzle (transom, 0.15 m above the keel = 0.36 b above the CG on the
+    9-in model) -- the harness error found 2026-10-08, kept only so that
+    the records made with it can be reproduced."""
+    jet = dict(d_nozzle=0.02, p_max=500.0)
+    if tow == "cg":
+        jet.update(x_nozzle=lcg, z_nozzle=vcg)     # plant: x_n = -lcg + x, z_n = -vcg + z
+    elif tow != "nozzle":
+        raise ValueError(tow)
+    return jet
+
+
+def fridsma_hull(case, tow="cg"):
     """Fridsma's (1969) prismatic model: b 9 in, L/b 5, deadrise 20 deg,
     C_Delta 0.608 in fresh water (7.26 kg), VCG 0.294 b, bow one beam long.
     A: V/sqrt(L) 4, LCG 59% L aft of the stem, gyradius 25.1% L.
     B: V/sqrt(L) 6, LCG 62%, gyradius 25.5%. The keel here is straight
-    (his bow had an elliptical keel profile). No jet: the model is towed."""
+    (his bow had an elliptical keel profile). No jet: the model is towed,
+    the towing force through the CG (tow, see _tow_jet)."""
     from hydro.planing import PlaningHull
     b = 9 * 0.0254
     L = 5 * b
     lcg_aft, kp, vl = {"A": (0.59, 0.251, 4), "B": (0.62, 0.255, 6)}[case]
     V = vl * 0.514444 * np.sqrt(L / 0.3048)          # V/sqrt(L) in kn/ft^0.5
+    lcg, vcg = (1 - lcg_aft) * L, 0.294 * b
     return PlaningHull(
-        name=f"fridsma_{case}", L=L, b=b, beta_deg=20.0,
-        mass=0.608 * 62.4 * (b / 0.3048) ** 3 * 0.45359237,
-        lcg=(1 - lcg_aft) * L, vcg=0.294 * b, depth=0.6 * b, k_pitch=kp,
+        name=f"fridsma_{case}" + ("_cgtow" if tow == "cg" else ""), L=L, b=b,
+        beta_deg=20.0, mass=0.608 * 62.4 * (b / 0.3048) ** 3 * 0.45359237,
+        lcg=lcg, vcg=vcg, depth=0.6 * b, k_pitch=kp,
         taper=0.2, stem_rise=0.0, cda=0.0, u_design=V, rho=1000.0,
-        jet=dict(d_nozzle=0.02, p_max=500.0)), V
+        jet=_tow_jet(lcg, vcg, tow)), V
+
+
+def fridsma71_hull(cond, tow="cg"):
+    """Fridsma's (1971) model for condition `cond` (FRIDSMA71): beta 20,
+    L/b 5, C_Delta 0.600, gyradius 25% L, towed through the CG (tow)."""
+    from hydro.planing import PlaningHull
+    vl, lcg_aft, hb = FRIDSMA71[cond][:3]
+    b = 9 * 0.0254
+    L = 5 * b
+    V = vl * 0.514444 * np.sqrt(L / 0.3048)
+    lcg, vcg = (1 - lcg_aft / 100) * L, 0.294 * b
+    return PlaningHull(
+        name=f"fridsma71_{cond}" + ("_cgtow" if tow == "cg" else ""), L=L,
+        b=b, beta_deg=20.0, mass=0.600 * 62.4 * (b / 0.3048) ** 3
+        * 0.45359237, lcg=lcg, vcg=vcg, depth=0.6 * b, k_pitch=0.25,
+        taper=0.2, cda=0.0, u_design=V, rho=1000.0,
+        jet=_tow_jet(lcg, vcg, tow)), V, hb * b
 
 
 # Fridsma (1969) Table 2, H/b = 0.111 (stated); Zarnick (1978) computed, in
@@ -270,17 +306,8 @@ def p7(T=60.0, dt=0.004):
           "positive acceleration peaks, g")
     print(f"    {'cond':>5}{'V/rtL':>6}{'H/b':>6}{'CG ours (Tp x0.8/1/1.25)':>27}"
           f"{'meas':>6}{'bow ours (x0.8/1/1.25)':>26}{'meas':>6}")
-    b = 9 * 0.0254
-    L = 5 * b
     for cond, (vl, lcg_aft, hb, m_cg, m_bow) in FRIDSMA71.items():
-        V = vl * 0.514444 * np.sqrt(L / 0.3048)
-        h = PlaningHull(name=f"fridsma71_{cond}", L=L, b=b, beta_deg=20.0,
-                        mass=0.600 * 62.4 * (b / 0.3048) ** 3 * 0.45359237,
-                        lcg=(1 - lcg_aft / 100) * L, vcg=0.294 * b,
-                        depth=0.6 * b, k_pitch=0.25, taper=0.2, cda=0.0,
-                        u_design=V, rho=1000.0,
-                        jet=dict(d_nozzle=0.02, p_max=500.0))
-        hs = hb * b
+        h, V, hs = fridsma71_hull(cond)
         cgs, bows = [], []
         for f in (0.8, 1.0, 1.25):
             tp = f * 15.63 * np.sqrt(hs / 9.81)

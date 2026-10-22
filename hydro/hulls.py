@@ -156,6 +156,37 @@ def scarab_195():
             p_max="Rotax 1630 ACE 300 spec sheet"))
 
 
+def planing_b():
+    """A second planing hull from the parametric family
+    (hydro/hull_geometry.PlaningHullForm), deliberately NOT similar to
+    scarab195 -- the test vessel of the hull-swap chain (P0 of
+    learn/meta/ANYSPEED_PRINCIPLES_2026-10-05.md section 7). Every number is
+    invented, inside the usual range of 6-7 m jet boats: keel 6.6 m, chine
+    beam 2.0 m (L/b 3.3), deadrise 16 deg, 1900 kg, LCG 0.36 L, a 100 mm
+    nozzle at 260 kW (principal data of studies/principles_hull_swap.py's
+    hull B, whose Savitsky top speed was ~46 kn). It uses the family's
+    features that the frozen v0 plant cannot build: a transom 10 % narrower
+    than the maximum chine beam, reached by a linear chine run over the aft
+    20 % of the keel, and a keel that rises 0.30 m to the stem over the
+    forward 25 % as a cubic (a raked forefoot). So it runs only as
+    'planing_b@as1'; sim/physics refuses hulls.get('planing_b').plant()."""
+    from hydro.vessel_spec import ParametricPlaningHull
+    L = 6.6
+    return ParametricPlaningHull(
+        name="planing_b",
+        form=dict(kind="family", L=L, b=2.0, beta_deg=16.0, depth=1.2,
+                  taper=0.30, stem_rise=0.30, rise_from=0.25, rise_power=3.0,
+                  transom_beam=0.90, transom_run=0.20, n_stations=48),
+        mass=dict(mass=1900.0, lcg=0.36 * L, vcg=0.60, k_pitch=0.25,
+                  k_roll=0.35, k_yaw=0.25),
+        jet=dict(d_nozzle=0.10, p_max=260e3, eta_pump=0.775,
+                 nozzle_max_deg=25.0, nozzle_rate_deg=40.0, x_intake=0.9,
+                 z_nozzle=0.15, tau=0.6),
+        closures=dict(cda=2.0),
+        u_design=25 * KNOT,
+        sources=dict(all="invented test hull (hydro/hulls.py:planing_b)"))
+
+
 def our_boat():
     """TEMPLATE -- your vessel. Copy the call below out of this docstring,
     fill in every value, and return it; until then this raises.
@@ -201,6 +232,7 @@ REGISTRY = {
     "wigley10": wigley_10m,
     "wigley10_jet": wigley_10m_jet,
     "scarab195": scarab_195,
+    "planing_b": planing_b,
     "kvlcc2_68": kvlcc2_68,
     "kcs_2_10": kcs_2_10,
     "kcs_2_11": kcs_2_11,
@@ -211,7 +243,15 @@ REGISTRY = {
 
 
 def get(name):
-    """The Hull registered as `name`."""
+    """The Hull registered as `name`. 'NAME@VERSION' (e.g. 'scarab195@as1')
+    is the same vessel on another version of the plant's physics
+    (sim/physics.py): the whole key becomes its name, so every cache keyed
+    by hull name keeps the versions apart. A plain name is the current
+    physics, v0, built exactly as before."""
+    if isinstance(name, str) and "@" in name:
+        from sim import physics
+        base, version = physics.split(name)
+        return physics.variant(get(base), version)
     if name not in REGISTRY:
         raise KeyError(f"unknown hull {name!r}; known: {sorted(REGISTRY)}")
     return REGISTRY[name]()

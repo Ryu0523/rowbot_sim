@@ -189,7 +189,9 @@ def device():
 def plant_factory(name):
     """f(sea, dt) -> the target plant. 'default': sim/planing_vessel.py
     through config.plant_for (linear roll: cannot capsize); 'gz':
-    sim/planing_vessel_gz.plant_for (the large-angle righting arm)."""
+    sim/planing_vessel_gz.plant_for (the large-angle righting arm), through
+    sim/physics.gz_plant_for, which picks the class by the hull key (for a
+    v0 hull it builds exactly what plant_for builds)."""
     from sim import config
     c = task.ctx()
     if name == "default":
@@ -202,17 +204,21 @@ def plant_factory(name):
     except ImportError as ex:
         raise SystemExit(f"--plant gz: sim/planing_vessel_gz.py not "
                          f"importable ({ex})")
-    return lambda sea, dt: gz.plant_for(c["db"], sea, c["h"], dt=dt)
+    from sim import physics
+    return lambda sea, dt: physics.gz_plant_for(c["db"], sea, c["h"], dt=dt)
 
 
-def make_mission(seed, leg, T, weights=None, floor=0.0):
+def make_mission(seed, leg, T, weights=None, floor=0.0, sea=None):
+    """sea: None = the task's sea; a dict overrides it (task.Mission)."""
     m = task.Mission("high", seed, leg, t_end=T, weights=weights, floor=floor,
-                     track=task.LEGS[leg])
+                     track=task.LEGS[leg], sea=sea)
     if OPT["plant"] == "gz":
         # the GZ twin of the plant the Mission built, recording for
-        # studies/safety_events.py (as its own mission_gz does)
-        from sim.planing_vessel_gz import from_plant
-        pl = from_plant(m.plant, record=True)
+        # studies/safety_events.py (as its own mission_gz does); physics.
+        # gz_twin is the frozen from_plant for a v0 hull and the as plant's
+        # twin for an '@as1' one
+        from sim import physics
+        pl = physics.gz_twin(m.plant, record=True)
         for a in ("L",):
             assert abs(float(getattr(pl, a)) - m.L) < 1e-9, a
         assert abs(float(pl.prop.t_max) - m.t_max) < 1e-6
@@ -224,9 +230,18 @@ def make_mission(seed, leg, T, weights=None, floor=0.0):
 
 
 # ------------------------------------------------------------ turning
-def turn_path():
-    return os.path.join(HERE, "_cache", "final_eval",
-                        f"turn_{OPT['plant']}.json")
+def turn_path(hull=None):
+    """The turning table's cache for `hull` (default: the task's). scarab195
+    on v0 with its pinned manifest keeps the legacy name turn_<plant>.json
+    (sim/physics.LEGACY); any other hull or physics version gets its own
+    file keyed by the hull key and the physics sha1 (code, hull manifest,
+    switches: physics.cache_tag) -- the legacy name alone used to hand one
+    hull's table to another."""
+    from sim import physics
+    tag = physics.cache_tag(task.ctx()["h"] if hull is None else hull)
+    name = (f"turn_{OPT['plant']}.json" if tag is None
+            else os.path.join("turn", f"turn_{OPT['plant']}_{tag}.json"))
+    return os.path.join(HERE, "_cache", "final_eval", name)
 
 
 def phase_turn(force=False):

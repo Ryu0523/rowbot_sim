@@ -1,0 +1,38 @@
+cmake_minimum_required(VERSION 3.5)
+project(lotusim_msgs)
+
+find_package(builtin_interfaces REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(geographic_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(std_srvs REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/Log.msg"
+  "msg/MASCmd.msg"
+  "msg/VesselCmd.msg"
+  "msg/VesselCmdArray.msg"
+  "msg/VesselPosition.msg"
+  "msg/VesselPositionArray.msg"
+  "msg/RendererCmd.msg"
+  "msg/Wind.msg"
+  "msg/SimStats.msg"
+  "msg/WaypointFollowerStatus.msg"
+  "msg/PowerStatus.msg"
+  "action/MASCmdArray.action"
+  "action/MASCmd.action"
+  "srv/SetWaypoints.srv"
+  "srv/String.srv"
+  
+  DEPENDENCIES 
+    builtin_interfaces
+    geometry_msgs 
+    geographic_msgs
+    std_msgs
+    std_srvs
+)
+
+ament_export_dependencies(rosidl_default_runtime)
+
+ament_package()

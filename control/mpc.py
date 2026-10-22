@@ -24,7 +24,21 @@ so the value of preview can be swept without touching the controller, which is
 what M7 needs.
 
 WEIGHTS are the object RL tunes in M6. They are named, bounded and few.
+
+TIME-SCALE-FREE OBJECTIVE (an option, default off; M7 of the modular split,
+learn/meta/ANYSPEED_PRINCIPLES_2026-10-05.md section 1). The running cost
+is integrated in seconds (x dt) while the command-jump terms and the
+softmax temperature lam are per control step, so on a Froude-similar hull
+(times x s) the objective is not s x the base hull's and the same weights
+plan differently (studies/principles_hull_swap.py stage_traj, --fixcost).
+time_ref (seconds) integrates the running cost in units of time_ref
+instead, and the cross-track term divides by L without v0's 1 m floor; with
+time_ref = froude_time_ref(L) a similar hull sees the same dimensionless
+objective, and the reference hull (L_ref) the same objective as v0 to the
+last bit (sqrt(x) / sqrt(x) == 1.0 exactly).
 """
+import math
+
 import numpy as np
 
 WEIGHT_NAMES = ["w_acc", "w_slam", "w_speed", "w_track", "w_heading",
@@ -33,6 +47,16 @@ WEIGHT_BOUNDS = np.array([[0.1, 20.0], [0.5, 60.0], [0.1, 20.0],
                           [0.0, 10.0], [0.0, 20.0],
                           [0.0, 5.0], [0.0, 5.0]])
 DEFAULT_WEIGHTS = np.array([1.0, 12.0, 2.0, 1.0, 4.0, 0.3, 0.3])
+G = 9.81
+
+
+def froude_time_ref(L, L_ref=None):
+    """time_ref (s) for a Froude-consistent objective: sqrt(L/g) /
+    sqrt(L_ref/g), i.e. 1 s on the reference hull (L_ref None: hydro/
+    vessel_spec.L_REF, scarab195's keel, 5.4 m -- a protocol choice)."""
+    if L_ref is None:
+        from hydro.vessel_spec import L_REF as L_ref
+    return math.sqrt(L / G) / math.sqrt(L_ref / G)
 
 
 class PreviewProvider:
@@ -81,9 +105,12 @@ class MPPIController:
     def __init__(self, model, preview, weights=None, horizon=24,
                  dt_ctrl=None, n_knots=7, n_samples=192, sigma=(0.25, 0.25),
                  lam=0.6, u_ref=None, seed=0, n_stations=5,
-                 use_rudder=True, thrust_floor=0.0):
+                 use_rudder=True, thrust_floor=0.0, time_ref=None):
         p = model.p
         self.m = model
+        # None: v0's objective, running cost in seconds; a float: in units
+        # of time_ref seconds (module docstring, TIME-SCALE-FREE OBJECTIVE)
+        self.time_ref = None if time_ref is None else float(time_ref)
         # Least thrust the plan may use, as a fraction of the limit. Zero for
         # a screw. A waterjet steers with its flow, so a controller that
         # throttles back over a crest also drops the heading: the floor keeps
@@ -134,6 +161,10 @@ class MPPIController:
         cost = np.zeros(K)
         emerged = np.zeros(K, bool)
         p = self.m.p
+        if self.time_ref is None:
+            dtc, Lc = self.dt, max(self.m.p["L"], 1.0)
+        else:
+            dtc, Lc = self.dt / self.time_ref, self.m.p["L"]
         for h in range(self.H):
             t = t0 + h * self.dt
             # Station positions in the WATER, rotated by the vessel's own
@@ -160,8 +191,8 @@ class MPPIController:
             cost += (self.w[0] * (a_bow / 9.81) ** 2
                      + self.w[1] * slam
                      + self.w[2] * ((self.u_ref - s[:, 2]) / self.u_ref) ** 2
-                     + self.w[3] * (s[:, 1] / max(self.m.p["L"], 1.0)) ** 2
-                     + self.w[4] * (s[:, 7] - track_ref) ** 2) * self.dt
+                     + self.w[3] * (s[:, 1] / Lc) ** 2
+                     + self.w[4] * (s[:, 7] - track_ref) ** 2) * dtc
         cost += self.w[5] * np.sum(np.diff(seq[:, 0], axis=1) ** 2, axis=1)
         cost += self.w[6] * np.sum(np.diff(seq[:, 1], axis=1) ** 2, axis=1)
         return cost

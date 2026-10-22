@@ -1,0 +1,12 @@
+# Fn, 10^3 C_W, lab/symbol (? = uncertain identification), reading error 10^3 C_W; markers of the upper panel of Hendrix & Noblesse (1988) p. 61 in the window Fn 0.185-0.215 only (lab scatter at low Fn); read by studies/rankine_wigley_scan.py
+0.1896,0.352,UT? (filled square or YNU cross; merged pair),0.042
+0.1945,0.353,UT (diamond; merged pair),0.042
+0.1997,0.353,UT (filled square),0.025
+0.1997,0.231,SRI (open circle),0.025
+0.1894,0.191,SRI (open circle),0.025
+0.1878,0.113,YNU? (cross),0.025
+0.1983,0.041,YNU (cross),0.025
+0.2048,0.004,YNU (cross, on the zero line),0.042
+0.2073,0.488,UT? (open square; merged with a solid marker),0.042
+0.2096,0.355,SRI? (open circle or UT open square),0.025
+0.2118,0.227,YNU (cross),0.025

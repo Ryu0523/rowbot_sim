@@ -1,0 +1,9 @@
+# Journee (1992) Wigley I experiments, secondary transcription from vector figure markers (studies/rankine_journee_data.py; sources in data/external/SOURCES.md, wigley_journee/)
+# Fn 0.2 head seas, J. Mar. Sci. Eng. 9:87 Fig. 14; F3' = F3 L/(rho g eta0 V), F5' = F5/(rho g eta0 V), nu' = k L
+nu_prime_kL,F5_prime,u_value,u_nu
+3.18215,1.98895,0.00800,0.04446
+3.58465,2.17420,0.00800,0.04245
+4.21543,2.15691,0.00800,0.04446
+5.06849,2.02600,0.00800,0.04446
+6.28800,1.77159,0.00800,0.04245
+8.40863,0.89968,0.00800,0.04446

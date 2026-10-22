@@ -1,0 +1,23 @@
+{
+ "name": "demo_scarab195",
+ "description": "scarab195 (v0 physics) on a three-leg waypoint course in sea state 3 (Hs 1.0 m, Tp 5 s, waves from the east), hand MPC with line-of-sight guidance",
+ "version": "0.1",
+ "reference_position": {"latitude": 1.2605794, "longitude": 103.7516212, "altitude": 0.0},
+ "environment": {
+  "ocean": {"wave_height": 1.0, "wave_period": 5.0, "wave_direction": 90.0,
+            "wave_spectrum": "JONSWAP", "gamma": 3.3, "spreading_s": 8, "n_freq": 24, "n_dir": 5}
+ },
+ "agents": {
+  "usv0": {
+   "model": "scarab195",
+   "plant": "gz",
+   "position": {"enu": [0.0, 0.0]},
+   "heading": 0.0,
+   "waypoint_interface": {"enabled": true, "loop": false, "radius": 25.0,
+                          "path_enu": [[350.0, 0.0], [600.0, 250.0], [600.0, 550.0]]},
+   "sensors": {},
+   "policy": {"type": "hand", "guidance": "los", "frame": "heading"}
+  }
+ },
+ "usv": {"duration": 120.0, "seed": 3, "safe_mode": true}
+}

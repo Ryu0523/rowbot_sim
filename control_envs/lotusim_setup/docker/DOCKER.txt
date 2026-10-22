@@ -1,0 +1,127 @@
+LOTUSim with Docker (no Nix) - for teammates on Windows, Linux or macOS
+=======================================================================
+
+Why this route
+--------------
+Naval Group publishes two prebuilt container images:
+    ghcr.io/naval-group/lotusim     the simulator (Gazebo Harmonic server + ROS 2 Jazzy
+                                    + the LOTUSim plugins), about 1.1 GB, entrypoint
+                                    `lotusim run` = headless server; tags latest, v26.09, ...
+    ghcr.io/naval-group/lxdyn       the xdyn physics server (vessel dynamics), a few MB,
+                                    binaries only (no shell)
+With them nobody needs Nix or NixOS. We add one small image (Dockerfile.client)
+built on the official ros:jazzy image that holds Python, rclpy, the LOTUSim
+message definitions and gymnasium, so our Gymnasium environment runs next to
+the simulator. docker-compose.yml wires the three together.
+
+What you get and what you don't
+-------------------------------
+  + one `docker compose up` after Docker is installed; same files on every OS
+  + ROS 2 topics, spawning vessels, driving them from Python (our LotusimEnv)
+  + vessel dynamics through xdyn (the DTMB hull model is vendored in assets/)
+  - NO 3-D window: the lotusim image has no GUI client and Docker on Windows has
+    no straightforward GPU/display path. For the Gazebo window use the NixOS-WSL
+    route in ../SETUP.txt. The web UI (lotusim-ui) is also not in the image.
+  - rendering sensors (camera, gpu_lidar) do not render without a GPU bridge
+
+Status (2026-10-15)
+-------------------
+Written from the published image documentation; NOT yet executed on this
+machine (Docker is not installed here, WSL is being set up). Two assumptions to
+verify on first run and fix in this file if wrong:
+  1. the lxdyn image has /usr/bin/xdyn-for-cs (its README shows binaries under
+     /usr/bin and the xdyn-for-cs websocket server is what LOTUSim talks to)
+  2. the lotusim image's `lotusim run` spawns nothing by itself; vessels are
+     created by the client through /lotusim/mas_cmd (as in the LOTUSim examples)
+
+1. Install Docker
+-----------------
+Windows: Docker Desktop (https://www.docker.com/products/docker-desktop/).
+         It uses the WSL2 backend, so the same two Windows features as in
+         ../SETUP.txt section 1.1 must be enabled (the installer does it) and
+         Windows must be restarted once. No Linux distribution needs to be
+         installed by hand. Give Docker Desktop at least 6 GB of memory
+         (Settings > Resources) - or set it in %USERPROFILE%\.wslconfig, see
+         ../wslconfig.txt.
+         Podman Desktop works the same way (the LOTUSim docs use podman).
+Linux:   apt install docker.io docker-compose-v2 (or Podman 6+).
+macOS:   Docker Desktop or Podman; x86_64 images run under emulation (slow).
+
+Check:  docker --version   and   docker compose version
+
+2. Get the files
+----------------
+Clone this repository (or copy the folder control_envs/ with lotusim_setup/).
+Everything below runs in  control_envs/lotusim_setup/docker/ :
+
+    cd control_envs/lotusim_setup/docker
+
+3. Start
+--------
+    docker compose pull            # downloads lotusim (~1.1 GB) and lxdyn once
+    docker compose build client    # builds our Python client image (~1.5 GB, once)
+    docker compose up -d
+    docker compose logs -f lotusim # wait until the world is loaded, Ctrl+C to leave the log
+
+The three containers share one network namespace: LOTUSim finds xdyn on
+127.0.0.1:12345 and the client's ROS 2 node finds LOTUSim on loopback.
+Nothing needs to cross the Docker/Windows network boundary.
+
+4. Drive a vessel from Python (our Gymnasium env)
+-------------------------------------------------
+    docker compose exec client python3 /work/control_envs/lotusim_gym_demo.py --seconds 120 --target-speed 3
+
+Expected: "vessel name: dtmb_hull_0", a first pose, then a line every 5 s with
+speed, yaw rate, heading error, throttle, rudder; the vessel is deleted at the end.
+Look at the topics while it runs:
+
+    docker compose exec client ros2 topic list
+    docker compose exec client ros2 topic echo /lotusim/poses --once
+
+Interactive shell with everything sourced:
+
+    docker compose exec client bash
+
+Your own controller: edit control_envs/lotusim_env.py / lotusim_gym_demo.py on
+the host; the repository is mounted at /work inside the client.
+
+5. Stop / reset
+---------------
+    docker compose down            # stop and remove the containers (images stay)
+    docker compose up -d           # fresh simulation
+
+6. Troubleshooting
+------------------
+client cannot see /lotusim/poses:   check `docker compose ps` (all three up);
+                                   both lotusim and client must have
+                                   FASTDDS_BUILTIN_TRANSPORTS=UDPv4 and the same
+                                   ROS_DOMAIN_ID (compose sets both)
+vessel spawns but never moves:     xdyn not running or wrong YAML path; check
+                                   `docker compose logs xdyn`; the model's YAML is
+                                   /data/models/dtmb_hull/dtmb-xdyn-faster.yml inside
+                                   the xdyn container
+"xdyn-for-cs: not found":          the lxdyn image layout differs from assumption 1;
+                                   list it with `docker create` + `docker export` and
+                                   fix `entrypoint:` in docker-compose.yml
+out of memory / very slow:         raise Docker Desktop's memory; Gazebo needs ~2-3 GB,
+                                   the first world load takes a minute
+pull denied / rate limited:        ghcr.io images are public; if a proxy blocks
+                                   ghcr.io, `docker login ghcr.io` with a GitHub token
+
+7. Relation to the NixOS-WSL route (../SETUP.txt)
+-------------------------------------------------
+Same simulator, same ROS interface, same Python environment and demo. NixOS-WSL
+adds the Gazebo window (GPU through the Windows driver), the web UI, and the
+`nix develop` shell; Docker is the smaller install and runs identically on every
+machine. Use Docker for shared, headless, scripted work; NixOS-WSL (or a Linux
+box with Nix) when you want to look at the 3-D scene.
+
+Files in this folder
+--------------------
+  docker-compose.yml     the three services
+  Dockerfile.client      Python + ROS 2 Jazzy + lotusim_msgs + gymnasium
+  interfaces/            LOTUSim message/action/service definitions (copied from the
+                         LOTUSim repository, Eclipse Public License 2.0, see
+                         assets/LICENSE.LOTUSim)
+  assets/models/         dtmb_hull (xdyn YAMLs + meshes) and seabed, copied from
+                         LOTUSim's assets so xdyn can run without the LOTUSim checkout

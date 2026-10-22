@@ -1,0 +1,17 @@
+{
+ "name": "demo_scarab195_as1",
+ "description": "scarab195 on the any-speed plant (physics as1, in development by the physics track), same course and sea as demo_scarab195, scripted throttle with line-of-sight heading",
+ "reference_position": {"latitude": 1.2605794, "longitude": 103.7516212, "altitude": 0.0},
+ "environment": {"ocean": {"wave_height": 1.0, "wave_period": 5.0, "wave_direction": 90.0}},
+ "agents": {
+  "usv0": {
+   "model": "scarab195@as1",
+   "plant": "gz",
+   "heading": 0.0,
+   "waypoint_interface": {"enabled": true, "radius": 25.0,
+                          "path_enu": [[350.0, 0.0], [600.0, 250.0], [600.0, 550.0]]},
+   "policy": {"type": "scripted", "throttle": [[0, 0.7], [10, 0.85]], "heading": "track"}
+  }
+ },
+ "usv": {"duration": 120.0, "seed": 3}
+}

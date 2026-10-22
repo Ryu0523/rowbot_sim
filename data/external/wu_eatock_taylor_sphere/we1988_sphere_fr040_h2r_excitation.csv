@@ -1,0 +1,20 @@
+# Wu & Eatock Taylor (1988) analytical exciting forces on the submerged sphere (r, h = 2.0 r, Fr = U/sqrt(g r) = 0.4,
+# head seas, deep water) AS TABULATED in the "Analytical results [27]" columns of Mei et al. (2020), J. Mar. Sci.
+# Eng. 8(2):106, Tables 1 (surge) and 2 (heave), PDF page 11 (secondary source). k = incident wavenumber
+# (omega_0^2/g), critical kr = 0.26808 (tau = U omega_e/g = 1/4 in head seas). Normalisation f_j/(rho g pi A r^3 k_e),
+# A the wave amplitude, k_e = omega_e^2/g; real and imaginary parts in the source's (unstated) phase convention.
+# Columns nk_*: the same tables' "Present (Neumann-Kelvin, NK)" columns (Mei et al.'s own NK Rankine computation;
+# a numerical cross-reference only).
+kr,f1_re,f1_im,f3_re,f3_im,nk_f1_re,nk_f1_im,nk_f3_re,nk_f3_im
+0.4,-0.0081,-0.5827,-0.5691,0.0310,-0.00973,-0.61944,-0.70940,0.03530
+0.5,-0.0102,-0.4524,-0.4380,0.0248,-0.01121,-0.47710,-0.41167,0.02611
+0.6,-0.0098,-0.3525,-0.3398,0.0187,-0.00997,-0.35335,-0.34704,0.01980
+0.7,-0.0082,-0.2758,-0.2653,0.0136,-0.00860,-0.27274,-0.27041,0.01479
+0.8,-0.0065,-0.2166,-0.2082,0.0097,-0.00668,-0.21142,-0.21633,0.01051
+0.9,-0.0049,-0.1707,-0.1642,0.0069,-0.00513,-0.16897,-0.17955,0.00727
+1.0,-0.0036,-0.135,-0.1299,0.0048,-0.00333,-0.13653,-0.15140,0.00506
+1.2,-0.0018,-0.0851,-0.0820,0.0023,-0.00199,-0.08533,-0.09850,0.00239
+1.4,-0.0009,-0.0541,-0.0522,0.0011,-0.00100,-0.05635,-0.05490,0.00158
+1.6,-0.0004,-0.0346,-0.0334,0.0005,-0.00035,-0.03859,-0.03710,0.00052
+1.8,-0.0002,-0.0222,-0.0214,0.0002,-0.00020,-0.02638,-0.02938,0.00021
+2.0,-0.0001,-0.0143,-0.0138,0.0001,-0.00012,-0.01533,-0.01844,0.00017

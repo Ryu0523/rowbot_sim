@@ -1,0 +1,31 @@
+# Python + ROS 2 Jazzy client for LOTUSim: rclpy, the LOTUSim message packages
+# (built from the vendored interfaces/ with colcon), numpy and gymnasium.
+# Built from the official ROS image; no Nix. Build context = control_envs/lotusim_setup
+#
+#   docker compose build client          (or: docker build -f docker/Dockerfile.client ..)
+FROM ros:jazzy-ros-base
+
+SHELL ["/bin/bash", "-c"]
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      python3-colcon-common-extensions python3-pip python3-numpy \
+      ros-jazzy-geographic-msgs ros-jazzy-geometry-msgs ros-jazzy-std-msgs \
+      ros-jazzy-std-srvs ros-jazzy-sensor-msgs ros-jazzy-action-msgs \
+      ros-jazzy-rosidl-default-generators ros-jazzy-rosidl-default-runtime \
+    && rm -rf /var/lib/apt/lists/*
+
+# gymnasium is pure Python; Ubuntu 24.04's pip needs the override flag outside a venv
+RUN pip3 install --no-cache-dir --break-system-packages gymnasium
+
+# LOTUSim's message/action/service definitions (copied from the LOTUSim repo,
+# Eclipse Public License 2.0, see assets/LICENSE.LOTUSim)
+COPY docker/interfaces/ /ws/src/
+RUN source /opt/ros/jazzy/setup.bash && cd /ws && colcon build --merge-install
+
+# every shell/command gets ROS + the messages
+RUN echo 'source /opt/ros/jazzy/setup.bash && source /ws/install/setup.bash' > /etc/profile.d/lotusim.sh \
+ && printf '#!/bin/bash\nset -e\nsource /opt/ros/jazzy/setup.bash\nsource /ws/install/setup.bash\nexec "$@"\n' > /ros_entrypoint.sh \
+ && chmod +x /ros_entrypoint.sh
+ENTRYPOINT ["/ros_entrypoint.sh"]
+CMD ["bash"]

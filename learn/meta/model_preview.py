@@ -364,18 +364,21 @@ def tokens_p(D, ii, a, L, cfg, gen, obs=True, sensor=True):
 
 # ----------------------------------------------------------------- model
 class NetP(M.Net):
-    """model3.Net with N_WX more token inputs (variants w and p)."""
+    """model3.Net with N_WX more token inputs (variants w and p). arch:
+    model3.Net's size arguments (d, layers, heads); the default is the
+    size every checkpoint before 2026-10-02 has (ROADMAP section 11.2)."""
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, **arch):
+        super().__init__(**arch)
         self.inp = M.mlp(M.D_TOK + N_WX, (self.d,), self.d)
 
 
 def load_variant(ck, dev):
     """The network of a checkpoint (model3.pt: Net; model_w / model_p:
-    NetP), in eval mode."""
-    net = (NetP() if ck.get("variant", "a") in ("w", "p") else M.Net()).to(
-        dev)
+    NetP), in eval mode; its size from ck['arch'] (absent: the default)."""
+    arch = dict(ck.get("arch") or {})
+    net = (NetP(**arch) if ck.get("variant", "a") in ("w", "p")
+           else M.Net(**arch)).to(dev)
     net.load_state_dict(ck["net"])
     net.eval()
     return net
@@ -412,14 +415,14 @@ def fm_validate_p(net, D, va, L, Lmax, variant):
 
 
 def train_p(D, variant, steps=20000, batch=48, L=M.W_CTX, lr=3e-4,
-            log=print, seed=0, patience=3, resume=None):
+            log=print, seed=0, patience=3, resume=None, arch=None):
     """model3.train (same schedule, pools, validation checks, early
     stopping and resume file) for NetP under the variant's convention (w or
-    p)."""
+    p); arch: NetP size arguments (None: the default size)."""
     assert variant in ("w", "p")
     dev = D.dev
     torch.manual_seed(seed)
-    net = NetP().to(dev)
+    net = NetP(**(arch or {})).to(dev)
     opt = torch.optim.AdamW(net.parameters(), lr, weight_decay=1e-4)
     sched = torch.optim.lr_scheduler.OneCycleLR(
         opt, max_lr=lr, total_steps=steps, pct_start=max(0.05, 2.0 / steps))
@@ -428,9 +431,11 @@ def train_p(D, variant, steps=20000, batch=48, L=M.W_CTX, lr=3e-4,
     Lmax = D.len.cpu()
     best = dict(v=float("inf"), it=-1, bad=0)
     from learn.meta.train_resume import Resume
-    rs = Resume(resume, dict(kind="model_" + variant, steps=steps,
-                             batch=batch, L=L, lr=lr, seed=seed,
-                             n=int(D.n)), log=log)
+    cfg = dict(kind="model_" + variant, steps=steps, batch=batch, L=L,
+               lr=lr, seed=seed, n=int(D.n))
+    if arch:
+        cfg["arch"] = dict(arch)
+    rs = Resume(resume, cfg, log=log)
     start = rs.load(net, opt, sched, g, best)
     t0 = time.time()
     it = start - 1

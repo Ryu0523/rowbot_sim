@@ -1,0 +1,9 @@
+# Journee (1992) Wigley I experiments, secondary transcription from vector figure markers (studies/rankine_journee_data.py; sources in data/external/SOURCES.md, wigley_journee/)
+# Fn 0.2 head seas, J. Mar. Sci. Eng. 9:87 Fig. 16; RAO3 = zeta3/eta0, RAO5 = zeta5 L/(2 pi eta0)
+lambda_over_L,RAO5,u_value,u_lambda
+1.25022,1.64497,0.00473,0.00262
+1.40015,1.23472,0.00473,0.00262
+1.49985,1.12584,0.00473,0.00262
+1.59993,0.94438,0.00473,0.00250
+1.75022,1.08482,0.00473,0.00262
+1.99985,0.67456,0.00473,0.00262

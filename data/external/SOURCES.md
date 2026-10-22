@@ -213,3 +213,128 @@ benchmark data used for comparison only.
 | kvlcc2_rolldecay/model_test_21340.csv | 1259770 | `09308797d437e2515c5d1ee749819f489cd8636a01bd2434a97209583bdcb30f` |
 | kvlcc2_rolldecay/model_test_parameters.csv | 1801 | `1d792a890d968dd6a5df3ebf2cc7a0889e2e350a52282f8a8ee8109140a6f617` |
 | kvlcc2_rolldecay/model_test_units.csv | 48 | `83b8d4ad3438dc15784a1c34ba8e610ac8379646bf40f4c61ed977ef59e01612` |
+
+## wigley/
+
+- **What**: Wigley parabolic hull (L/B 10, B/T 1.6) measurements of the Japanese cooperative experiment (Kajitani et al. 1983, "The summary of the cooperative experiment on Wigley parabolic model in Japan", Proc. 2nd DTNSRDC Workshop on Ship Wave-Resistance Computations; DTIC ADP003037, not retrievable here: HTTP 403), in two secondary forms, for Track B step B4 (validation rows V1-V5, `studies/rankine_hull_verify.py`; stage note `learn/meta/RANKINE_STAGE1_2026-10-06.md` section 9).
+  1. `wavebem_*`: files shipped with WaveBEM (github.com/mathLab/WaveBEM, `experimental-results/wigley/`, local clone `ext_sims/WaveBEM`, commit b44b0fb 2017-03-07; LGPL-2.1 repository). `wigleyDragExp1-4.csv`: C_W of the model held FIXED vs Fn, labelled SRI, UT1, UT2, UT3 in the files (series 4 is a third U. Tokyo series; Y.N.U. -- "Y.M.U." in the legend -- is NOT digitised [corrected in the B4 review; the first version said series 4 = Y.N.U.]), digitised by the WaveBEM authors from Hendrix & Noblesse's (1988) figure (copy shipped as `tokyoWigley.pdf`, page "- 61 -" upper panel, "Wave-resistance coefficients C_W & C_WP for the Wigley hull held in fixed position"; their data reference: McCarthy 1985, DTNSRDC-85/011, which collects the Kajitani et al. 1983 data). **Transcription defect (B4 review, stage note section 9.7.1, overlay `studies/_cache/rankine/b4_cw_overlay.png`):** at Fn < 0.3 the WaveBEM points follow the zeroth- and first-order slender-ship theory lines of that figure, on average +0.16 ... +0.28e-3 above the U. Tokyo vector curve of Yang et al. (2000), which passes through the U. Tokyo markers of the same scan; these four files are not a valid C_W reference there. `tokyoFr*.csv`: wave profiles 2 g zeta/U^2 along the hull (fixed model) at Fn 0.25, 0.267, 0.289, 0.316, 0.354, 0.408 (Curve1 = U. Tokyo; Curve2 at Fn 0.25 = S.R.I.), digitised from page 62 of the same PDF; x in WaveBEM's frame (bow at x/L = -0.5: our x = -x_file). `wigleyDrag.csv`: the four series resampled on a common Fn grid (not used). Digitisation of scanned figures: error not stated by the source.
+  2. `yang2000_*`: curves of Yang C., Lohner R., Noblesse F., Huang T.T. (2000), "Calculation of ship sinkage and trim using unstructured grids", ECCOMAS 2000, Barcelona, paper 367 (congress2.cimne.com/eccomas/proceedings/eccomas2000/pdf/367.pdf, fetched 2026-10-06, copy `yang_lohner_noblesse_huang_2000_eccomas367.pdf`): Figure 4a (sinkage s and trim t of the model FREE to sink and trim) and Figure 5a (wave drag coefficient, fixed and free), "Experiment Results" = U. Tokyo (paper section 5). The figures are vector graphics: the curves were read from the PDF drawing commands by `studies/rankine_wigley_data.py` (calibration by the tick labels snapped to the tick lines; label residuals <= 2e-5 of the axis values), so the transcription error is the PDF coordinate precision, not a digitisation. Definitions printed in the paper (p. 9): s = (dF' + dA')/Lpp (dF', dA' draught changes, > 0 deeper), t = (dA - dF)/Lpp (> 0 bow up). The printed s is twice the mean sinkage; which definition the plotted experimental curve follows is resolved by the registered rule of check V3 (stage note 9.1), not by the source.
+  3. `hn1988_p61_*` (added in the B4 review): markers re-read from the scan of Hendrix & Noblesse (1988) p. "- 61 -" (`wavebem_tokyoWigley.pdf`, embedded 300-dpi bilevel image) by `studies/rankine_wigley_scan.py`: per-panel affine calibration fitted to the tick marks detected on the frame lines (C_W panel 2483 px per unit Fn and 118.9 px per 1e-3, residuals 0.0008 in Fn and 0.015e-3; C_WP panel 2479 and 110.2, residuals 0.0005 and 0.022e-3), marker centres refined from approximate positions by the centroid of the opened dark blob; reading error +-3 px for isolated markers (+-0.0012 in Fn, +-0.025e-3 in C_W, +-0.027e-3 in C_WP), +-5 px for markers merged with another marker or a curve. `hn1988_p61_cwp_markers.csv`: all S.R.I. and U. Tokyo wave-pattern resistance (C_WP) markers of the lower panel (13; "SRI+UT" = overlapping markers read as one); `hn1988_p61_cw_markers_fn020.csv`: the C_W markers of the upper panel in Fn 0.185-0.215 only (11; laboratory scatter at low Fn; symbol identification uncertain where marked "?"). Overlay of the WaveBEM series and the Yang curve on the scan: `studies/_cache/rankine/b4_cw_overlay.png`; numbers: `studies/_cache/rankine/b4_scan_reading.json`.
+- **Licence**: WaveBEM files LGPL-2.1 (repository licence; unchanged copies, notice in `data/external/wigley/README.md`); Yang et al. 2000: copyrighted conference paper, no licence stated, used for comparison only; the local PDF copy must stay out of any published copy of the repository (`data/external/wigley/.gitignore`); the `yang2000_*` and `hn1988_p61_*` CSV files are our transcriptions (numbers only).
+- **Used by**: studies/rankine_hull_verify.py (V1-V5, V1a, V1b, V5a), studies/rankine_wigley_data.py, studies/rankine_wigley_scan.py
+
+| file | bytes | sha256 |
+|---|---:|---|
+| wigley/hn1988_p61_cw_markers_fn020.csv | 741 | `0be1e67eb698737adefae704ee6c19dc13e8d868dfe77ed225741b61c4fba7b7` |
+| wigley/hn1988_p61_cwp_markers.csv | 688 | `a483941c4bfe65eb014e1c519355e63e9fe77bd40a975e06a73f341e375e029a` |
+| wigley/README.md | 2180 | `81d65bee8f06ddb5442200d095e2f398f056384d3c89312c8458debbfe134ea1` |
+| wigley/wavebem_tokyoFr025.csv | 1474 | `b2c0536680351b7071a085ce5d0b2c77f00b6a9dc2143f47126faf2e799752a3` |
+| wigley/wavebem_tokyoFr0267.csv | 1426 | `3cac344b578fb25ed5144e714bbc8c8900c5f0fd7a16c5cd2ca5b9c13adc3005` |
+| wigley/wavebem_tokyoFr0289.csv | 1420 | `dc5661884d074f8f4ae4dd7b3452877fa8110ab5d36276aa68585619c0a6c59d` |
+| wigley/wavebem_tokyoFr0316.csv | 1423 | `d895d0bd53f0b4f919e6d1dd1f1e9c04bab2f3aefe9aea0ad9c2e6653fc5aa61` |
+| wigley/wavebem_tokyoFr0354.csv | 553 | `3b0a9a41cbc50dad2a53a112c0c77b3f368e08fb332048b2717a2af189ff93dc` |
+| wigley/wavebem_tokyoFr0408.csv | 551 | `680a126e2ac7222587b3b4f414f8c09282ad67a4e03d8373a2652622c9ca3af5` |
+| wigley/wavebem_tokyoWigley.pdf | 177321 | `d64e9eb9f1a1167b679218f959d7904751c0430d003e843f20db712a1f0abd27` |
+| wigley/wavebem_wigleyDrag.csv | 3648 | `2f190becc4728171600b74ac7eec300b29ee046b877aa1eb433552159b45dad6` |
+| wigley/wavebem_wigleyDragExp1.csv | 457 | `0ec72f5a81f2c71d5546faac0370b9125bfeddf5b7017138a0afde9724b76a8e` |
+| wigley/wavebem_wigleyDragExp2.csv | 285 | `ae134ac72174f21ccbd46d7cbd0ab2240741a6bdac6f3db7549abddbf4237237` |
+| wigley/wavebem_wigleyDragExp3.csv | 327 | `6a3a1fc3bd439549db755ce480490649b1bebc34a34fbcfc8419f6a075cf82b5` |
+| wigley/wavebem_wigleyDragExp4.csv | 351 | `263a2ef9c3d6177df4a5adb7b2b400607b963c4ec84efd3d08221a80073f9fea` |
+| wigley/yang2000_fig4a_sinkage_s.csv | 562 | `8b96811c017d830dd5799dd447e625e8d4e7dd696ad8771924951483965e4533` |
+| wigley/yang2000_fig4a_trim_t.csv | 571 | `06e107db69cc1f91349292e8f54e229cc78763d5287d91aa450e87a7fcbac22b` |
+| wigley/yang2000_fig5a_cw_fixed.csv | 565 | `339425fd52fa59964caeecfe8f80f3c56a20982e6c2958ff28d9c7b216878769` |
+| wigley/yang2000_fig5a_cw_free.csv | 578 | `8f361ec4d95561f72f3d1e617a27ce5ba700304c83e74f030650e49817f9c7c6` |
+| wigley/yang_lohner_noblesse_huang_2000_eccomas367.pdf | 358967 | `381a77558581eadaf6ba8fb6b46c3344b22d3c3cc17e4e3f0cb7a350398cd7ee` |
+
+Not obtained (V3): the original Kajitani et al. 1983 tables (DTIC ADP003037, blocked), Journee 1992 (TU Delft report 909; repository returned HTTP 403), Doctors, Macfarlane & Young 2007 (International Shipbuilding Progress 54:145-163, paywalled) for the transom-ventilation regression. None was indispensable for B4: the first two are replaced by the secondary sources above (with the sinkage-definition rule), the third is registered as quoted in WaveBEM with an assumed scatter (EMPIRICAL_REGISTER_RANKINE.md, B4-1).
+
+## wigley_journee/
+
+- **What**: forward-speed seakeeping experiments on the modified Wigley hull "Wigley I" (2 y/B = (1 - zeta^2)(1 - xi^2)(1 + 0.2 xi^2) + zeta^2 (1 - zeta^8)(1 - xi^2)^4, L 3 m, B 0.3 m, T 0.1875 m, V 0.0946 m^3, k_yy 0.25 L) of J.M.J. Journee (1992), "Experiments and calculations on four Wigley hullforms", TU Delft, Ship Hydromechanics Laboratory, report 909 -- **original not obtained** (repository.tudelft.nl, record uuid:52a76d0b-5db1-4902-a254-a81491b9cf99, HTTP 403 to scripted access, file listed under an indefinite embargo). Used by Track B step B5 (validation rows V1-V4, `studies/rankine_unsteady_verify.py`; stage note `learn/meta/RANKINE_STAGE1_2026-10-06.md` section 10) as SECONDARY transcriptions: the experimental markers that two open-access papers plot for Journee's values, read from the PDF drawing commands of their vector figures by `studies/rankine_journee_data.py` (per-panel affine calibration from the axis tick marks or tick-label glyph centres; marker position = bounding-box centre; reading uncertainty = 1/6 of the marker size + calibration residual, written per point):
+  1. `journee1992_wigley1_fn020_*.csv` (Fn 0.2, head seas): J. Mar. Sci. Eng. 2021, 9, 87, "Hydrodynamic analysis and motions of ship with forward speed via a three-dimensional time-domain panel method" (MDPI, CC BY 4.0; PDF from mdpi-res.com fetched 2026-10-06, copy `jmse-09-00087.pdf`), PDF pages 17-19: Fig. 12 (A33' = A33/(rho V), B33' = B33/(rho V) sqrt(L/g)), Fig. 13 (A55' = A55/(rho V L^2), B55'), markers "Experiment" (blue down-triangles) = their ref. 29 (Journee 1992); Fig. 14 (heave and pitch exciting-force amplitudes F3' = F3 L/(rho g eta0 V), F5' = F5/(rho g eta0 V) vs nu' = k L; normalisation checked by the hydrostatic limit A_w L/V = 19.8 at k -> 0); Fig. 16 (RAOs zeta3/eta0 and zeta5 L/(2 pi eta0) vs lambda/L). The plotted abscissae of figs 12-13 deviate from Journee's test frequencies (omega = 3 ... 10 rad/s, omega' = 1.659 ... 5.530) by up to 0.07; the point A33'(1.68) = 1.63 is about twice its neighbours (probable transcription outlier, flagged in the registration).
+  2. `journee1992_wigley1_fn030_*.csv` (Fn 0.3): F. Kara (2022), "Time domain potential and source methods and their application to twin-hull high-speed crafts", Ships and Offshore Structures (open-access version of record, Sheffield Hallam repository, shura.shu.ac.uk/29602, fetched 2026-10-06, copy `kara2022_shura29602.pdf`), page 8, Fig. 9 (A33/(rho V), B33/(rho V sqrt(g/L)) vs omega sqrt(L/g)), markers "Experiment - Journee (1992)"; abscissae equal Journee's test frequencies to 0.01.
+  - Not used (raster figures only): arXiv 1401.3816 (Weymouth & Yue), J. Ocean Mech. Aerosp. Sci. Eng. 22 (2015) (Excel charts, inconsistent hull data), J. Mar. Sci. Eng. 8:106 (raster).
+- **Licence**: CSV files are our transcriptions (numbers only); source PDFs kept for traceability only and excluded from any published copy (`data/external/wigley_journee/.gitignore`; the MDPI article is CC BY 4.0, the licence of the second copy was not verified).
+- **Used by**: studies/rankine_unsteady_verify.py (V1-V4), studies/rankine_journee_data.py
+
+| file | bytes | sha256 |
+|---|---:|---|
+| wigley_journee/README.md | 1584 | `1a326ae99c8b06fed7c09376a175307149c8d31c201a75bc313afeedca6b8e6e` |
+| wigley_journee/.gitignore | 119 | `78e8e0fe93b45967d91b04ffd027de2bf9e8043dd7bd599ba36ce6212f70dbf2` |
+| wigley_journee/jmse-09-00087.pdf | 3315714 | `13b6af444b9b57609eb83854c3c5f3a842863617e18f5599be34f171a337fdbc` |
+| wigley_journee/kara2022_shura29602.pdf | 5036981 | `363230e31d9752a62dad5fbfe4823718ac2af0e81c7d549d2ad53e8aa5a12c80` |
+| wigley_journee/journee1992_wigley1_fn020_A33.csv | 568 | `e2567c85beb7eea71baac2f84760ed3ba8395283073b0e666dbf162bf7abf260` |
+| wigley_journee/journee1992_wigley1_fn020_A55.csv | 568 | `8d76356fab70e7be0de2dea6be1d5b8e533478b4bd983ed45eafe6e616c56e29` |
+| wigley_journee/journee1992_wigley1_fn020_B33.csv | 568 | `b2d7029009545b8efa21d98075c18508f33d6926b65db46f363f947e831ad2f4` |
+| wigley_journee/journee1992_wigley1_fn020_B55.csv | 535 | `daf078e9422c3aa72cb9ba6d1d7efea6fa0675a5ba04354e3418bc4c16b58dc2` |
+| wigley_journee/journee1992_wigley1_fn020_F3.csv | 528 | `7c313dbc4c15d981348379ab01db176806846181139e348d8dfb52f2395db708` |
+| wigley_journee/journee1992_wigley1_fn020_F5.csv | 527 | `b3ce9a85257d9bf0e0306b51f98bfcf8c7d8163eccfc26937353a71ac857a65e` |
+| wigley_journee/journee1992_wigley1_fn020_RAO3.csv | 513 | `01638cae9555b441f7ae5659c383010f32b1ad55a4823c38bd7bf7d78c01621a` |
+| wigley_journee/journee1992_wigley1_fn020_RAO5.csv | 513 | `d03c38193df188a1a70e9f83fec907306896e7eca72d4660f73589c7a3dd8987` |
+| wigley_journee/journee1992_wigley1_fn030_A33.csv | 563 | `859041b8330cf2c0384c057051406496d093ea1df3eae9f424f2684fd48115e1` |
+| wigley_journee/journee1992_wigley1_fn030_B33.csv | 563 | `878dca221f2331f0b1d262e0501b849ef1bb5e00927774716b212a2c719c04ea` |
+
+## wu_eatock_taylor_sphere/
+
+- **What**: analytical (exact forward-speed Green function, linear theory) added mass, damping and exciting forces of a
+  submerged sphere at forward speed from G. X. Wu and R. Eatock Taylor (1988), "Radiation and diffraction of water waves
+  by a submerged sphere at forward speed", Proc. R. Soc. Lond. A 417:433-461 -- **original not obtained** (publisher
+  page behind a bot challenge, not bypassed; not bought). Used as SECONDARY transcription from the "Analytical results
+  [27]" columns of T. Mei, M. Candries, E. Lataire, Z. Zou (2020), J. Mar. Sci. Eng. 8(2):106 (MDPI, CC BY 4.0; PDF from
+  mdpi-res.com fetched 2026-10-07, copy `jmse-08-00106.pdf`), tables 3, 5, 6 (PDF pages 13-15: A11, B11, A33, B33, A13,
+  A31, B13, B31 at k_e r = 0.6-5.0) and tables 1-2 (page 11: exciting forces f1, f3 at kr = 0.4-2.0, with the tables'
+  own NK columns as a numerical cross-reference). Sphere radius r, centre depth 2 r, Fr = U/sqrt(g r) = 0.4, deep water;
+  normalisation A = a/(pi rho r^3), B = b/(pi rho omega_e r^3). Numbers copied from the PDF text layer (no digitising).
+  Used by Track B step B5 review, check WE (`studies/rankine_unsteady_verify.py`; stage note section 10.8.4).
+- **Licence**: CSV files are our transcriptions (numbers only); the source PDF is CC BY 4.0, kept for traceability and
+  excluded from any published copy (`data/external/wu_eatock_taylor_sphere/.gitignore`).
+- **Used by**: studies/rankine_unsteady_verify.py (WE, WEnk, WEx)
+
+| file | bytes | sha256 |
+|---|---:|---|
+| wu_eatock_taylor_sphere/README.md | 1693 | `0ca7a9b1cc8518f05fa605f48fdd387d9dafbf13b57c36369926e584b4522d1f` |
+| wu_eatock_taylor_sphere/.gitignore | 18 | `6bbec4e3327d073c525f19d13acb711c28558442c9d58b39d87900274ebdfc47` |
+| wu_eatock_taylor_sphere/jmse-08-00106.pdf | 1536193 | `393621782631c3440b9a9387376abcede133d8d68bf1ce15f22ecec9a3d9f1fc` |
+| wu_eatock_taylor_sphere/we1988_sphere_fr040_h2r_radiation.csv | 1700 | `c084c4c825423be211f81dcbed321beec61d8aee6e37ab13da53b44f7118f8c2` |
+| wu_eatock_taylor_sphere/we1988_sphere_fr040_h2r_excitation.csv | 1622 | `524c4daec413f9463fd13b0a5cec7f603a8058cf18e41deb1001dbb783904923` |
+
+## (no folder) Savitsky (1964) planing equations -- Track B stage B7 gate
+
+- **What**: the empirical prismatic-planing equations of D. Savitsky (1964), "Hydrodynamic design of planing hulls",
+  Marine Technology 1(1):71-95, used as the validation REFERENCE of the planing gate (stage note
+  `learn/meta/RANKINE_STAGE1_2026-10-06.md` section 13): lift C_L0 = tau^1.1 (0.0120 lam^0.5 + 0.0055 lam^2.5 / C_V^2)
+  (tau in deg), C_L,beta = C_L0 - 0.0065 beta C_L0^0.6 (beta in deg), centre of pressure l_p/(lam b) = 0.75 - 1/(5.21
+  C_V^2/lam^2 + 2.39), keel-chine wetted-length difference (L_K - L_C)/b = tan(beta)/(pi tan(tau)); validity tau 2-15
+  deg, lam <= 4, C_V 0.60-13, beta <= 30 deg. These are the standard published forms (identical in Savitsky 1964 and in
+  Faltinsen 2005, Hydrodynamics of High-Speed Marine Vehicles, ch. 9); they are coded in
+  `hydro/rankine/planing_steady.py: savitsky()`, no data file. **Original paper not re-read in this stage** (the
+  equations are textbook; the coefficients were cross-checked on 2026-10-07 against published restatements, e.g. J.
+  Naval Arch. Mar. Eng. Dec. 2015 (banglajol JNAME 22351) and Int. J. Physics 7(1) (sciepub ijp-7-1-4)).
+- **Raw data not transcribed**: Chambliss & Boyd (1953), NACA TN 2876 (prismatic surfaces, deadrise 20 and 40 deg; UNT
+  Digital Library item metadc56859, tables I-II on pages 10-14) and Shuford (1958), NACA Report 1355, are available as
+  scans whose OCR text layer was checked on 2026-10-07 and is too corrupted (columns merged, digits lost) to transcribe
+  reliably without page images; no page image was downloaded. Recorded as a limitation of the gate (stage note 13.6).
+- **Used by**: studies/rankine_planing_gate.py (rows VL, VLR, VCP, VW, VEQ, VF).
+
+## wedge_entry -- 2-D wedge water entry (similarity solution, MLM peak pressures, Wen et al. 2022 transition stage) -- Track B stage B8
+
+- **What**: reference numbers for the nonlinear cross-section of the planing route-1 gate (stage note
+  `learn/meta/RANKINE_STAGE1_2026-10-06.md` section 14): (1) Zhao & Faltinsen (1993) J. Fluid Mech. 246:593-612,
+  constant-velocity wedge similarity solution, peak pressure and its height -- **original not obtained**, secondary
+  transcription from Iafrati & Battistin, arXiv 1212.6699 v1, Table 1 (PDF p. 17, column "ZF"); (2) peak pressures of
+  the Logvinovich-type models and the exact integral solution, "On wedge-slamming pressures" (J. Fluid Mech.; arXiv
+  2011.10378v3 HTML, Table 1, section 2.4.2); (3) constants of the transition-stage force similitude of Wen, Liu, Del
+  Buono, Qu & Iafrati (2022) J. Fluids Struct. (arXiv 2201.00959 v1, eqs 16-24, pp. 22-31). All read 2026-10-07 via
+  WebFetch / text layer of the arXiv PDFs; numbers typed from the text layer; no PDF kept in the repository.
+- **Licence**: our transcriptions (numbers only).
+- **Used by**: hydro/rankine/planing_nl.py (E-B8-1 constants), studies/rankine_planing_b8.py (W2A, W2C, W2P, W2Z).
+
+| file | bytes | sha256 |
+|---|---:|---|
+| wedge_entry/README.md | 889 | `9771ddbaa81482891cc0665c65ee79c0412b780aa80138e97a8a3d82fdaa74db` |
+| wedge_entry/zf1993_similarity_wedge.csv | 713 | `0cb67d5410a13b4717806e615756610cd4fb01eee111793c19baa553f45a99bb` |
+| wedge_entry/wedge_pmax_models_2011.10378.csv | 654 | `4f5b44ed123f8a0b006f3afe600c49fda6b97c8062191f6f92e9575dc9c965da` |
+| wedge_entry/wen2022_transition_constants.csv | 1168 | `78ba06cfded2aeeb2ba5d9fb9127a591aad30315a08530af1474386009ae3690` |
+
+## tveitnes_2008/
+- Tveitnes, Fairlie-Clarke, Varyani (2008), "An experimental investigation into the constant velocity water entry of wedge-shaped sections", Ocean Engineering 35. Open-access author version from the University of Strathclyde repository: https://pure.strath.ac.uk/ws/portalfiles/portal/374755/OE-KSV_an_experimental_invest.pdf (fetched 2026-10-09, 2.9 MB, 34 pages). Used for check V5 (post-chine force at cross-plane Froude number 0.3-0.7). Digitised values carry reading error; see studies/_cache/derive/v5_*.

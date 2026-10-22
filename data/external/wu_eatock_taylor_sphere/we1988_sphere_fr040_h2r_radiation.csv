@@ -1,0 +1,22 @@
+# Wu & Eatock Taylor (1988), Proc. R. Soc. Lond. A 417:433-461, "Radiation and diffraction of water waves by a
+# submerged sphere at forward speed": analytical results (exact forward-speed Green function, linear theory),
+# AS TABULATED in the "Analytical results [27]" columns of Mei, Candries, Lataire & Zou (2020), J. Mar. Sci. Eng.
+# 8(2):106 (MDPI, CC BY 4.0), Tables 3 (surge), 5 (heave) and 6 (couplings), PDF pages 13-15 (secondary source;
+# the original is behind a bot challenge, not retrieved). Sphere radius r, centre depth h = 2.0 r,
+# Fr = U/sqrt(g r) = 0.4, deep water; k_e = omega_e^2/g (encounter frequency), critical k_e r = 1/(16 Fr^2) = 0.3906.
+# Non-dimensional: A_ij = a_ij/(pi rho r^3), B_ij = b_ij/(pi rho omega_e r^3) (a, b dimensional), i, j = 1 surge, 3 heave.
+# Transcribed from the PDF text layer (numbers copied, not digitised).
+ker,A11,B11,A33,B33,A13,A31,B13,B31
+0.6,1.2378,0.0362,1.0569,0.1090,-0.0269,0.0269,-0.0985,0.0985
+0.7,1.1615,0.0247,0.9928,0.0862,-0.0075,0.0075,-0.0791,0.0791
+0.8,1.1021,0.0195,0.9449,0.0709,0.0030,-0.0030,-0.0642,0.0642
+0.9,1.0545,0.0169,0.9076,0.0597,0.0089,-0.0089,-0.0527,0.0527
+1.0,1.0154,0.0154,0.8780,0.0511,0.0122,-0.0122,-0.0437,0.0437
+1.5,0.8934,0.0113,0.7912,0.0264,0.0135,-0.0135,-0.0187,0.0187
+2.0,0.8310,0.0079,0.7504,0.0145,0.0095,-0.0095,-0.0093,0.0093
+2.5,0.7941,0.0052,0.7272,0.0083,0.0061,-0.0061,-0.0056,0.0056
+3.0,0.7699,0.0033,0.7123,0.0048,0.0038,-0.0038,-0.0042,0.0042
+3.5,0.7529,0.0021,0.7020,0.0028,0.0023,-0.0023,-0.0036,0.0036
+4.0,0.7403,0.0013,0.6942,0.0017,0.0014,-0.0014,-0.0034,0.0034
+4.5,0.7306,0.0008,0.6882,0.0010,0.0009,-0.0009,-0.0034,0.0034
+5.0,0.7228,0.0005,0.6833,0.0006,0.0006,-0.0006,-0.0033,0.0033

@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "viewer",
+      "runtimeExecutable": ".venv/Scripts/python.exe",
+      "runtimeArgs": ["-m", "http.server", "8765", "--bind", "127.0.0.1"],
+      "port": 8765
+    },
+    {
+      "name": "app",
+      "runtimeExecutable": ".venv/Scripts/python.exe",
+      "runtimeArgs": ["-m", "app", "serve", "--port", "8766", "--udp", "8767"],
+      "port": 8766
+    }
+  ]
+}

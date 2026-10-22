@@ -1,0 +1,10 @@
+# Zhao & Faltinsen (1993) J. Fluid Mech. 246:593-612, similarity solution of constant-velocity wedge entry (original not obtained).
+# SECONDARY transcription: Iafrati & Battistin, arXiv 1212.6699 (v1), "A fully nonlinear iterative solution method for
+# self-similar potential flows with a free boundary", Table 1, PDF page 17, column "ZF" (the "Present" column is their own solver).
+# beta_deg = deadrise; Cp_max = p_max/(0.5 rho V^2); eta_max = height of the pressure peak above the undisturbed level / (V t).
+beta_deg,Cp_max_ZF,eta_max_ZF,Cp_max_IB2012,eta_max_IB2012
+7.5,140.59,0.5623,140.1,0.5601
+10,77.85,0.5556,77.6,0.5538
+20,17.77,0.5087,17.7,0.5079
+30,6.927,0.4243,6.86,0.4217
+40,3.266,0.2866,3.23,0.2946

@@ -1,0 +1,45 @@
+{
+ "reference_position": {
+  "latitude": 1.2605794,
+  "longitude": 103.7516212,
+  "altitude": 0.0
+ },
+ "environment": {
+  "ocean": {
+   "wave_height": 1.0,
+   "wave_period": 5.0,
+   "theta0": 3.141592653589793
+  }
+ },
+ "agents": {
+  "usv0": {
+   "model": "scarab195@as1",
+   "plant": "gz",
+   "heading": 0.0,
+   "waypoint_interface": {
+    "enabled": true,
+    "radius": 25.0,
+    "path_enu": [
+     [
+      3000.0,
+      0.0
+     ]
+    ]
+   },
+   "speed": 10.28888,
+   "policy": {
+    "type": "callable",
+    "target": "app.demo_policies:SpeedHold",
+    "kwargs": {
+     "v_kn": 20.0
+    }
+   }
+  }
+ },
+ "usv": {
+  "duration": 90.0,
+  "seed": 3
+ },
+ "name": "demo_ctrl_const",
+ "description": "head seas, constant 20 kn (speed hold), the reference for demo_ctrl_pred"
+}

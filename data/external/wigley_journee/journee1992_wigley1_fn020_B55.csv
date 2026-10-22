@@ -1,0 +1,9 @@
+# Journee (1992) Wigley I experiments, secondary transcription from vector figure markers (studies/rankine_journee_data.py; sources in data/external/SOURCES.md, wigley_journee/)
+# Fn 0.2, J. Mar. Sci. Eng. 9:87 (2021) Fig. 12/13, markers 'Experiment'; calibration residual x 1.24e-03, y 2.35e-05
+omega_prime,B55_prime,u_value,u_omega
+2.20253,0.05545,0.00032,0.02285
+2.73356,0.05051,0.00032,0.02285
+3.30781,0.04824,0.00032,0.02285
+3.86971,0.04695,0.00032,0.02285
+4.42544,0.04103,0.00032,0.02285
+5.51837,0.03016,0.00032,0.02285

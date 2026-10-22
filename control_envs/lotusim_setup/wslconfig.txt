@@ -1,0 +1,7 @@
+# Copy this file to  %USERPROFILE%\.wslconfig  (no extension) on the Windows host.
+# mirrored networking: ROS 2 discovery works and localhost is shared with Windows.
+# memory/swap: this machine has 16 GB; leave room for Windows. Raise if you have more.
+[wsl2]
+networkingMode=mirrored
+memory=8GB
+swap=8GB

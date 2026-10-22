@@ -3,3 +3,13 @@ studies/_cache/*/
 __pycache__/
 *.pyc
 tmp/
+# generated outputs (reproducible; keep the repository small)
+viewer/demo_shots/
+viewer/*.png
+viewer/proto_blender/*.mp4
+control_envs/_out/
+control_envs/skate_lab/_out/
+app/runs/
+*.log
+# downloaded papers (sources recorded in data/external/SOURCES.md)
+data/external/**/*.pdf

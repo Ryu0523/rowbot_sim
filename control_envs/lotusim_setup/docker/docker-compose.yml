@@ -1,0 +1,59 @@
+# LOTUSim headless + xdyn physics + a Python/ROS 2 client with our Gymnasium env.
+# No Nix anywhere: two prebuilt images from Naval Group plus one small image we
+# build on top of the official ros:jazzy image.
+#
+#   docker compose up -d            start xdyn, lotusim, client
+#   docker compose logs -f lotusim  watch the simulator
+#   docker compose exec client python3 /work/control_envs/lotusim_gym_demo.py --seconds 120
+#   docker compose down             stop everything
+#
+# All three services share ONE network namespace (that of `xdyn`), so
+#   - LOTUSim reaches xdyn at ws://127.0.0.1:12345 (the URI in <lotus_param>)
+#   - ROS 2 discovery between lotusim and client works on loopback
+# and nothing crosses the Docker/Windows network boundary.
+#
+# Tested: NOT YET on this machine (Docker is not installed here); written from
+# the published image documentation. See DOCKER.txt, section "Status".
+
+services:
+  xdyn:
+    image: ghcr.io/naval-group/lxdyn:latest
+    # The image is FROM scratch with the three xdyn binaries in /usr/bin and no shell.
+    entrypoint: ["/usr/bin/xdyn-for-cs"]
+    command: ["/data/models/dtmb_hull/dtmb-xdyn-faster.yml", "--address", "0.0.0.0", "--port", "12345", "--dt", "0.1"]
+    working_dir: /data/models
+    environment:
+      # xdyn resolves a YAML's relative mesh/seabed paths against this (trailing slash matters)
+      XDYN_ASSETS_PATH: /data/models/
+    volumes:
+      - ./assets:/data:ro
+    restart: unless-stopped
+
+  lotusim:
+    image: ghcr.io/naval-group/lotusim:latest
+    # entrypoint is `lotusim`, default command `run` (headless server on lotusim.world)
+    command: ["run"]
+    network_mode: "service:xdyn"
+    environment:
+      HOME: /tmp
+      FASTDDS_BUILTIN_TRANSPORTS: UDPv4
+      ROS_DOMAIN_ID: "0"
+    depends_on:
+      - xdyn
+    restart: unless-stopped
+
+  client:
+    build:
+      context: ..            # control_envs/lotusim_setup
+      dockerfile: docker/Dockerfile.client
+    network_mode: "service:xdyn"
+    environment:
+      FASTDDS_BUILTIN_TRANSPORTS: UDPv4
+      ROS_DOMAIN_ID: "0"
+    volumes:
+      # the repository, so edits on the host are seen inside the container
+      - ../../..:/work
+    working_dir: /work
+    command: ["sleep", "infinity"]
+    depends_on:
+      - lotusim

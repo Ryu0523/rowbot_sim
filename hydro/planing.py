@@ -86,6 +86,10 @@ class PlaningHull:
     kind = "planing"
     propulsor = "waterjet"
     mesh_kind = "strips"            # listed by `python -m hydro.hulls`
+    # The version of the plant's physics (sim/physics.py). A class default,
+    # so a plain hull carries no new field; hydro.hulls.get("NAME@as1") sets
+    # it on its own copy together with the name -- the only selector.
+    physics = "v0"
 
     FIELDS = dict(
         L="hull length along the keel, transom to stem, m",
@@ -136,9 +140,12 @@ class PlaningHull:
                     t_ref=np.sqrt(self.L / G))
 
     def plant(self, sea, db=None, dt=None, **kw):
-        from sim.planing_vessel import PlaningVessel
-        return PlaningVessel(self, sea, dt=self.scales()["dt"] if dt is None
-                             else dt, **kw)
+        # the class of this hull's physics version: sim/planing_vessel.
+        # PlaningVessel unless the hull's key names another (sim/physics.py,
+        # which also refuses the as plants' test keyword for a v0 hull)
+        from sim import physics
+        return physics.build(
+            self, sea, dt=self.scales()["dt"] if dt is None else dt, **kw)
 
     def placeholders(self):
         out = [(k, v) for k, v in self.FIELDS.items() if k not in self._given]

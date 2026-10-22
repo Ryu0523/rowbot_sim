@@ -1,0 +1,17 @@
+{
+ "name": "demo_planing_b_as1",
+ "description": "planing_b (hydro/hulls.py: 6.6 m, deadrise 16 deg, narrowed transom, raised forefoot) on the any-speed plant -- the hull v0 cannot honour, so it runs only as planing_b@as1; the course and sea of demo_scarab195_as1, scripted throttle with line-of-sight heading",
+ "reference_position": {"latitude": 1.2605794, "longitude": 103.7516212, "altitude": 0.0},
+ "environment": {"ocean": {"wave_height": 1.0, "wave_period": 5.0, "wave_direction": 90.0}},
+ "agents": {
+  "usv0": {
+   "model": "planing_b@as1",
+   "plant": "gz",
+   "heading": 0.0,
+   "waypoint_interface": {"enabled": true, "radius": 25.0,
+                          "path_enu": [[350.0, 0.0], [600.0, 250.0], [600.0, 550.0]]},
+   "policy": {"type": "scripted", "throttle": [[0, 0.7], [10, 0.85]], "heading": "track"}
+  }
+ },
+ "usv": {"duration": 120.0, "seed": 3}
+}

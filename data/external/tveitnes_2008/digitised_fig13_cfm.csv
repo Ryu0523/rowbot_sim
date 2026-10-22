@@ -1,0 +1,15 @@
+# Tveitnes, Fairlie-Clarke & Varyani (2008) Ocean Eng. 35:1463-1478, author PDF (Strathclyde), vector charts read from the PDF drawing paths
+# Fig. 13 (p. 1473): flow-momentum drag coefficient Cfm, F_fm = Cfm (rho/2) L (2 y_w) v^2, y_w = B/2 after chine wetting (so Cfm = f/(rho c V^2)).
+# series 'experiment' = diamonds (one value per deadrise, fitted by the authors to the asymptote of the entry force; no velocity dependence resolved), 'CFD_...' = crosses.
+# Reading accuracy: +-0.01 in Cfm.
+series,beta_deg,Cfm
+experiment,5,0.7736
+experiment,10,0.6815
+experiment,15,0.6025
+experiment,30,0.4788
+experiment,45,0.4182
+CFD_FairlieClarke_Tveitnes_2008,5,2.8448
+CFD_FairlieClarke_Tveitnes_2008,10,2.1491
+CFD_FairlieClarke_Tveitnes_2008,15,1.7934
+CFD_FairlieClarke_Tveitnes_2008,30,1.2060
+CFD_FairlieClarke_Tveitnes_2008,45,0.6966

@@ -1,0 +1,8 @@
+{
+ "name": "eval_head_seas",
+ "description": "the final evaluation's mission geometry (learn/repro/task.py turned-track form): waves travelling toward pi (from the east), straight track heading 0 (head seas), sea state 3; m0 / learned rows run here",
+ "environment": {"ocean": {"wave_height": 1.0, "wave_period": 5.0, "theta0": 3.141592653589793}},
+ "agents": {"usv0": {"model": "scarab195", "plant": "gz", "heading_rad": 0.0,
+                     "policy": {"type": "m0"}}},
+ "usv": {"duration": 115.2, "seed": 0, "safe_mode": true}
+}

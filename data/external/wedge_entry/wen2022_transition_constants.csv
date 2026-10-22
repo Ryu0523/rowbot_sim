@@ -1,0 +1,21 @@
+# Wen, Liu, Del Buono, Qu & Iafrati (2022) "Formulations of hydrodynamic force in the transition stage of the water entry of
+# linear wedges with constant and varying speeds", J. Fluids Struct. (arXiv 2201.00959v1, read 2026-10-07).
+# Constant-speed force, half model: F = 0.5 rho U^2 l Cs0 (eq. 23); Cs0* = (Cs0 - Cs_inf)/(Cs_max - Cs_inf) (eq. 17);
+# h* = (h - h2)/h2 * cot(beta)^lambda (eq. 16); Cs0* = (a1 h* + a0)/(h*^2 + b1 h* + b0) for h* > 0.067, = 1 for 0 <= h* <= 0.067 (eqs 19, 22);
+# k1 = h2/h0 (h0 = l tan beta) = 2/pi for beta <= 30 deg (p. 24), fit k1 = c2 beta^2 + c1 beta + c0 (beta in rad, 15-45 deg);
+# k2 = dCs0/d(h/h0) = (d2 beta^2 + d1 beta + d0) cot(beta) (fit error 1.91 %, = B2 tan(beta) of the similarity solution, p. 24);
+# Cs_max = k1 k2; Cs_inf from the steady supercavitating flow, appendix 7.1 eqs 29-36 (formulas, no numbers); xi: transition added-mass increase (eq. 24).
+name,value,equation,page
+lambda,1.3075,16-18,22
+a1,1.539,19,23
+a0,2.618,19,23
+b1,8.081,19,23
+b0,2.169,19,23
+hstar_cap,0.067,22,24
+k1_c2,0.2027,fit,24
+k1_c1,-0.1295,fit,24
+k1_c0,0.655,fit,24
+k2_d2,1.585,fit,24
+k2_d1,-6.856,fit,24
+k2_d0,7.764,fit,24
+xi,0.2713,24,31

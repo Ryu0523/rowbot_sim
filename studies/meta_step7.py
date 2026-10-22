@@ -419,7 +419,8 @@ def phase_train_a(args):
 
 
 def _train_var(args, variant):
-    if _have_ckpt(args, f"model_{variant}.pt"):
+    name = f"model_{variant}{args.ckpt_suffix}.pt"
+    if _have_ckpt(args, name):
         return
     import torch
 
@@ -434,18 +435,27 @@ def _train_var(args, variant):
     log(f"train_{variant} on {dev}: {D.n} episodes, {MP.N_WX} wave columns, "
         f"stats from {'model3.pt' if stats is not None else 'the data'}, "
         f"trained context {ctx} tokens")
+    if args.arch:
+        log(f"  network size {args.arch} (default d 192, layers 6, heads 6)")
+    if args.seed:
+        log(f"  seed {args.seed} (default 0)")
     net = MP.train_p(D, variant, steps=_steps(args), log=log,
-                     resume=os.path.join(CACHE,
-                                         f"resume_model_{variant}.pt"))
+                     resume=os.path.join(
+                         CACHE, f"resume_model_{variant}{args.ckpt_suffix}"
+                         ".pt"), arch=args.arch or None, seed=args.seed)
     conv = dict(P_NOROLL=MP.P_NOROLL, P_NOPREV=MP.P_NOPREV,
                 HP_MAX=MP.HP_MAX, J0_MAX=MP.J0_MAX, P_LAM0=MP.P_LAM0,
                 LAM_RANGE=MP.LAM_RANGE, MSD_RANGE=MP.MSD_RANGE,
                 moment="uniform over the window, loss to m + J0_MAX")
-    _save_ckpt(dict(net=net.state_dict(), stats=D.stats, variant=variant,
-                    n_wx=MP.N_WX, fc=dict(MP.FC), conv=conv, ctx=ctx,
-                    prior_family=args.family),
-               os.path.join(CACHE, f"model_{variant}.pt"))
-    log(f"saved model_{variant}.pt")
+    ck = dict(net=net.state_dict(), stats=D.stats, variant=variant,
+              n_wx=MP.N_WX, fc=dict(MP.FC), conv=conv, ctx=ctx,
+              prior_family=args.family)
+    if args.arch:
+        ck["arch"] = dict(args.arch)
+    if args.seed:
+        ck["seed"] = args.seed
+    _save_ckpt(ck, os.path.join(CACHE, name))
+    log(f"saved {name}")
 
 
 def phase_train_w(args):
@@ -481,7 +491,22 @@ def main():
                     help="override a split size, e.g. --size train=20000")
     ap.add_argument("--steps", type=int, default=None,
                     help="training steps (default 40000; smoke 300)")
+    ap.add_argument("--arch", default="",
+                    help="train_w / train_p network size, e.g. d=384 or "
+                         "d=192,layers=12 (default: model3.Net's)")
+    ap.add_argument("--ckpt-suffix", default="",
+                    help="train_w / train_p: save model_<v><suffix>.pt "
+                         "(and its resume file), e.g. _d384")
+    ap.add_argument("--seed", type=int, default=0,
+                    help="train_w / train_p: training seed (initial weights, "
+                         "batches and the validation pool; default 0), "
+                         "to measure run-to-run spread")
     args = ap.parse_args()
+    args.arch = {k: int(v) for k, v in
+                 (kv.split("=") for kv in args.arch.split(",") if kv)}
+    if (args.arch or args.seed) and not args.ckpt_suffix:
+        raise SystemExit("--arch / --seed need --ckpt-suffix (keep "
+                         "model_p.pt)")
     name = args.cache_name or DEFAULT_CACHE[args.family]
     if not name.startswith("meta7"):
         raise SystemExit("the catalogue family lives in caches named meta7*")
