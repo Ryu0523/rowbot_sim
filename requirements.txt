@@ -10,3 +10,17 @@ capytaine>=3.0
 # Only needed for the Gymnasium wrapper in sim/env.py (USVEnv).
 # Every study and gate runs without it.
 # gymnasium>=0.29
+
+# Control / learning work since 2026-10 (app/, control_envs/, studies/preview_*,
+# risk_*, bow_camera_*): the Gymnasium interface, PPO, the predictors.
+gymnasium>=1.0
+torch>=2.2
+stable-baselines3>=2.3
+psutil>=5.9
+
+# Only for the videos (control_envs/lotusim_track_video.py, demo_video_assemble.py):
+# a bundled ffmpeg so matplotlib / the assembly can write MP4 anywhere.
+imageio-ffmpeg>=0.5
+
+# Only for control_envs/skate_lab/watch.py (the skateboard viewer window).
+pygame-ce>=2.5
